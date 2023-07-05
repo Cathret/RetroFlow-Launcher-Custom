@@ -2,19 +2,19 @@
 -- Based on HexFlow Launcher  version 0.5 by VitaHEX
 -- https://www.patreon.com/vitahex
 
-local Threads = require("addons/threads")
+local Threads   = require("addons/threads")
+local RetroLoca = require("modules/retroloca")
 
--- dofile("app0:modules/retrodir")      -- RetroDir
--- dofile("app0:modules/retrorender")   -- RetroRender
--- dofile("app0:modules/retroloca")     -- RetroLoca
--- dofile("app0:modules/retrosettings") -- RetroSettings
--- dofile("app0:modules/retroscan")     -- RetroScan
+-- local RetroDir = require("modules/retrodir")
+-- local RetroRender = require("modules/retrorender")
+-- local RetroSettings = require("modules/retrosettings")
+-- local RetroScan = require("modules/retroscan")
 
-local oneLoopTimer = Timer.new()
+oneLoopTimer = Timer.new()
 
 -- dofile("app0:addons/threads.lua")
-local working_dir = "ux0:/app"
-local appversion = "6.1.1"
+working_dir = "ux0:/app"
+appversion = "6.1.1"
 function System.currentDirectory(dir)
     if dir == nil then
         return working_dir
@@ -1320,6 +1320,8 @@ function SaveSettings()
     end
 end
 
+----------------------------------------
+-- CHECK IF CONFIG FILE ALREADY EXIST --
 if System.doesFileExist(cur_dir .. "/config.dat") then
     local file_config = System.openFile(cur_dir .. "/config.dat", FREAD)
     local filesize = System.sizeFile(file_config)
@@ -1370,36 +1372,14 @@ if System.doesFileExist(cur_dir .. "/config.dat") then
         startCategory_collection = str_minus_preceding_setting:gsub("Startup_Collection=", ""):gsub(" /n..+", "")
     end
 
-
+-- ELSE IF CONFIG DOESN'T EXIST, LOAD LANGUAGE FROM VITA --
 else
-
-    -- Get language number from Vita OS and to translation file number
-    if      System.getLanguage() == 0  then setLanguage = 9  -- Japanese
-    elseif  System.getLanguage() == 1  then setLanguage = 1  -- English (United States)
-    elseif  System.getLanguage() == 2  then setLanguage = 3  -- French
-    elseif  System.getLanguage() == 3  then setLanguage = 5  -- Spanish
-    elseif  System.getLanguage() == 4  then setLanguage = 2  -- German
-    elseif  System.getLanguage() == 5  then setLanguage = 4  -- Italian
-    elseif  System.getLanguage() == 6  then setLanguage = 12 -- Dutch
-    elseif  System.getLanguage() == 7  then setLanguage = 6  -- Portuguese (Portugal)
-    elseif  System.getLanguage() == 8  then setLanguage = 8  -- Russian
-    elseif  System.getLanguage() == 9  then setLanguage = 17 -- Korean
-    elseif  System.getLanguage() == 10 then setLanguage = 10 -- Chinese (Traditional)
-    elseif  System.getLanguage() == 11 then setLanguage = 18 -- Chinese (Simplified)
-    elseif  System.getLanguage() == 12 then setLanguage = 15 -- Finnish
-    elseif  System.getLanguage() == 13 then setLanguage = 7  -- Swedish
-    elseif  System.getLanguage() == 14 then setLanguage = 13 -- Danish
-    elseif  System.getLanguage() == 15 then setLanguage = 14 -- Norwegian
-    elseif  System.getLanguage() == 16 then setLanguage = 11 -- Polski
-    elseif  System.getLanguage() == 17 then setLanguage = 21 -- Portuguese (Brasil)
-    elseif  System.getLanguage() == 18 then setLanguage = 0  -- English (United Kingdom)
-    elseif  System.getLanguage() == 19 then setLanguage = 16 -- Turkish
-    elseif  System.getLanguage() == 20 then setLanguage = 5  -- Spanish (Latin America)
-    else setLanguage = 0
-    end
-
+    RetroLoca.initLanguageFromVita()
+    setLanguage = RetroLoca.getLanguageId()
     SaveSettings()
 end
+-- \CHECK IF CONFIG FILE ALREADY EXIST --
+-----------------------------------------
 
 -- Legacy fix - Languages got added bit by bit and were out of logical order.
     --These two lookups allow the menu to be reordered without affecting people's config files
