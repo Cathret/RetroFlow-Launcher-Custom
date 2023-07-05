@@ -2,9 +2,17 @@
 -- Based on HexFlow Launcher  version 0.5 by VitaHEX
 -- https://www.patreon.com/vitahex
 
+local Threads = require("addons/threads")
+
+-- dofile("app0:modules/retrodir")      -- RetroDir
+-- dofile("app0:modules/retrorender")   -- RetroRender
+-- dofile("app0:modules/retroloca")     -- RetroLoca
+-- dofile("app0:modules/retrosettings") -- RetroSettings
+-- dofile("app0:modules/retroscan")     -- RetroScan
+
 local oneLoopTimer = Timer.new()
 
-dofile("app0:addons/threads.lua")
+-- dofile("app0:addons/threads.lua")
 local working_dir = "ux0:/app"
 local appversion = "6.1.1"
 function System.currentDirectory(dir)

@@ -1,4 +1,4 @@
-Threads = {}
+local Threads = {}
 
 local Queue = {}
 local Task = nil
@@ -126,3 +126,5 @@ end
 function Threads.check(UniqueKey)
     return uniques[UniqueKey] ~= nil
 end
+
+return Threads
