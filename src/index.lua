@@ -3,7 +3,7 @@
 -- https://www.patreon.com/vitahex
 
 local Threads   = require("addons/threads")
-local RetroLoca = require("modules/RetroLoca")
+local RetroText = require("modules/RetroText")
 
 -- local RetroDir = require("modules/retrodir")
 -- local RetroRender = require("modules/retrorender")
@@ -1374,7 +1374,8 @@ if System.doesFileExist(cur_dir .. "/config.dat") then
 
 -- ELSE IF CONFIG DOESN'T EXIST, LOAD LANGUAGE FROM VITA --
 else
-    setLanguage = RetroLoca.getLanguageFromVita()
+    -- If we didn't force language from settings, Vita language should already been set
+    setLanguage = RetroText:getLanguageId()
     SaveSettings()
 end
 -- \CHECK IF CONFIG FILE ALREADY EXIST --
@@ -1620,7 +1621,7 @@ end
 
 local lang_lines = {}
 
--- TODO: remove and use RetroLoca
+-- TODO: remove and use RetroText
 function ChangeFont(new_font)
     if fontname ~= (new_font) then 
 
@@ -1711,7 +1712,7 @@ else
     end
 end
 
--- TODO change and use RetroLoca
+-- TODO change and use RetroText
 function ChangeLanguage(def)
 
     setLanguage = (def)
@@ -1721,9 +1722,9 @@ function ChangeLanguage(def)
         end
     end
     
-    RetroLoca:loadLanguageWithId(setLanguage)
-    ChangeFont(RetroLoca.loadedFontName)
-    lang_lines = RetroLoca.langLines
+    RetroText:changeTextForLanguageId(setLanguage)
+    ChangeFont(RetroText.getLoadedFontName())
+    lang_lines = RetroText.getLoadedLangLines()
 
     if setLanguage == 2 or setLanguage == 3 or setLanguage == 6 or setLanguage == 8 or setLanguage == 9 or setLanguage == 12 or setLanguage == 16 or setLanguage == 19 or setLanguage == 21 then
     -- German, French, Portugeuse, Russian, Japanese, Turkish, Dutch, Japanese (Ryukyuan) language fix, Portuguese (Brasil)
