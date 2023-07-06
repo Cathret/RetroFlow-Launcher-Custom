@@ -12,7 +12,6 @@ local RetroText = require("modules/RetroText")
 
 oneLoopTimer = Timer.new()
 
--- dofile("app0:addons/threads.lua")
 working_dir = "ux0:/app"
 appversion = "6.1.1"
 function System.currentDirectory(dir)
@@ -1030,13 +1029,9 @@ local modCoverMiddleNoref = Render.loadObject("app0:/DATA/covermiddle_noreflix.o
 local img_path = ""
 
 fontname = "font-SawarabiGothic-Regular.woff"
-fnt20 = Font.load("app0:/DATA/" .. fontname)
 fnt22 = Font.load("app0:/DATA/" .. fontname)
-fnt25 = Font.load("app0:/DATA/" .. fontname)
 
-Font.setPixelSizes(fnt20, 20)
 Font.setPixelSizes(fnt22, 22)
-Font.setPixelSizes(fnt25, 25)
 
 -- Escape magic characters
 function escape_pattern(text)
@@ -1630,14 +1625,9 @@ function ChangeFont(new_font)
 
         -- Load Standard font
         fontname = (new_font) 
-        fnt20 = Font.load("app0:/DATA/" .. (new_font))
         fnt22 = Font.load("app0:/DATA/" .. (new_font))
-        fnt25 = Font.load("app0:/DATA/" .. (new_font))
 
-        Font.setPixelSizes(fnt20, 20)
         Font.setPixelSizes(fnt22, 22)
-        Font.setPixelSizes(fnt25, 25)
-
     end
 end
 
@@ -1862,14 +1852,6 @@ end
         else
         end
     end
-
-
-function PrintCentered(font, x, y, text, color, size)
-    text = text:gsub("\n","")
-    local width = Font.getTextWidth(font,text)
-    Font.print(font, x - width / 2, y, text, color)
-end
-
 
 function FreeMemory()
     if setMusic == 1 then
@@ -3055,7 +3037,7 @@ function update_loading_screen_progress()
         loading_percent_width = loading_bar_width
     end
 
-    PrintCentered(fnt20, 480, 445, lang_lines.Scanning_games_ellipsis, white, 20) -- Scanning games...
+    RetroText.printSmallCentered(480, 445, "Scanning_games_ellipsis", white) -- Scanning games...
 
     -- Progress bar background
     Graphics.fillRect(330, 630, 490, 496, loading_bar_bg)
@@ -3080,7 +3062,7 @@ function update_loading_screen_complete()
     local loading_percent = (loading_progress / loading_tasks) * 100
     local loading_percent_width = (loading_bar_width / 100) * loading_percent
 
-    PrintCentered(fnt20, 480, 445, lang_lines.Scan_complete, white, 20) -- Scan complete 
+    RetroText.printSmallCentered(480, 445, "Scan_complete", white) -- Scan complete 
 
     -- Progress bar background
     Graphics.fillRect(330, 630, 490, 496, loading_bar_bg)
@@ -9244,12 +9226,12 @@ function drawCategory (def)
         
     if showView ~= 2 then
         if showView >= 5 then
-            -- Font.print(fnt20, fv_left_margin - fv_border, fv_cover_height + fv_cover_y + 60, p .. lang_lines.of .. #(def), white_opaque)
+            -- RetroText.printSmall(fv_left_margin - fv_border, fv_cover_height + fv_cover_y + 60, p .. lang_lines.of .. #(def), white_opaque)
             if showView == 6 then
-                Font.print(fnt20, 32, 508, p .. lang_lines.of .. #(def), white)-- Draw total items
+                RetroText.printNonLocaSmall(32, 508, p .. RetroText.getTextForLocalizedString("of") .. #(def), white)-- Draw total items
             end
         else
-            PrintCentered(fnt20, 480, 462, p .. lang_lines.of .. #(def), white, 20)-- Draw total items
+            RetroText.printNonLocaSmallCentered(480, 462, p .. RetroText.getTextForLocalizedString("of") .. #(def), white)-- Draw total items
         end
     end
 end
@@ -9752,21 +9734,21 @@ while true do
 
         -- Header
         h, m, s = System.getTime()
-        Font.print(fnt20, 726 + pstv_offset, 34, string.format("%02d:%02d", h, m), white)-- Draw time
+        RetroText.printNonLocaSmall(726 + pstv_offset, 34, string.format("%02d:%02d", h, m), white)-- Draw time
 
         if pstv == false then
             life = System.getBatteryPercentage()
-            Font.print(fnt20, 830, 34, life .. "%", white)-- Draw battery
+            RetroText.printNonLocaSmall(830, 34, life .. "%", white)-- Draw battery
             Graphics.drawImage(888, 39, imgBattery)
             Graphics.fillRect(891, 891 + (life / 5.2), 43, 51, white)
         end
 
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Launch)
-        label2 = Font.getTextWidth(fnt20, lang_lines.Details)
-        label3 = Font.getTextWidth(fnt20, lang_lines.Category)
-        label4 = Font.getTextWidth(fnt20, lang_lines.View)
+        label1 = RetroText.getSmallTextWidth("Launch")
+        label2 = RetroText.getSmallTextWidth("Details")
+        label3 = RetroText.getSmallTextWidth("Category")
+        label4 = RetroText.getSmallTextWidth("View")
         
         if showCat == 1 then Font.print(fnt22, 32, 34,      lang_lines.PS_Vita, white)
         elseif showCat == 2 then Font.print(fnt22, 32, 34,  lang_lines.Homebrews, white)
@@ -9827,7 +9809,7 @@ while true do
             elseif showView == 6 then
             else
                 Graphics.fillRect(0, 960, 424, 496, black)-- black footer bottom
-                PrintCentered(fnt25, 480, 430, app_title, white, 25)-- Draw title
+                RetroText.printNonLocaLargeCentered(480, 430, app_title, white)-- Draw title
             end
         else
             Graphics.fillRect(0, 960, 496, 544, themeCol)-- footer bottom
@@ -9838,20 +9820,18 @@ while true do
             Graphics.fillRect(900-(btnMargin * 8)-label1-label2-label3-label4+48, 960, 496, 544, themeCol)
         end
 
-        
-
         Graphics.drawImage(900-label1, 510, btnX)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Launch, white)--Launch
+        RetroText.printSmall(900+28-label1, 508, "Launch", white)
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnT)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Details, white)--Details
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Details", white)
 
         Graphics.drawImage(900-(btnMargin * 4)-label1-label2-label3, 510, btnS)
-        Font.print(fnt20, 900+28-(btnMargin * 4)-label1-label2-label3, 508, lang_lines.Category, white)--Category
+        RetroText.printSmall(900+28-(btnMargin * 4)-label1-label2-label3, 508, "Category", white)
 
         if setChangeViews == 1 then
             Graphics.drawImage(900-(btnMargin * 6)-label1-label2-label3-label4, 510, btnO)
-            Font.print(fnt20, 900+28-(btnMargin * 6)-label1-label2-label3-label4, 508, lang_lines.View, white)--View
+            RetroText.printSmall(900+28-(btnMargin * 6)-label1-label2-label3-label4, 508, "View", white)
         end
         
         -- Draw Covers
@@ -9923,19 +9903,19 @@ while true do
         -- PREVIEW
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
-        label3 = Font.getTextWidth(fnt20, lang_lines.Options)--Options
-        -- label4 = Font.getTextWidth(fnt20, lang_lines.Favorite)--Favourite
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
+        label3 = RetroText.getSmallTextWidth("Options")--Options
+        -- label4 = RetroText.getSmallTextWidth("Favorite")--Favourite
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.drawImage(900-(btnMargin * 4)-label1-label2-label3, 510, btnT)
-        Font.print(fnt20, 900+28-(btnMargin * 4)-label1-label2-label3, 508, lang_lines.Options, white)--Options
+        RetroText.printSmall(900+28-(btnMargin * 4)-label1-label2-label3, 508, "Options", white)--Options
         
         if wide_getinfoscreen == true then
             Graphics.fillRect(24, 470+24, 24, 470, darkalpha)
@@ -10533,20 +10513,20 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
-        label3 = Font.getTextWidth(fnt20, lang_lines.Help_and_Guides)--Help and Guides
-        label_lang = Font.getTextWidth(fnt20, lang_lines.Language_colon) + 12 --Language
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
+        label3 = RetroText.getSmallTextWidth("Help_and_Guides")--Help and Guides
+        label_lang = RetroText.getSmallTextWidth("Language_colon") + 12 --Language
 
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.drawImage(900-(btnMargin * 4)-label1-label2-label3, 510, btnT)
-        Font.print(fnt20, 900+28-(btnMargin * 4)-label1-label2-label3, 508, lang_lines.Help_and_Guides, white)--Help and Guides
+        RetroText.printSmall(900+28-(btnMargin * 4)-label1-label2-label3, 508, "Help_and_Guides", white)--Help and Guides
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -10748,14 +10728,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -11068,14 +11048,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -11261,14 +11241,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -11801,14 +11781,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -11932,14 +11912,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -11978,7 +11958,7 @@ while true do
         Font.print(fnt22, setting_x_icon_offset, setting_y6, lang_lines.guide_6_heading, white)--Guide 6
 
         -- Hidden timer        
-        Font.print(fnt20, 10, 508, "Overall load time: " .. (functionTime + oneLoopTime) / 1000 .. " s.  Functions: ".. functionTime / 1000 .. " s.   Main loop: ".. oneLoopTime / 1000 .. " s.", timercolor)
+        RetroText.printNonLocaSmall(10, 508, "Overall load time: " .. (functionTime + oneLoopTime) / 1000 .. " s.  Functions: ".. functionTime / 1000 .. " s.   Main loop: ".. oneLoopTime / 1000 .. " s.", timercolor)
 
 
         
@@ -12053,14 +12033,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -12077,147 +12057,147 @@ while true do
         -- MENU 8 / #1 and 2 Game category and directory
             if getRomDir == 1 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Amiga .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Amiga, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Amiga, white)
                 filebrowser_heading = lang_lines.Amiga
             elseif getRomDir == 2 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_2600 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_2600, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_2600, white)
                 filebrowser_heading = lang_lines.Atari_2600
             elseif getRomDir == 3 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_5200 .."  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_5200, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_5200, white)
                 filebrowser_heading = lang_lines.Atari_5200
             elseif getRomDir == 4 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_7800 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_7800, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_7800, white)
                 filebrowser_heading = lang_lines.Atari_7800
             elseif getRomDir == 5 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_Lynx, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_Lynx, white)
                 filebrowser_heading = lang_lines.Atari_Lynx
             elseif getRomDir == 6 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.ColecoVision .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ColecoVision, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ColecoVision, white)
                 filebrowser_heading = lang_lines.ColecoVision
             elseif getRomDir == 7 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Commodore_64 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Commodore_64, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Commodore_64, white)
                 filebrowser_heading = lang_lines.Commodore_64
             elseif getRomDir == 8 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.FBA_2012 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.FBA_2012, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.FBA_2012, white)
                 filebrowser_heading = lang_lines.FBA_2012
             elseif getRomDir == 9 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Advance, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Advance, white)
                 filebrowser_heading = lang_lines.Game_Boy_Advance
             elseif getRomDir == 10 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Color, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Color, white)
                 filebrowser_heading = lang_lines.Game_Boy_Color
             elseif getRomDir == 11 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Game_Boy .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy, white)
                 filebrowser_heading = lang_lines.Game_Boy
             elseif getRomDir == 12 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MAME_2000 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2000, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2000, white)
                 filebrowser_heading = lang_lines.MAME_2000
             elseif getRomDir == 13 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2003Plus, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2003Plus, white)
                 filebrowser_heading = lang_lines.MAME_2003Plus
             elseif getRomDir == 14 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MSX .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX, white)
                 filebrowser_heading = lang_lines.MSX
             elseif getRomDir == 15 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MSX2 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX2, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX2, white)
                 filebrowser_heading = lang_lines.MSX2
             elseif getRomDir == 16 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo_Pocket_Color, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo_Pocket_Color, white)
                 filebrowser_heading = lang_lines.Neo_Geo_Pocket_Color
             elseif getRomDir == 17 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo, white)
                 filebrowser_heading = lang_lines.Neo_Geo
             elseif getRomDir == 18 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_64, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_64, white)
                 filebrowser_heading = lang_lines.Nintendo_64
             elseif getRomDir == 19 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_Entertainment_System, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_Entertainment_System, white)
                 filebrowser_heading = lang_lines.Nintendo_Entertainment_System
             elseif getRomDir == 20 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine_CD, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine_CD, white)
                 filebrowser_heading = lang_lines.PC_Engine_CD
             elseif getRomDir == 21 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PC_Engine .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine, white)
                 filebrowser_heading = lang_lines.PC_Engine
             elseif getRomDir == 22 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PICO8 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Pico8, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Pico8, white)
                 filebrowser_heading = lang_lines.PICO8   
             elseif getRomDir == 23 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PlayStation .. " (RetroArch)" ..  "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PlayStation, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PlayStation, white)
                 filebrowser_heading = lang_lines.PlayStation .. " (RetroArch)"
             elseif getRomDir == 24 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_32X .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_32X, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_32X, white)
                 filebrowser_heading = lang_lines.Sega_32X
             elseif getRomDir == 25 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_CD .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_CD, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_CD, white)
                 filebrowser_heading = lang_lines.Sega_CD
             elseif getRomDir == 26 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Dreamcast, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Dreamcast, white)
                 filebrowser_heading = lang_lines.Sega_Dreamcast
             elseif getRomDir == 27 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Game_Gear, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Game_Gear, white)
                 filebrowser_heading = lang_lines.Sega_Game_Gear
             elseif getRomDir == 28 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Master_System, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Master_System, white)
                 filebrowser_heading = lang_lines.Sega_Master_System
             elseif getRomDir == 29 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Mega_Drive, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Mega_Drive, white)
                 filebrowser_heading = lang_lines.Sega_Mega_Drive
             elseif getRomDir == 30 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Super_Nintendo, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Super_Nintendo, white)
                 filebrowser_heading = lang_lines.Super_Nintendo
             elseif getRomDir == 31 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_16, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_16, white)
                 filebrowser_heading = lang_lines.TurboGrafx_16
             elseif getRomDir == 32 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_CD, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_CD, white)
                 filebrowser_heading = lang_lines.TurboGrafx_CD
             elseif getRomDir == 33 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Vectrex .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Vectrex, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Vectrex, white)
                 filebrowser_heading = lang_lines.Vectrex
             elseif getRomDir == 34 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan_Color, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan_Color, white)
                 filebrowser_heading = lang_lines.WonderSwan_Color
             elseif getRomDir == 35 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.WonderSwan .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan, white)
                 filebrowser_heading = lang_lines.WonderSwan
             elseif getRomDir == 36 then
                 Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
-                Font.print(fnt20, setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ZX_Spectrum, white)
+                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ZX_Spectrum, white)
                 filebrowser_heading = lang_lines.ZX_Spectrum
             end
 
@@ -12283,21 +12263,21 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Back)--Back
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
-        label3 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
+        label1 = RetroText.getSmallTextWidth("Back")--Back
+        label2 = RetroText.getSmallTextWidth("Select")--Select
+        label3 = RetroText.getSmallTextWidth("Close")--Close
 
         -- Draw footer
         Graphics.fillRect(0, 960, 496, 544, themeCol)-- footer bottom
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Back, white)--Back
+        RetroText.printSmall(900+28-label1, 508, "Back", white)--Back
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.drawImage(900-(btnMargin * 4)-label1-label2-label3, 510, btnT)
-        Font.print(fnt20, 900+28-(btnMargin * 4)-label1-label2-label3, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-(btnMargin * 4)-label1-label2-label3, 508, "Close", white)--Close
 
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)--dark background
@@ -12313,7 +12293,7 @@ while true do
         -- START ROM BROWSER PARTITIONS
 
 
-            Font.print(fnt20, setting_x, setting_y0 + 2, lang_lines.Home, grey_dir) -- Home
+            RetroText.printSmall(setting_x, setting_y0 + 2, "Home", grey_dir) -- Home
             
             -- MENU 9 / #0 ux0 
             if System.doesDirExist("ux0:/") then
@@ -12458,21 +12438,21 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Back)--Back
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
-        label3 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
+        label1 = RetroText.getSmallTextWidth("Back")--Back
+        label2 = RetroText.getSmallTextWidth("Select")--Select
+        label3 = RetroText.getSmallTextWidth("Close")--Close
 
         -- Draw footer
         Graphics.fillRect(0, 960, 496, 544, themeCol)-- footer bottom
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Back, white)--Back
+        RetroText.printSmall(900+28-label1, 508, "Back", white)--Back
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.drawImage(900-(btnMargin * 4)-label1-label2-label3, 510, btnT)
-        Font.print(fnt20, 900+28-(btnMargin * 4)-label1-label2-label3, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-(btnMargin * 4)-label1-label2-label3, 508, "Close", white)--Close
 
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)--dark background
@@ -12485,7 +12465,7 @@ while true do
 
         menuItems = 0
 
-        Font.print(fnt20, setting_x, setting_y0 + 2, lang_lines.Directory_not_found, grey_dir) -- Directory not found
+        RetroText.printSmall(setting_x, setting_y0 + 2, "Directory_not_found", grey_dir) -- Directory not found
         Font.print(fnt22, setting_x, setting_y1, "...", white)--Back
 
 
@@ -12534,9 +12514,9 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Back)--Back
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
-        label3 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
+        label1 = RetroText.getSmallTextWidth("Back")--Back
+        label2 = RetroText.getSmallTextWidth("Select")--Select
+        label3 = RetroText.getSmallTextWidth("Close")--Close
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)--dark background
 
@@ -12551,7 +12531,7 @@ while true do
             -- Reset y axis for menu blending
             local y = setting_y1
             
-            Font.print(fnt20, setting_x, setting_y0 + 2, cur_dir_fm, grey_dir)
+            RetroText.printNonLocaSmall(setting_x, setting_y0 + 2, cur_dir_fm, grey_dir)
 
             -- Write visible menu entries
             for j, file in pairs(scripts) do
@@ -12597,13 +12577,13 @@ while true do
         Graphics.fillRect(0, 960, 496, 544, themeCol)-- footer bottom
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Back, white)--Back
+        RetroText.printSmall(900+28-label1, 508, "Back", white)--Back
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.drawImage(900-(btnMargin * 4)-label1-label2-label3, 510, btnT)
-        Font.print(fnt20, 900+28-(btnMargin * 4)-label1-label2-label3, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-(btnMargin * 4)-label1-label2-label3, 508, "Close", white)--Close
 
 
         menuItems = 0
@@ -12840,14 +12820,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -12985,11 +12965,11 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -13032,11 +13012,11 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -13079,11 +13059,11 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -13127,11 +13107,11 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -13175,11 +13155,11 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -13222,11 +13202,11 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -13271,14 +13251,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -13417,8 +13397,8 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
 
         -- GET MENU ITEM COUNT (Some menus app type specific)
@@ -13500,10 +13480,10 @@ while true do
             Graphics.fillRect(0, 960, 496, 544, themeCol)
 
             Graphics.drawImage(900-label1, 510, btnO)
-            Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
             Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
             
             -- Draw dark overlay
             Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
@@ -13796,8 +13776,8 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
 
         -- GET MENU ITEM COUNT
@@ -13819,10 +13799,10 @@ while true do
             Graphics.fillRect(0, 960, 496, 544, themeCol)
 
             Graphics.drawImage(900-label1, 510, btnO)
-            Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
             Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
             
             -- Draw dark overlay
             Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
@@ -13990,8 +13970,8 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
 
         -- GET MENU ITEM COUNT
@@ -14013,10 +13993,10 @@ while true do
             Graphics.fillRect(0, 960, 496, 544, themeCol)
 
             Graphics.drawImage(900-label1, 510, btnO)
-            Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
             Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
             
             -- Draw dark overlay
             Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
@@ -14168,8 +14148,8 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
 
         -- GET MENU ITEM COUNT
@@ -14191,10 +14171,10 @@ while true do
             Graphics.fillRect(0, 960, 496, 544, themeCol)
 
             Graphics.drawImage(900-label1, 510, btnO)
-            Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
             Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
             
             -- Draw dark overlay
             Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
@@ -14340,14 +14320,14 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
         Graphics.drawImage(900-label1, 510, btnO)
-        Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
         Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-        Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
@@ -14515,8 +14495,8 @@ while true do
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
-        label1 = Font.getTextWidth(fnt20, lang_lines.Close)--Close
-        label2 = Font.getTextWidth(fnt20, lang_lines.Select)--Select
+        label1 = RetroText.getSmallTextWidth("Close")--Close
+        label2 = RetroText.getSmallTextWidth("Select")--Select
 
 
         -- GET MENU ITEM COUNT (Some menus app type specific)
@@ -14538,10 +14518,10 @@ while true do
             Graphics.fillRect(0, 960, 496, 544, themeCol)
 
             Graphics.drawImage(900-label1, 510, btnO)
-            Font.print(fnt20, 900+28-label1, 508, lang_lines.Close, white)--Close
+            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
             Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            Font.print(fnt20, 900+28-(btnMargin * 2)-label1-label2, 508, lang_lines.Select, white)--Select
+            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
             
             -- Draw dark overlay
             Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
