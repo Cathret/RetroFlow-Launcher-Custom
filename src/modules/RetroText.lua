@@ -9,6 +9,11 @@
 --- @field changeTextForLanguageId function Public Self. Change language for new Language ID. Loads Language and associated Font
 ---
 --- @field getTextForLocalizedString function Public Static. Retrieve the Text to be displayed from its Localized String
+--- @field printSmall function Public Static. Print some small-sized Text to the screen from its Localized String
+--- @field printMedium function Public Static. Print some medium-sized Text to the screen from its Localized String
+--- @field printLarge function Public Static. Print some large-sized Text to the screen from its Localized String
+---
+--- @field _print function Private Static. Print some Text to the screen from its Localized String
 ---
 --- @field chosenLanguageId number Language ID of the chosen Language
 ---
@@ -69,6 +74,55 @@ end
 ---
 function RetroText.getTextForLocalizedString(_localizedString)
     return RetroLoca:getLocaTextFromStr(_localizedString)
+end
+
+---
+--- @function Print Small
+--- @description Print a Small-sized Localized String on the screen 
+--- @param _posX number PositionX of the printed text
+--- @param _posY number PositionY of the printed text
+--- @param _localizedString string Localized String of the Text we want to retrieve
+--- @param _color number Color of the printed text
+---
+function RetroText.printSmall(_posX, _posY, _localizedString, _color)
+    RetroText._print(RetroFont.fontIdSmall, _posX, _posY, _localizedString, _color)
+end
+
+---
+--- @function Print Medium
+--- @description Print a Medium-sized Localized String on the screen 
+--- @param _posX number PositionX of the printed text
+--- @param _posY number PositionY of the printed text
+--- @param _localizedString string Localized String of the Text we want to retrieve
+--- @param _color number Color of the printed text
+---
+function RetroText.printMedium(_posX, _posY, _localizedString, _color)
+    RetroText._print(RetroFont.fontIdMedium, _posX, _posY, _localizedString, _color)
+end
+
+---
+--- @function Print Large
+--- @description Print a Large-sized Localized String on the screen 
+--- @param _posX number PositionX of the printed text
+--- @param _posY number PositionY of the printed text
+--- @param _localizedString string Localized String of the Text we want to retrieve
+--- @param _color number Color of the printed text
+---
+function RetroText.printLarge(_posX, _posY, _localizedString, _color)
+    RetroText._print(RetroFont.fontIdLarge, _posX, _posY, _localizedString, _color)
+end
+
+---
+--- @function Print
+--- @description Print a Localized String on the screen 
+--- @param _fontId number ID of the Font to be used
+--- @param _posX number PositionX of the printed text
+--- @param _posY number PositionY of the printed text
+--- @param _localizedString string Localized String of the Text we want to retrieve
+--- @param _color number Color of the printed text
+---
+function RetroText._print(_fontId, _posX, _posY, _localizedString, _color)
+    Font.print(_fontId, _posX, _posY, RetroLoca:getLocaTextFromStr(_localizedString), _color)
 end
 
 -- ON FILE LOAD
