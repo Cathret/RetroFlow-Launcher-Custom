@@ -54,7 +54,7 @@ function RetroFont:changeFont(_newFontName)
 
         self:_loadFont(_newFontName)
 
-        -- Unload old font if some is already loaded -> TODO: why does this cause Crash?
+        -- Unload old font if some is already loaded
         Font.unload(oldFontSmall)
         Font.unload(oldFontMedium)
         Font.unload(oldFontLarge)
