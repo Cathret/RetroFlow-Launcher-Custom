@@ -1272,16 +1272,19 @@ function SaveSettings()
 
         if startCategory >= 45 then
             Collection_CatNum = startCategory - 44
+            -- If it's a built-in Category
             if startCategory_collection_renamed ~= nil then
                 startCategory_collection = startCategory_collection_renamed
-            else
+            elseif collection_files ~= nil and collection_files[Collection_CatNum] ~= nil then 
                 if collection_files[Collection_CatNum].table_name ~= nil then
                     startCategory_collection = collection_files[Collection_CatNum].table_name
                 else
                     startCategory_collection = "not_set"
                 end
-
+            else
+                startCategory_collection = "not_set"
             end
+            -- If it's a custom Collection (check we can access it before)
         else
             startCategory_collection = "not_set"
         end
@@ -10816,7 +10819,12 @@ while true do
         
         elseif startCategory >= 45 then
             Collection_CatNum = startCategory - 44
-            Font.print(fnt22, setting_x_offset, setting_y1, collection_files[Collection_CatNum].display_name, white)--Collections
+
+            if collection_files ~= nil and collection_files[Collection_CatNum] ~= nil then
+                Font.print(fnt22, setting_x_offset, setting_y1, collection_files[Collection_CatNum].display_name, white)--Collections
+            else
+                Font.print(fnt22, setting_x_offset, setting_y1, "!ERROR Collection [" .. Collection_CatNum .. "] with startCategory [" .. startCategory .. "]", white)--Collections
+            end
         end
 
         -- MENU 3 / #2 Show Homebews
@@ -10921,7 +10929,7 @@ while true do
                     if startCategory == 40 then if  #neogeo_table == 0 then startCategory = startCategory + 1 end end
                     if startCategory == 41 then if  #ngpc_table == 0 then startCategory = startCategory + 1 end end
                     if startCategory == 42 then if  #fav_count == 0 then startCategory = startCategory + 1 end end
-                    if startCategory == 44 then startCategory = startCategory + 1 end
+                    if startCategory == 44 then startCategory = 0 end -- TODO: startCategory = startCategory + 1 (crashing), fixed by not using custom collections
                     -- if startCategory == 43 then if #recently_played_table == 0 then startCategory = startCategory + 1 end end
 
   
