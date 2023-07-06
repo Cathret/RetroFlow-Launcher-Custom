@@ -1028,11 +1028,6 @@ local modCoverMiddleNoref = Render.loadObject("app0:/DATA/covermiddle_noreflix.o
 
 local img_path = ""
 
-fontname = "font-SawarabiGothic-Regular.woff"
-fnt22 = Font.load("app0:/DATA/" .. fontname)
-
-Font.setPixelSizes(fnt22, 22)
-
 -- Escape magic characters
 function escape_pattern(text)
     return text:gsub("([^%w])", "%%%1")
@@ -1619,19 +1614,6 @@ end
 
 local lang_lines = {}
 
--- TODO: remove and use RetroText
-function ChangeFont(new_font)
-    if fontname ~= (new_font) then 
-
-        -- Load Standard font
-        fontname = (new_font) 
-        fnt22 = Font.load("app0:/DATA/" .. (new_font))
-
-        Font.setPixelSizes(fnt22, 22)
-    end
-end
-
-
 function TableConcat(t1, t2)
     for i = 1, #t2 do
         t1[#t1 + 1] = t2[i]
@@ -1716,7 +1698,6 @@ function ChangeLanguage(def)
     end
     
     RetroText:changeTextForLanguageId(setLanguage)
-    ChangeFont(RetroText.getLoadedFontName())
     lang_lines = RetroText.getLoadedLangLines()
 
     if setLanguage == 2 or setLanguage == 3 or setLanguage == 6 or setLanguage == 8 or setLanguage == 9 or setLanguage == 12 or setLanguage == 16 or setLanguage == 19 or setLanguage == 21 then
@@ -9143,7 +9124,7 @@ function drawCategory (def)
                         apptitle_trimmed = file.apptitle
                     end
 
-                Font.print(fnt22, x_listview, y, apptitle_trimmed, color)
+                RetroText.printNonLocaMedium(x_listview, y, apptitle_trimmed, color)
                 y = y + 49
             end
 
@@ -9750,53 +9731,53 @@ while true do
         label3 = RetroText.getSmallTextWidth("Category")
         label4 = RetroText.getSmallTextWidth("View")
         
-        if showCat == 1 then Font.print(fnt22, 32, 34,      lang_lines.PS_Vita, white)
-        elseif showCat == 2 then Font.print(fnt22, 32, 34,  lang_lines.Homebrews, white)
-        elseif showCat == 3 then Font.print(fnt22, 32, 34,  lang_lines.PSP, white)
-        elseif showCat == 4 then Font.print(fnt22, 32, 34,  lang_lines.PlayStation, white)
-        elseif showCat == 5 then Font.print(fnt22, 32, 34,  lang_lines.Playstation_Mobile, white)
-        elseif showCat == 6 then Font.print(fnt22, 32, 34,  lang_lines.Nintendo_64, white)
-        elseif showCat == 7 then Font.print(fnt22, 32, 34,  lang_lines.Super_Nintendo, white)
-        elseif showCat == 8 then Font.print(fnt22, 32, 34,  lang_lines.Nintendo_Entertainment_System, white)
-        elseif showCat == 9 then Font.print(fnt22, 32, 34,  lang_lines.Game_Boy_Advance, white)
-        elseif showCat == 10 then Font.print(fnt22, 32, 34, lang_lines.Game_Boy_Color, white)
-        elseif showCat == 11 then Font.print(fnt22, 32, 34, lang_lines.Game_Boy, white)
-        elseif showCat == 12 then Font.print(fnt22, 32, 34, lang_lines.Sega_Dreamcast, white)
-        elseif showCat == 13 then Font.print(fnt22, 32, 34, lang_lines.Sega_CD, white)
-        elseif showCat == 14 then Font.print(fnt22, 32, 34, lang_lines.Sega_32X, white)
-        elseif showCat == 15 then Font.print(fnt22, 32, 34, lang_lines.Sega_Mega_Drive, white)
-        elseif showCat == 16 then Font.print(fnt22, 32, 34, lang_lines.Sega_Master_System, white)
-        elseif showCat == 17 then Font.print(fnt22, 32, 34, lang_lines.Sega_Game_Gear, white)        
-        elseif showCat == 18 then Font.print(fnt22, 32, 34, lang_lines.TurboGrafx_16, white)
-        elseif showCat == 19 then Font.print(fnt22, 32, 34, lang_lines.TurboGrafx_CD, white)
-        elseif showCat == 20 then Font.print(fnt22, 32, 34, lang_lines.PC_Engine, white)
-        elseif showCat == 21 then Font.print(fnt22, 32, 34, lang_lines.PC_Engine_CD, white)
-        elseif showCat == 22 then Font.print(fnt22, 32, 34, lang_lines.Amiga, white)
-        elseif showCat == 23 then Font.print(fnt22, 32, 34, lang_lines.ScummVM, white)
-        elseif showCat == 24 then Font.print(fnt22, 32, 34, lang_lines.Commodore_64, white)
-        elseif showCat == 25 then Font.print(fnt22, 32, 34, lang_lines.WonderSwan_Color, white)
-        elseif showCat == 26 then Font.print(fnt22, 32, 34, lang_lines.WonderSwan, white)
-        elseif showCat == 27 then Font.print(fnt22, 32, 34, lang_lines.PICO8, white)
-        elseif showCat == 28 then Font.print(fnt22, 32, 34, lang_lines.MSX2, white)
-        elseif showCat == 29 then Font.print(fnt22, 32, 34, lang_lines.MSX, white)
-        elseif showCat == 30 then Font.print(fnt22, 32, 34, lang_lines.ZX_Spectrum, white)
-        elseif showCat == 31 then Font.print(fnt22, 32, 34, lang_lines.Atari_7800, white)
-        elseif showCat == 32 then Font.print(fnt22, 32, 34, lang_lines.Atari_5200, white)
-        elseif showCat == 33 then Font.print(fnt22, 32, 34, lang_lines.Atari_2600, white)
-        elseif showCat == 34 then Font.print(fnt22, 32, 34, lang_lines.Atari_Lynx, white)
-        elseif showCat == 35 then Font.print(fnt22, 32, 34, lang_lines.ColecoVision, white)
-        elseif showCat == 36 then Font.print(fnt22, 32, 34, lang_lines.Vectrex, white)
-        elseif showCat == 37 then Font.print(fnt22, 32, 34, lang_lines.FBA_2012, white)
-        elseif showCat == 38 then Font.print(fnt22, 32, 34, lang_lines.MAME_2003Plus, white)
-        elseif showCat == 39 then Font.print(fnt22, 32, 34, lang_lines.MAME_2000, white)
-        elseif showCat == 40 then Font.print(fnt22, 32, 34, lang_lines.Neo_Geo, white)
-        elseif showCat == 41 then Font.print(fnt22, 32, 34, lang_lines.Neo_Geo_Pocket_Color, white)
-        elseif showCat == 42 then Font.print(fnt22, 32, 34, lang_lines.Favorites, white)
-        elseif showCat == 43 then Font.print(fnt22, 32, 34, lang_lines.Recently_Played, white)
-        elseif showCat == 44 then Font.print(fnt22, 32, 34, lang_lines.Search_Results, white)
-        elseif showCat >= 45 and showCat <= collection_syscount then Collection_CatNum = showCat - 44 Font.print(fnt22, 32, 34, collection_files[Collection_CatNum].display_name, white)
+        if showCat == 1 then RetroText.printMedium(32, 34,      "PS_Vita", white)
+        elseif showCat == 2 then RetroText.printMedium(32, 34,  "Homebrews", white)
+        elseif showCat == 3 then RetroText.printMedium(32, 34,  "PSP", white)
+        elseif showCat == 4 then RetroText.printMedium(32, 34,  "PlayStation", white)
+        elseif showCat == 5 then RetroText.printMedium(32, 34,  "Playstation_Mobile", white)
+        elseif showCat == 6 then RetroText.printMedium(32, 34,  "Nintendo_64", white)
+        elseif showCat == 7 then RetroText.printMedium(32, 34,  "Super_Nintendo", white)
+        elseif showCat == 8 then RetroText.printMedium(32, 34,  "Nintendo_Entertainment_System", white)
+        elseif showCat == 9 then RetroText.printMedium(32, 34,  "Game_Boy_Advance", white)
+        elseif showCat == 10 then RetroText.printMedium(32, 34, "Game_Boy_Color", white)
+        elseif showCat == 11 then RetroText.printMedium(32, 34, "Game_Boy", white)
+        elseif showCat == 12 then RetroText.printMedium(32, 34, "Sega_Dreamcast", white)
+        elseif showCat == 13 then RetroText.printMedium(32, 34, "Sega_CD", white)
+        elseif showCat == 14 then RetroText.printMedium(32, 34, "Sega_32X", white)
+        elseif showCat == 15 then RetroText.printMedium(32, 34, "Sega_Mega_Drive", white)
+        elseif showCat == 16 then RetroText.printMedium(32, 34, "Sega_Master_System", white)
+        elseif showCat == 17 then RetroText.printMedium(32, 34, "Sega_Game_Gear", white)        
+        elseif showCat == 18 then RetroText.printMedium(32, 34, "TurboGrafx_16", white)
+        elseif showCat == 19 then RetroText.printMedium(32, 34, "TurboGrafx_CD", white)
+        elseif showCat == 20 then RetroText.printMedium(32, 34, "PC_Engine", white)
+        elseif showCat == 21 then RetroText.printMedium(32, 34, "PC_Engine_CD", white)
+        elseif showCat == 22 then RetroText.printMedium(32, 34, "Amiga", white)
+        elseif showCat == 23 then RetroText.printMedium(32, 34, "ScummVM", white)
+        elseif showCat == 24 then RetroText.printMedium(32, 34, "Commodore_64", white)
+        elseif showCat == 25 then RetroText.printMedium(32, 34, "WonderSwan_Color", white)
+        elseif showCat == 26 then RetroText.printMedium(32, 34, "WonderSwan", white)
+        elseif showCat == 27 then RetroText.printMedium(32, 34, "PICO8", white)
+        elseif showCat == 28 then RetroText.printMedium(32, 34, "MSX2", white)
+        elseif showCat == 29 then RetroText.printMedium(32, 34, "MSX", white)
+        elseif showCat == 30 then RetroText.printMedium(32, 34, "ZX_Spectrum", white)
+        elseif showCat == 31 then RetroText.printMedium(32, 34, "Atari_7800", white)
+        elseif showCat == 32 then RetroText.printMedium(32, 34, "Atari_5200", white)
+        elseif showCat == 33 then RetroText.printMedium(32, 34, "Atari_2600", white)
+        elseif showCat == 34 then RetroText.printMedium(32, 34, "Atari_Lynx", white)
+        elseif showCat == 35 then RetroText.printMedium(32, 34, "ColecoVision", white)
+        elseif showCat == 36 then RetroText.printMedium(32, 34, "Vectrex", white)
+        elseif showCat == 37 then RetroText.printMedium(32, 34, "FBA_2012", white)
+        elseif showCat == 38 then RetroText.printMedium(32, 34, "MAME_2003Plus", white)
+        elseif showCat == 39 then RetroText.printMedium(32, 34, "MAME_2000", white)
+        elseif showCat == 40 then RetroText.printMedium(32, 34, "Neo_Geo", white)
+        elseif showCat == 41 then RetroText.printMedium(32, 34, "Neo_Geo_Pocket_Color", white)
+        elseif showCat == 42 then RetroText.printMedium(32, 34, "Favorites", white)
+        elseif showCat == 43 then RetroText.printMedium(32, 34, "Recently_Played", white)
+        elseif showCat == 44 then RetroText.printMedium(32, 34, "Search_Results", white)
+        elseif showCat >= 45 and showCat <= collection_syscount then Collection_CatNum = showCat - 44 RetroText.printNonLocaMedium(32, 34, collection_files[Collection_CatNum].display_name, white)
 
-        else Font.print(fnt22, 32, 34, lang_lines.All, white)
+        else RetroText.printMedium(32, 34, "All", white)
         end
         if Network.isWifiEnabled() then
             Graphics.drawImage(800 + pstv_offset, 35, imgWifi)-- wifi icon
@@ -9805,7 +9786,7 @@ while true do
     
         if showView ~= 2 then
             if showView == 5 then
-                Font.print(fnt22, fv_left_margin - fv_border, fv_cover_height + fv_cover_y + 30, app_title, white)
+                RetroText.printNonLocaMedium(fv_left_margin - fv_border, fv_cover_height + fv_cover_y + 30, app_title, white)
             elseif showView == 6 then
             else
                 Graphics.fillRect(0, 960, 424, 496, black)-- black footer bottom
@@ -9815,7 +9796,7 @@ while true do
             Graphics.fillRect(0, 960, 496, 544, themeCol)-- footer bottom
             
             -- Add gradient to mask out long names so they don't crash into the footer controls 
-            Font.print(fnt22, 24, 506, app_title, white)
+            RetroText.printNonLocaMedium(24, 506, app_title, white)
             Graphics.drawImage(900-(btnMargin * 8)-label1-label2-label3-label4, 496, footer_gradient, themeCol)
             Graphics.fillRect(900-(btnMargin * 8)-label1-label2-label3-label4+48, 960, 496, 544, themeCol)
         end
@@ -10277,7 +10258,7 @@ while true do
             tmpapptype = lang_lines.Homebrew 
         end
     
-        Font.print(fnt22, 50, 190, txtname, white)-- app name
+        RetroText.printNonLocaMedium(50, 190, txtname, white)-- app name
 
 
         -- Show fav icon if game if a favourite
@@ -10309,20 +10290,20 @@ while true do
 
         if apptype == 0 or apptype == 1 or apptype == 2 or apptype == 3 or apptype == 39 then
             if string.match (game_path, "pspemu") or string.match (game_path, "ux0:/app/") or string.match (game_path, "ux0:/psm/") then
-                Font.print(fnt22, 50, 240, tmpapptype .. "\n" .. lang_lines.App_ID_colon .. app_titleid .. "\n" .. lang_lines.Version_colon .. app_version .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
+                RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.App_ID_colon .. app_titleid .. "\n" .. lang_lines.Version_colon .. app_version .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
                 --                                               App ID:                                           Version:                                           Size:
             else
-                Font.print(fnt22, 50, 240, tmpapptype .. "\n" .. lang_lines.Version_colon .. app_version .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
+                RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.Version_colon .. app_version .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
                 --                                               Version:                                           Size:
             end
         elseif apptype == 40 then
-            Font.print(fnt22, 50, 240, tmpapptype .. "\n" .. lang_lines.App_ID_colon .. app_titleid .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
+            RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.App_ID_colon .. app_titleid .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
                 --                                               App ID:                                       Size:
         elseif apptype == 41 then -- Pico8
-            Font.print(fnt22, 50, 240, tmpapptype .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
+            RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
                 --                                           Size:
         else
-            Font.print(fnt22, 50, 240, tmpapptype .. "\n" .. lang_lines.Version_colon .. app_version .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
+            RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.Version_colon .. app_version .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
             --                                               Version:                                           Size:
         end
 
@@ -10398,9 +10379,9 @@ while true do
 
             -- Wrap text for wider languages: German, French, Russian, Portuguese, Dutch, Turkish, Hungarian, Portuguese (Brasil)
             if setLanguage == 2 or setLanguage == 3 or setLanguage == 6 or setLanguage == 8 or setLanguage == 12 or setLanguage == 16 or setLanguage == 20 or setLanguage == 21 then
-                Font.print(fnt22, 50, 352+40, lang_lines.Override_Category_colon.. "\n< " .. tmpcatText .. " >\n( " .. Press_Button_to_apply_Category .. ")", white)
+                RetroText.printNonLocaMedium(50, 352+40, lang_lines.Override_Category_colon.. "\n< " .. tmpcatText .. " >\n( " .. Press_Button_to_apply_Category .. ")", white)
             else
-                Font.print(fnt22, 50, 352+50, lang_lines.Override_Category_colon.. "< " .. tmpcatText .. " >\n( " .. Press_Button_to_apply_Category .. ")", white)
+                RetroText.printNonLocaMedium(50, 352+50, lang_lines.Override_Category_colon.. "< " .. tmpcatText .. " >\n( " .. Press_Button_to_apply_Category .. ")", white)
             end
 
 
@@ -10416,14 +10397,14 @@ while true do
                     Graphics.fillRect(24, 470, 350 + (menuY * 40), 390 + (menuY * 40), themeCol)-- selection
                 end
             end
-            -- Font.print(fnt22, 50, 352+3, "< " .. tmpimageText .. " >", white)
+            -- RetroText.printNonLocaMedium(50, 352+3, "< " .. tmpimageText .. " >", white)
         end
 
         -- Download background - don't show on vita, homebrew or ps mobile or pico8
         if apptype == 0 or apptype == 1 or apptype == 39  or apptype == 41 then
-            Font.print(fnt22, 50, 352+3, tmpimageText, white)
+            RetroText.printNonLocaMedium(50, 352+3, tmpimageText, white)
         else
-            Font.print(fnt22, 50, 352+3, "< " .. tmpimageText .. " >", white)
+            RetroText.printNonLocaMedium(50, 352+3, "< " .. tmpimageText .. " >", white)
         end
         
 
@@ -10530,7 +10511,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Settings, white)--SETTINGS
+        RetroText.printMedium(setting_x, setting_yh, "Settings", white)--SETTINGS
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -10539,42 +10520,42 @@ while true do
         
         -- MENU 2 / #0 Search
         Graphics.drawImage(setting_x_icon, setting_y0, setting_icon_search)
-        Font.print(fnt22, setting_x_icon_offset, setting_y0, lang_lines.Search, white)--Search
+        RetroText.printMedium(setting_x_icon_offset, setting_y0, "Search", white)--Search
         
         -- MENU 2 / #1 Categories
         Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_categories)
-        Font.print(fnt22, setting_x_icon_offset, setting_y1, lang_lines.Categories, white)--Categories
+        RetroText.printMedium(setting_x_icon_offset, setting_y1, "Categories", white)--Categories
 
         -- MENU 2 / #2 Appearance
         Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_theme)
-        Font.print(fnt22, setting_x_icon_offset, setting_y2, lang_lines.Theme, white)--Theme
+        RetroText.printMedium(setting_x_icon_offset, setting_y2, "Theme", white)--Theme
 
         -- MENU 2 / #3 Audio
         Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_sounds)
-        Font.print(fnt22, setting_x_icon_offset, setting_y3, lang_lines.Audio, white)--Audio
+        RetroText.printMedium(setting_x_icon_offset, setting_y3, "Audio", white)--Audio
 
         -- MENU 2 / #4 Artwork
         Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_artwork)
-        Font.print(fnt22, setting_x_icon_offset, setting_y4, lang_lines.Artwork, white)--Artwork
+        RetroText.printMedium(setting_x_icon_offset, setting_y4, "Artwork", white)--Artwork
 
         -- MENU 2 / #5 Scanning
         Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_scanning)
-        Font.print(fnt22, setting_x_icon_offset, setting_y5, lang_lines.Scan_Settings, white)--Scanning
+        RetroText.printMedium(setting_x_icon_offset, setting_y5, "Scan_Settings", white)--Scanning
 
         -- MENU 2 / #6 Other Settings
         Graphics.drawImage(setting_x_icon, setting_y6, setting_icon_other)
-        Font.print(fnt22, setting_x_icon_offset, setting_y6, lang_lines.Other_Settings, white)--Other Settings
+        RetroText.printMedium(setting_x_icon_offset, setting_y6, "Other_Settings", white)--Other Settings
 
         -- MENU 2 / #7 Language
         Graphics.drawImage(setting_x_icon, setting_y7, setting_icon_language)
-        Font.print(fnt22, setting_x_icon_offset, setting_y7, lang_lines.Language_colon, white)--Language
+        RetroText.printMedium(setting_x_icon_offset, setting_y7, "Language_colon", white)--Language
 
         -- MENU 2 / #7 Language 
         if chooseLanguage == 1 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Deutsch", white) -- German
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Deutsch", white) -- German
             
         elseif chooseLanguage == 2 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "English (United Kingdom)", white) -- English (United Kingdom)
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "English (United Kingdom)", white) -- English (United Kingdom)
 
             -- Megadrive, update regional missing cover
             for k, v in pairs(md_table) do
@@ -10590,7 +10571,7 @@ while true do
             end
 
         elseif chooseLanguage == 3 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "English (United States)", white) -- English (United States)
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "English (United States)", white) -- English (United States)
             -- Megadrive, update regional missing cover
             for k, v in pairs(md_table) do
                   if v.icon_path=="app0:/DATA/missing_cover_md.png" then
@@ -10605,33 +10586,33 @@ while true do
             end
 
         elseif chooseLanguage == 4 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Español", white) -- Spanish
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Español", white) -- Spanish
         elseif chooseLanguage == 5 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, " Français", white) -- French
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, " Français", white) -- French
         elseif chooseLanguage == 6 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Italiano", white) -- Italian
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Italiano", white) -- Italian
         elseif chooseLanguage == 7 then
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Magyar", white) -- Hungarian
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Magyar", white) -- Hungarian
         elseif chooseLanguage == 8 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Nederlands", white) -- Dutch
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Nederlands", white) -- Dutch
         elseif chooseLanguage == 9 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Norsk", white) -- Norwegian
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Norsk", white) -- Norwegian
         elseif chooseLanguage == 10 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Polski", white) -- Polish
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Polski", white) -- Polish
         elseif chooseLanguage == 11 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Português (Brasil)", white) -- Portuguese (Brasil)
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Português (Brasil)", white) -- Portuguese (Brasil)
         elseif chooseLanguage == 12 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Português (Portugal)", white) -- Portuguese
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Português (Portugal)", white) -- Portuguese
         elseif chooseLanguage == 13 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Pусский", white) -- Russian
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Pусский", white) -- Russian
         elseif chooseLanguage == 14 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Suomi", white) -- Finnish
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Suomi", white) -- Finnish
         elseif chooseLanguage == 15 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Svenska", white) -- Swedish
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Svenska", white) -- Swedish
         elseif chooseLanguage == 16 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Türkçe", white) -- Turkish
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Türkçe", white) -- Turkish
         elseif chooseLanguage == 17 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "日本語", white) -- Japanese
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "日本語", white) -- Japanese
             -- Dreamcast, update regional missing cover - Japan - Orange logo
             for k, v in pairs(dreamcast_table) do
                   if v.icon_path=="app0:/DATA/missing_cover_dreamcast_eur.png" or v.icon_path=="app0:/DATA/missing_cover_dreamcast_usa.png" then
@@ -10639,15 +10620,15 @@ while true do
                   end
             end
         elseif chooseLanguage == 18 then
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "琉球語派", white) -- Japanese (Ryukyuan) 
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "琉球語派", white) -- Japanese (Ryukyuan) 
         elseif chooseLanguage == 19 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "한국어", white) -- Korean
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "한국어", white) -- Korean
         elseif chooseLanguage == 20 then
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "简体中文", white) -- Chinese (Simplified)
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "简体中文", white) -- Chinese (Simplified)
         elseif chooseLanguage == 21 then 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "繁體中文", white) -- Chinese (Traditional)    
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "繁體中文", white) -- Chinese (Traditional)    
         else 
-            Font.print(fnt22, setting_x_icon_offset + label_lang, setting_y7, "Dansk", white) -- Danish            
+            RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Dansk", white) -- Danish            
         end
 
         
@@ -10739,7 +10720,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Categories, white)--Categories
+        RetroText.printMedium(setting_x, setting_yh, "Categories", white)--Categories
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -10747,104 +10728,104 @@ while true do
         menuItems = 6
 
         -- MENU 3 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- MENU 3 / #1 Startup Category
-        Font.print(fnt22, setting_x, setting_y1, lang_lines.Startup_Category_colon, white)--Startup Category
+        RetroText.printMedium(setting_x, setting_y1, "Startup_Category_colon", white)--Startup Category
 
-        if startCategory == 0 then Font.print(fnt22, setting_x_offset, setting_y1,          lang_lines.All, white)--ALL
-        elseif startCategory == 1 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.PS_Vita, white)--GAMES
-        elseif startCategory == 2 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.Homebrews, white)--HOMEBREWS
-        elseif startCategory == 3 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.PSP, white)--PSP
-        elseif startCategory == 4 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.PlayStation, white)--PSX
-        elseif startCategory == 5 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.Playstation_Mobile, white)--Playstation_Mobile
-        elseif startCategory == 6 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.Nintendo_64, white)--N64
-        elseif startCategory == 7 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.Super_Nintendo, white)--SNES
-        elseif startCategory == 8 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.Nintendo_Entertainment_System, white)--NES
-        elseif startCategory == 9 then Font.print(fnt22, setting_x_offset, setting_y1,      lang_lines.Game_Boy_Advance, white)--GBA
-        elseif startCategory == 10 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Game_Boy_Color, white)--GBC
-        elseif startCategory == 11 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Game_Boy, white)--GB
-        elseif startCategory == 12 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Sega_Dreamcast, white)--Sega_Dreamcast
-        elseif startCategory == 13 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Sega_CD, white)--Sega_CD
-        elseif startCategory == 14 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Sega_32X, white)--Sega_32X
-        elseif startCategory == 15 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Sega_Mega_Drive, white)--MD
-        elseif startCategory == 16 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Sega_Master_System, white)--SMS
-        elseif startCategory == 17 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Sega_Game_Gear, white)--GG
-        elseif startCategory == 18 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.TurboGrafx_16, white)--TG16
-        elseif startCategory == 19 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.TurboGrafx_CD, white)--TGCD
-        elseif startCategory == 20 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.PC_Engine, white)--PCE
-        elseif startCategory == 21 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.PC_Engine_CD, white)--PCECD
-        elseif startCategory == 22 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Amiga, white)--AMIGA
-        elseif startCategory == 23 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.ScummVM, white)--ScummVM
-        elseif startCategory == 24 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Commodore_64, white)--Commodore_64
-        elseif startCategory == 25 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.WonderSwan_Color, white)--WonderSwan_Color
-        elseif startCategory == 26 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.WonderSwan, white)--WonderSwan
-        elseif startCategory == 27 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.PICO8, white)--PICO8
-        elseif startCategory == 28 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.MSX2, white)--MSX2
-        elseif startCategory == 29 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.MSX, white)--MSX
-        elseif startCategory == 30 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.ZX_Spectrum, white)--ZX_Spectrum
-        elseif startCategory == 31 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Atari_7800, white)--Atari_7800
-        elseif startCategory == 32 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Atari_5200, white)--Atari_5200
-        elseif startCategory == 33 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Atari_2600, white)--Atari_2600
-        elseif startCategory == 34 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Atari_Lynx, white)--Atari_Lynx
-        elseif startCategory == 35 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.ColecoVision, white)--ColecoVision
-        elseif startCategory == 36 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Vectrex, white)--Vectrex
-        elseif startCategory == 37 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.FBA_2012, white)--FBA_2012
-        elseif startCategory == 38 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.MAME_2003Plus, white)--MAME_2003Plus
-        elseif startCategory == 39 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.MAME_2000, white)--MAME_2000
-        elseif startCategory == 40 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Neo_Geo, white)--Neo_Geo
-        elseif startCategory == 41 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Neo_Geo_Pocket_Color, white)--Neo_Geo_Pocket_Color
-        elseif startCategory == 42 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Favorites, white)--Favorite
-        elseif startCategory == 43 then Font.print(fnt22, setting_x_offset, setting_y1,     lang_lines.Recently_Played, white)--Recently Played
+        if startCategory == 0 then RetroText.printMedium(setting_x_offset, setting_y1,          "All", white)--ALL
+        elseif startCategory == 1 then RetroText.printMedium(setting_x_offset, setting_y1,      "PS_Vita", white)--GAMES
+        elseif startCategory == 2 then RetroText.printMedium(setting_x_offset, setting_y1,      "Homebrews", white)--HOMEBREWS
+        elseif startCategory == 3 then RetroText.printMedium(setting_x_offset, setting_y1,      "PSP", white)--PSP
+        elseif startCategory == 4 then RetroText.printMedium(setting_x_offset, setting_y1,      "PlayStation", white)--PSX
+        elseif startCategory == 5 then RetroText.printMedium(setting_x_offset, setting_y1,      "Playstation_Mobile", white)--Playstation_Mobile
+        elseif startCategory == 6 then RetroText.printMedium(setting_x_offset, setting_y1,      "Nintendo_64", white)--N64
+        elseif startCategory == 7 then RetroText.printMedium(setting_x_offset, setting_y1,      "Super_Nintendo", white)--SNES
+        elseif startCategory == 8 then RetroText.printMedium(setting_x_offset, setting_y1,      "Nintendo_Entertainment_System", white)--NES
+        elseif startCategory == 9 then RetroText.printMedium(setting_x_offset, setting_y1,      "Game_Boy_Advance", white)--GBA
+        elseif startCategory == 10 then RetroText.printMedium(setting_x_offset, setting_y1,     "Game_Boy_Color", white)--GBC
+        elseif startCategory == 11 then RetroText.printMedium(setting_x_offset, setting_y1,     "Game_Boy", white)--GB
+        elseif startCategory == 12 then RetroText.printMedium(setting_x_offset, setting_y1,     "Sega_Dreamcast", white)--Sega_Dreamcast
+        elseif startCategory == 13 then RetroText.printMedium(setting_x_offset, setting_y1,     "Sega_CD", white)--Sega_CD
+        elseif startCategory == 14 then RetroText.printMedium(setting_x_offset, setting_y1,     "Sega_32X", white)--Sega_32X
+        elseif startCategory == 15 then RetroText.printMedium(setting_x_offset, setting_y1,     "Sega_Mega_Drive", white)--MD
+        elseif startCategory == 16 then RetroText.printMedium(setting_x_offset, setting_y1,     "Sega_Master_System", white)--SMS
+        elseif startCategory == 17 then RetroText.printMedium(setting_x_offset, setting_y1,     "Sega_Game_Gear", white)--GG
+        elseif startCategory == 18 then RetroText.printMedium(setting_x_offset, setting_y1,     "TurboGrafx_16", white)--TG16
+        elseif startCategory == 19 then RetroText.printMedium(setting_x_offset, setting_y1,     "TurboGrafx_CD", white)--TGCD
+        elseif startCategory == 20 then RetroText.printMedium(setting_x_offset, setting_y1,     "PC_Engine", white)--PCE
+        elseif startCategory == 21 then RetroText.printMedium(setting_x_offset, setting_y1,     "PC_Engine_CD", white)--PCECD
+        elseif startCategory == 22 then RetroText.printMedium(setting_x_offset, setting_y1,     "Amiga", white)--AMIGA
+        elseif startCategory == 23 then RetroText.printMedium(setting_x_offset, setting_y1,     "ScummVM", white)--ScummVM
+        elseif startCategory == 24 then RetroText.printMedium(setting_x_offset, setting_y1,     "Commodore_64", white)--Commodore_64
+        elseif startCategory == 25 then RetroText.printMedium(setting_x_offset, setting_y1,     "WonderSwan_Color", white)--WonderSwan_Color
+        elseif startCategory == 26 then RetroText.printMedium(setting_x_offset, setting_y1,     "WonderSwan", white)--WonderSwan
+        elseif startCategory == 27 then RetroText.printMedium(setting_x_offset, setting_y1,     "PICO8", white)--PICO8
+        elseif startCategory == 28 then RetroText.printMedium(setting_x_offset, setting_y1,     "MSX2", white)--MSX2
+        elseif startCategory == 29 then RetroText.printMedium(setting_x_offset, setting_y1,     "MSX", white)--MSX
+        elseif startCategory == 30 then RetroText.printMedium(setting_x_offset, setting_y1,     "ZX_Spectrum", white)--ZX_Spectrum
+        elseif startCategory == 31 then RetroText.printMedium(setting_x_offset, setting_y1,     "Atari_7800", white)--Atari_7800
+        elseif startCategory == 32 then RetroText.printMedium(setting_x_offset, setting_y1,     "Atari_5200", white)--Atari_5200
+        elseif startCategory == 33 then RetroText.printMedium(setting_x_offset, setting_y1,     "Atari_2600", white)--Atari_2600
+        elseif startCategory == 34 then RetroText.printMedium(setting_x_offset, setting_y1,     "Atari_Lynx", white)--Atari_Lynx
+        elseif startCategory == 35 then RetroText.printMedium(setting_x_offset, setting_y1,     "ColecoVision", white)--ColecoVision
+        elseif startCategory == 36 then RetroText.printMedium(setting_x_offset, setting_y1,     "Vectrex", white)--Vectrex
+        elseif startCategory == 37 then RetroText.printMedium(setting_x_offset, setting_y1,     "FBA_2012", white)--FBA_2012
+        elseif startCategory == 38 then RetroText.printMedium(setting_x_offset, setting_y1,     "MAME_2003Plus", white)--MAME_2003Plus
+        elseif startCategory == 39 then RetroText.printMedium(setting_x_offset, setting_y1,     "MAME_2000", white)--MAME_2000
+        elseif startCategory == 40 then RetroText.printMedium(setting_x_offset, setting_y1,     "Neo_Geo", white)--Neo_Geo
+        elseif startCategory == 41 then RetroText.printMedium(setting_x_offset, setting_y1,     "Neo_Geo_Pocket_Color", white)--Neo_Geo_Pocket_Color
+        elseif startCategory == 42 then RetroText.printMedium(setting_x_offset, setting_y1,     "Favorites", white)--Favorite
+        elseif startCategory == 43 then RetroText.printMedium(setting_x_offset, setting_y1,     "Recently_Played", white)--Recently Played
         
         elseif startCategory >= 45 then
             Collection_CatNum = startCategory - 44
 
             if collection_files ~= nil and collection_files[Collection_CatNum] ~= nil then
-                Font.print(fnt22, setting_x_offset, setting_y1, collection_files[Collection_CatNum].display_name, white)--Collections
+                RetroText.printNonLocaMedium(setting_x_offset, setting_y1, collection_files[Collection_CatNum].display_name, white)--Collections
             else
-                Font.print(fnt22, setting_x_offset, setting_y1, "!ERROR Collection [" .. Collection_CatNum .. "] with startCategory [" .. startCategory .. "]", white)--Collections
+                RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "!ERROR Collection [" .. Collection_CatNum .. "] with startCategory [" .. startCategory .. "]", white)--Collections
             end
         end
 
         -- MENU 3 / #2 Show Homebews
-        Font.print(fnt22, setting_x, setting_y2, lang_lines.Homebrews_Category_colon, white)--Show Homebrews
+        RetroText.printMedium(setting_x, setting_y2, "Homebrews_Category_colon", white)--Show Homebrews
         if showHomebrews == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y2, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y2, "Off", white)--OFF
         end
 
         -- MENU 3 / #3 Recently Played
-        Font.print(fnt22, setting_x, setting_y3, lang_lines.Recently_Played_colon, white)--Recently Played
+        RetroText.printMedium(setting_x, setting_y3, "Recently_Played_colon", white)--Recently Played
         if showRecentlyPlayed == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y3, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y3, "Off", white)--OFF
         end
 
         -- MENU 3 / #4 All Category
-        Font.print(fnt22, setting_x, setting_y4, lang_lines.All_Category, white)--All Category
+        RetroText.printMedium(setting_x, setting_y4, "All_Category", white)--All Category
         if showAll == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y4, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y4, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y4, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y4, "Off", white)--OFF
         end
 
         -- MENU 4 / #5 Show hidden games
-        Font.print(fnt22, setting_x, setting_y5, lang_lines.Show_hidden_games_colon, white)--Show hidden games
+        RetroText.printMedium(setting_x, setting_y5, "Show_hidden_games_colon", white)--Show hidden games
         if showHidden == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y5, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y5, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y5, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y5, "Off", white)--OFF
         end
 
         -- MENU 4 / #6 Show collections
-        Font.print(fnt22, setting_x, setting_y6, lang_lines.Show_collections_colon, white)--Show collections
+        RetroText.printMedium(setting_x, setting_y6, "Show_collections_colon", white)--Show collections
         if showCollections == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y6, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y6, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y6, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y6, "Off", white)--OFF
         end
 
         -- MENU 3 - FUNCTIONS
@@ -11059,7 +11040,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Theme, white)--Theme
+        RetroText.printMedium(setting_x, setting_yh, "Theme", white)--Theme
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -11068,77 +11049,77 @@ while true do
         menuItems = 6
 
         -- MENU 4 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- MENU 4 / #1 Theme Color
-        Font.print(fnt22, setting_x, setting_y1,  lang_lines.Theme_Color_colon, white)
+        RetroText.printMedium(setting_x, setting_y1,  "Theme_Color_colon", white)
         if themeColor == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Red, white)--Red
+            RetroText.printMedium(setting_x_offset, setting_y1, "Red", white)--Red
         elseif themeColor == 2 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Yellow, white)--Yellow
+            RetroText.printMedium(setting_x_offset, setting_y1, "Yellow", white)--Yellow
         elseif themeColor == 3 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Green, white)--Green
+            RetroText.printMedium(setting_x_offset, setting_y1, "Green", white)--Green
         elseif themeColor == 4 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Dark_Grey, white)-- Dark Grey
+            RetroText.printMedium(setting_x_offset, setting_y1, "Dark_Grey", white)-- Dark Grey
         elseif themeColor == 5 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Black, white)--Black
+            RetroText.printMedium(setting_x_offset, setting_y1, "Black", white)--Black
         elseif themeColor == 6 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Purple, white)--Purple
+            RetroText.printMedium(setting_x_offset, setting_y1, "Purple", white)--Purple
         elseif themeColor == 7 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Dark_Purple, white)--Dark Purple
+            RetroText.printMedium(setting_x_offset, setting_y1, "Dark_Purple", white)--Dark Purple
         elseif themeColor == 8 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Orange, white)--Orange
+            RetroText.printMedium(setting_x_offset, setting_y1, "Orange", white)--Orange
         elseif themeColor == 9 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Grey, white)--Grey
+            RetroText.printMedium(setting_x_offset, setting_y1, "Grey", white)--Grey
         else
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Blue, white)--Blue
+            RetroText.printMedium(setting_x_offset, setting_y1, "Blue", white)--Blue
         end
 
         -- MENU 4 / #2 Reflections
-        Font.print(fnt22, setting_x, setting_y2, lang_lines.Reflection_Effect_colon, white) -- REFLECTION
+        RetroText.printMedium(setting_x, setting_y2, "Reflection_Effect_colon", white) -- REFLECTION
         if setReflections == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y2, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y2, "Off", white)--OFF
         end
 
         -- MENU 4 / #3 Custom Background
-        Font.print(fnt22, setting_x, setting_y3,  lang_lines.Custom_Background_colon, white)
+        RetroText.printMedium(setting_x, setting_y3,  "Custom_Background_colon", white)
 
         function wallpaper_print_string (def)
             if setBackground == (def) then
-                Font.print(fnt22, setting_x_offset, setting_y3, tostring(wallpaper_table_settings[(def)].wallpaper_string), white) --FILENAME
+                RetroText.printNonLocaMedium(setting_x_offset, setting_y3, tostring(wallpaper_table_settings[(def)].wallpaper_string), white) --FILENAME
             end
         end
 
         if setBackground == 0 then 
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.Off, white) --OFF
+            RetroText.printMedium(setting_x_offset, setting_y3, "Off", white) --OFF
         else
             wallpaper_print_string (setBackground)
         end
 
         -- MENU 4 / #4 Smooth scrolling
-        Font.print(fnt22, setting_x, setting_y4, lang_lines.Smooth_Scrolling_colon, white) -- Smooth scrolling
+        RetroText.printMedium(setting_x, setting_y4, "Smooth_Scrolling_colon", white) -- Smooth scrolling
         if smoothScrolling == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y4, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y4, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y4, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y4, "Off", white)--OFF
         end
 
         -- MENU 4 / #5 2D Views
-        Font.print(fnt22, setting_x, setting_y5, lang_lines.Views_2D_colon, white) -- 2D Views:
+        RetroText.printMedium(setting_x, setting_y5, "Views_2D_colon", white) -- 2D Views:
         if set2DViews == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y5, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y5, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y5, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y5, "Off", white)--OFF
         end
 
         -- MENU 4 / #6 Change views
-        Font.print(fnt22, setting_x, setting_y6, lang_lines.Change_Views_colon, white) -- Change Views:
+        RetroText.printMedium(setting_x, setting_y6, "Change_Views_colon", white) -- Change Views:
         if setChangeViews == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y6, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y6, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y6, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y6, "Off", white)--OFF
         end
 
 
@@ -11252,7 +11233,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Artwork, white)--Artwork
+        RetroText.printMedium(setting_x, setting_yh, "Artwork", white)--Artwork
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -11260,190 +11241,191 @@ while true do
         menuItems = 6
 
         -- MENU 5 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
 
         -- MENU 5 / #1 Download Covers
-        Font.print(fnt22, setting_x, setting_y1, lang_lines.Download_Covers_colon, white)
+        RetroText.printMedium(setting_x, setting_y1, "Download_Covers_colon", white)
 
+        -- TODO: can probably optimize that
         if getCovers == 1 then
-        Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.PS_Vita .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.PS_Vita .. "  >", white)
         elseif getCovers == 2 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.PSP .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.PSP .. "  >", white)
         elseif getCovers == 3 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.PlayStation .."  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.PlayStation .."  >", white)
         elseif getCovers == 4 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
         elseif getCovers == 5 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
         elseif getCovers == 6 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
         elseif getCovers == 7 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
         elseif getCovers == 8 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
         elseif getCovers == 9 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Game_Boy .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Game_Boy .. "  >", white)
         elseif getCovers == 10 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
         elseif getCovers == 11 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_CD .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_CD .. "  >", white)
         elseif getCovers == 12 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_32X .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_32X .. "  >", white)
         elseif getCovers == 13 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
         elseif getCovers == 14 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
         elseif getCovers == 15 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
         elseif getCovers == 16 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
         elseif getCovers == 17 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
         elseif getCovers == 18 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.PC_Engine .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.PC_Engine .. "  >", white)
         elseif getCovers == 19 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
         elseif getCovers == 20 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Amiga .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Amiga .. "  >", white)
         elseif getCovers == 21 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.ScummVM .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.ScummVM .. "  >", white)
         elseif getCovers == 22 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Commodore_64 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Commodore_64 .. "  >", white)
         elseif getCovers == 23 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
         elseif getCovers == 24 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.WonderSwan .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.WonderSwan .. "  >", white)
         elseif getCovers == 25 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.MSX2 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.MSX2 .. "  >", white)
         elseif getCovers == 26 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.MSX .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.MSX .. "  >", white)
         elseif getCovers == 27 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
         elseif getCovers == 28 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_7800 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_7800 .. "  >", white)
         elseif getCovers == 29 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_5200 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_5200 .. "  >", white)
         elseif getCovers == 30 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_2600 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_2600 .. "  >", white)
         elseif getCovers == 31 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
         elseif getCovers == 32 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.ColecoVision .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.ColecoVision .. "  >", white)
         elseif getCovers == 33 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Vectrex .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Vectrex .. "  >", white)
         elseif getCovers == 34 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.FBA_2012 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.FBA_2012 .. "  >", white)
         elseif getCovers == 35 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
         elseif getCovers == 36 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.MAME_2000 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.MAME_2000 .. "  >", white)
         elseif getCovers == 37 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Neo_Geo .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Neo_Geo .. "  >", white)
         elseif getCovers == 38 then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
         else
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.All .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.All .. "  >", white)
         end
 
 
         -- MENU 5 / #2 Download Backgrounds
-        Font.print(fnt22, setting_x, setting_y2, lang_lines.Download_Backgrounds_colon, white)
+        RetroText.printNonLocaMedium(setting_x, setting_y2, lang_lines.Download_Backgrounds_colon, white)
 
         if getSnaps == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.PSP .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.PSP .. "  >", white)
         elseif getSnaps == 2 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.PlayStation .."  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.PlayStation .."  >", white)
         elseif getSnaps == 3 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
         elseif getSnaps == 4 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
         elseif getSnaps == 5 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
         elseif getSnaps == 6 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
         elseif getSnaps == 7 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
         elseif getSnaps == 8 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Game_Boy .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Game_Boy .. "  >", white)
         elseif getSnaps == 9 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
         elseif getSnaps == 10 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_CD .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_CD .. "  >", white)
         elseif getSnaps == 11 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_32X .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_32X .. "  >", white)
         elseif getSnaps == 12 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
         elseif getSnaps == 13 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
         elseif getSnaps == 14 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
         elseif getSnaps == 15 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
         elseif getSnaps == 16 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
         elseif getSnaps == 17 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.PC_Engine .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.PC_Engine .. "  >", white)
         elseif getSnaps == 18 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
         elseif getSnaps == 19 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Amiga .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Amiga .. "  >", white)
         elseif getSnaps == 20 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.ScummVM .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.ScummVM .. "  >", white)
         elseif getSnaps == 21 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Commodore_64 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Commodore_64 .. "  >", white)
         elseif getSnaps == 22 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
         elseif getSnaps == 23 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.WonderSwan .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.WonderSwan .. "  >", white)
         elseif getSnaps == 24 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.MSX2 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.MSX2 .. "  >", white)
         elseif getSnaps == 25 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.MSX .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.MSX .. "  >", white)
         elseif getSnaps == 26 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
         elseif getSnaps == 27 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_7800 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_7800 .. "  >", white)
         elseif getSnaps == 28 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_5200 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_5200 .. "  >", white)
         elseif getSnaps == 29 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_2600 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_2600 .. "  >", white)
         elseif getSnaps == 30 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
         elseif getSnaps == 31 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.ColecoVision .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.ColecoVision .. "  >", white)
         elseif getSnaps == 32 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Vectrex .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Vectrex .. "  >", white)
         elseif getSnaps == 33 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.FBA_2012 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.FBA_2012 .. "  >", white)
         elseif getSnaps == 34 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
         elseif getSnaps == 35 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.MAME_2000 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.MAME_2000 .. "  >", white)
         elseif getSnaps == 36 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Neo_Geo .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Neo_Geo .. "  >", white)
         elseif getSnaps == 37 then
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
         else
-            Font.print(fnt22, setting_x_offset, setting_y2, "<  " .. lang_lines.All .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2, "<  " .. lang_lines.All .. "  >", white)
         end
 
         -- MENU 5 / #3 Game Backgrounds
-        Font.print(fnt22, setting_x, setting_y3, lang_lines.Game_backgounds_colon, white) -- Game backgounds
+        RetroText.printMedium(setting_x, setting_y3, "Game_backgounds_colon", white) -- Game backgounds
         if Game_Backgrounds == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y3, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y3, "Off", white)--OFF
         end
 
         -- MENU 5 / #4 Extract Vita backgounds
-        Font.print(fnt22, setting_x, setting_y4, lang_lines.Extract_PS_Vita_backgrounds, white) -- Extract PS Vita backgounds
+        RetroText.printMedium(setting_x, setting_y4, "Extract_PS_Vita_backgrounds", white) -- Extract PS Vita backgounds
 
         -- MENU 5 / #5 Extract PSP backgounds
-        Font.print(fnt22, setting_x, setting_y5, lang_lines.Extract_PSP_backgrounds, white) -- Extract PSP backgounds
+        RetroText.printMedium(setting_x, setting_y5, "Extract_PSP_backgrounds", white) -- Extract PSP backgounds
 
         -- MENU 5 / #6 Extract PICO-8 backgounds
-        Font.print(fnt22, setting_x, setting_y6, lang_lines.Extract_PICO8_backgrounds, white) -- Extract PICO-8 backgounds
+        RetroText.printMedium(setting_x, setting_y6, "Extract_PICO8_backgrounds", white) -- Extract PICO-8 backgounds
 
         
 
@@ -11792,7 +11774,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Scan_Settings, white)--Scan_Settings
+        RetroText.printMedium(setting_x, setting_yh, "Scan_Settings", white)--Scan_Settings
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -11800,39 +11782,39 @@ while true do
         menuItems = 4
 
         -- MENU 6 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- MENU 6 / #1 Game directories
-        Font.print(fnt22, setting_x, setting_y1, lang_lines.Edit_game_directories, white)--Edit_game_directories 
+        RetroText.printMedium(setting_x, setting_y1, "Edit_game_directories", white)--Edit_game_directories 
 
         -- MENU 6 / #2 Scan on Startup
-        Font.print(fnt22, setting_x, setting_y2, lang_lines.Startup_scan_colon, white)--Scan on startup
+        RetroText.printMedium(setting_x, setting_y2, "Startup_scan_colon", white)--Scan on startup
 
         if startupScan == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y2, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y2, "Off", white)--OFF
         end
 
         -- MENU 6 / #3 Adrenaline_roms
-        Font.print(fnt22, setting_x, setting_y3, lang_lines.Adrenaline_roms, white)--Adrenaline_roms 
+        RetroText.printMedium(setting_x, setting_y3, "Adrenaline_roms", white)--Adrenaline_roms 
 
         if Adrenaline_roms == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y3, "<  " .. "ux0"  .. ":/pspemu" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  ux0:/pspemu  >", white)
         elseif Adrenaline_roms == 2 then
-            Font.print(fnt22, setting_x_offset, setting_y3, "<  " .. "ur0"  .. ":/pspemu" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  ur0:/pspemu  >", white)
         elseif Adrenaline_roms == 3 then
-            Font.print(fnt22, setting_x_offset, setting_y3, "<  " .. "imc0" .. ":/pspemu" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  imc0:/pspemu  >", white)
         elseif Adrenaline_roms == 4 then
-            Font.print(fnt22, setting_x_offset, setting_y3, "<  " .. "xmc0" .. ":/pspemu" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  xmc0:/pspemu  >", white)
         elseif Adrenaline_roms == 5 then
-            Font.print(fnt22, setting_x_offset, setting_y3, "<  " .. lang_lines.All .. "  >", white)   
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  " .. lang_lines.All .. "  >", white)   
         else
-            Font.print(fnt22, setting_x_offset, setting_y3, "<  " .. "uma0" .. ":/pspemu" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  uma0:/pspemu  >", white)
         end
 
         -- MENU 6 / #4 Rescan
-        Font.print(fnt22, setting_x, setting_y4, lang_lines.Rescan, white)--Rescan
+        RetroText.printMedium(setting_x, setting_y4, "Rescan", white)--Rescan
 
         
 
@@ -11923,7 +11905,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Help_and_Guides, white)--Help and Guides
+        RetroText.printMedium(setting_x, setting_yh, "Help_and_Guides", white)--Help and Guides
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -11931,31 +11913,31 @@ while true do
         menuItems = 6
         
         -- MENU 7 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 7 / #1 Guide 1
         Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_about)
-        Font.print(fnt22, setting_x_icon_offset, setting_y1, lang_lines.guide_1_heading, white)--Guide 1
+        RetroText.printMedium(setting_x_icon_offset, setting_y1, "guide_1_heading", white)--Guide 1
 
         -- MENU 7 / #2 Guide 2
         Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_about)
-        Font.print(fnt22, setting_x_icon_offset, setting_y2, lang_lines.guide_2_heading, white)--Guide 2
+        RetroText.printMedium(setting_x_icon_offset, setting_y2, "guide_2_heading", white)--Guide 2
 
         -- MENU 7 / #3 Guide 3
         Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_about)
-        Font.print(fnt22, setting_x_icon_offset, setting_y3, lang_lines.guide_3_heading, white)--Guide 3
+        RetroText.printMedium(setting_x_icon_offset, setting_y3, "guide_3_heading", white)--Guide 3
 
         -- MENU 7 / #4 Guide 4
         Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_about)
-        Font.print(fnt22, setting_x_icon_offset, setting_y4, lang_lines.guide_4_heading, white)--Guide 4
+        RetroText.printMedium(setting_x_icon_offset, setting_y4, "guide_4_heading", white)--Guide 4
 
         -- MENU 7 / #5 Guide 5
         Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_about)
-        Font.print(fnt22, setting_x_icon_offset, setting_y5, lang_lines.guide_5_heading, white)--Guide 5
+        RetroText.printMedium(setting_x_icon_offset, setting_y5, "guide_5_heading", white)--Guide 5
 
         -- MENU 7 / #6 Guide 6
         Graphics.drawImage(setting_x_icon, setting_y6, setting_icon_about)
-        Font.print(fnt22, setting_x_icon_offset, setting_y6, lang_lines.guide_6_heading, white)--Guide 6
+        RetroText.printMedium(setting_x_icon_offset, setting_y6, "guide_6_heading", white)--Guide 6
 
         -- Hidden timer        
         RetroText.printNonLocaSmall(10, 508, "Overall load time: " .. (functionTime + oneLoopTime) / 1000 .. " s.  Functions: ".. functionTime / 1000 .. " s.   Main loop: ".. oneLoopTime / 1000 .. " s.", timercolor)
@@ -12044,7 +12026,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Game_directories, white)--Game_directories
+        RetroText.printMedium(setting_x, setting_yh, "Game_directories", white)--Game_directories
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -12052,157 +12034,157 @@ while true do
         menuItems = 3
 
         -- MENU 8 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- MENU 8 / #1 and 2 Game category and directory
             if getRomDir == 1 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Amiga .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Amiga .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Amiga, white)
                 filebrowser_heading = lang_lines.Amiga
             elseif getRomDir == 2 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_2600 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_2600 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_2600, white)
                 filebrowser_heading = lang_lines.Atari_2600
             elseif getRomDir == 3 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_5200 .."  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_5200 .."  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_5200, white)
                 filebrowser_heading = lang_lines.Atari_5200
             elseif getRomDir == 4 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_7800 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_7800 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_7800, white)
                 filebrowser_heading = lang_lines.Atari_7800
             elseif getRomDir == 5 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_Lynx, white)
                 filebrowser_heading = lang_lines.Atari_Lynx
             elseif getRomDir == 6 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.ColecoVision .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.ColecoVision .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ColecoVision, white)
                 filebrowser_heading = lang_lines.ColecoVision
             elseif getRomDir == 7 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Commodore_64 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Commodore_64 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Commodore_64, white)
                 filebrowser_heading = lang_lines.Commodore_64
             elseif getRomDir == 8 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.FBA_2012 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.FBA_2012 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.FBA_2012, white)
                 filebrowser_heading = lang_lines.FBA_2012
             elseif getRomDir == 9 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Advance, white)
                 filebrowser_heading = lang_lines.Game_Boy_Advance
             elseif getRomDir == 10 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Color, white)
                 filebrowser_heading = lang_lines.Game_Boy_Color
             elseif getRomDir == 11 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Game_Boy .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy, white)
                 filebrowser_heading = lang_lines.Game_Boy
             elseif getRomDir == 12 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MAME_2000 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MAME_2000 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2000, white)
                 filebrowser_heading = lang_lines.MAME_2000
             elseif getRomDir == 13 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2003Plus, white)
                 filebrowser_heading = lang_lines.MAME_2003Plus
             elseif getRomDir == 14 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MSX .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MSX .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX, white)
                 filebrowser_heading = lang_lines.MSX
             elseif getRomDir == 15 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.MSX2 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MSX2 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX2, white)
                 filebrowser_heading = lang_lines.MSX2
             elseif getRomDir == 16 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo_Pocket_Color, white)
                 filebrowser_heading = lang_lines.Neo_Geo_Pocket_Color
             elseif getRomDir == 17 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo, white)
                 filebrowser_heading = lang_lines.Neo_Geo
             elseif getRomDir == 18 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_64, white)
                 filebrowser_heading = lang_lines.Nintendo_64
             elseif getRomDir == 19 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_Entertainment_System, white)
                 filebrowser_heading = lang_lines.Nintendo_Entertainment_System
             elseif getRomDir == 20 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine_CD, white)
                 filebrowser_heading = lang_lines.PC_Engine_CD
             elseif getRomDir == 21 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PC_Engine .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PC_Engine .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine, white)
                 filebrowser_heading = lang_lines.PC_Engine
             elseif getRomDir == 22 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PICO8 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PICO8 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Pico8, white)
                 filebrowser_heading = lang_lines.PICO8   
             elseif getRomDir == 23 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.PlayStation .. " (RetroArch)" ..  "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PlayStation .. " (RetroArch)" ..  "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PlayStation, white)
                 filebrowser_heading = lang_lines.PlayStation .. " (RetroArch)"
             elseif getRomDir == 24 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_32X .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_32X .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_32X, white)
                 filebrowser_heading = lang_lines.Sega_32X
             elseif getRomDir == 25 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_CD .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_CD .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_CD, white)
                 filebrowser_heading = lang_lines.Sega_CD
             elseif getRomDir == 26 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Dreamcast, white)
                 filebrowser_heading = lang_lines.Sega_Dreamcast
             elseif getRomDir == 27 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Game_Gear, white)
                 filebrowser_heading = lang_lines.Sega_Game_Gear
             elseif getRomDir == 28 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Master_System, white)
                 filebrowser_heading = lang_lines.Sega_Master_System
             elseif getRomDir == 29 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Mega_Drive, white)
                 filebrowser_heading = lang_lines.Sega_Mega_Drive
             elseif getRomDir == 30 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Super_Nintendo, white)
                 filebrowser_heading = lang_lines.Super_Nintendo
             elseif getRomDir == 31 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_16, white)
                 filebrowser_heading = lang_lines.TurboGrafx_16
             elseif getRomDir == 32 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_CD, white)
                 filebrowser_heading = lang_lines.TurboGrafx_CD
             elseif getRomDir == 33 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.Vectrex .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Vectrex .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Vectrex, white)
                 filebrowser_heading = lang_lines.Vectrex
             elseif getRomDir == 34 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan_Color, white)
                 filebrowser_heading = lang_lines.WonderSwan_Color
             elseif getRomDir == 35 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.WonderSwan .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.WonderSwan .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan, white)
                 filebrowser_heading = lang_lines.WonderSwan
             elseif getRomDir == 36 then
-                Font.print(fnt22, setting_x, setting_y1, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
+                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
                 RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ZX_Spectrum, white)
                 filebrowser_heading = lang_lines.ZX_Spectrum
             end
 
         -- MENU 8 / #3 Rescan
-        Font.print(fnt22, setting_x, setting_y3, lang_lines.Rescan, white)--Rescan 
+        RetroText.printMedium(setting_x, setting_y3, "Rescan", white)--Rescan 
 
         -- MENU 8 - FUNCTIONS
         status = System.getMessageState()
@@ -12282,7 +12264,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)--dark background
 
-        Font.print(fnt22, setting_x, setting_yh, filebrowser_heading, white)--Game heading from menu 8
+        RetroText.printNonLocaMedium(setting_x, setting_yh, filebrowser_heading, white)--Game heading from menu 8
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47 +47), 129 + (menuY * 47 +47), themeCol)-- selection
@@ -12298,46 +12280,46 @@ while true do
             -- MENU 9 / #0 ux0 
             if System.doesDirExist("ux0:/") then
                 Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_scanning)
-                Font.print(fnt22, setting_x_icon_offset, setting_y1, "ux0:", white)--ux0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y1, "ux0:", white)--ux0
             else
                 Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_scanning, white_opaque)
-                Font.print(fnt22, setting_x_icon_offset, setting_y1, "ux0:", white_opaque)--ux0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y1, "ux0:", white_opaque)--ux0
             end
 
             -- MENU 9 / #1 uma0
             if System.doesDirExist("uma0:/") then
                 Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_scanning)
-                Font.print(fnt22, setting_x_icon_offset, setting_y2, "uma0:", white)--uma0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y2, "uma0:", white)--uma0
             else
                 Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_scanning, white_opaque)
-                Font.print(fnt22, setting_x_icon_offset, setting_y2, "uma0:", white_opaque)--uma0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y2, "uma0:", white_opaque)--uma0
             end
 
             -- MENU 9 / #2 imc0
             if System.doesDirExist("imc0:/") then
                 Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_scanning)
-                Font.print(fnt22, setting_x_icon_offset, setting_y3, "imc0:", white)--imc0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y3, "imc0:", white)--imc0
             else
                 Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_scanning, white_opaque)
-                Font.print(fnt22, setting_x_icon_offset, setting_y3, "imc0:", white_opaque)--imc0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y3, "imc0:", white_opaque)--imc0
             end
 
             -- MENU 9 / #3 xmc0
             if System.doesDirExist("xmc0:/") then
                 Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_scanning)
-                Font.print(fnt22, setting_x_icon_offset, setting_y4, "xmc0:", white)--xmc0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y4, "xmc0:", white)--xmc0
             else
                 Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_scanning, white_opaque)
-                Font.print(fnt22, setting_x_icon_offset, setting_y4, "xmc0:", white_opaque)--xmc0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y4, "xmc0:", white_opaque)--xmc0
             end
 
             -- MENU 9 / #4 grw0
             if System.doesDirExist("grw0:/") then
                 Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_scanning)
-                Font.print(fnt22, setting_x_icon_offset, setting_y5, "grw0:", white)--xmc0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y5, "grw0:", white)--xmc0
             else
                 Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_scanning, white_opaque)
-                Font.print(fnt22, setting_x_icon_offset, setting_y5, "grw0:", white_opaque)--xmc0
+                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y5, "grw0:", white_opaque)--xmc0
             end
 
 
@@ -12457,7 +12439,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)--dark background
 
-        Font.print(fnt22, setting_x, setting_yh, filebrowser_heading, white)--Game heading from menu 8
+        RetroText.printNonLocaMedium(setting_x, setting_yh, filebrowser_heading, white)--Game heading from menu 8
         Graphics.fillRect(60, 900, 78, 81, white)
 
         -- Graphics.fillRect(60, 900, 89 + (menuY * 50 +50), 150 + (menuY * 50 +50), themeCol)-- selection
@@ -12466,7 +12448,7 @@ while true do
         menuItems = 0
 
         RetroText.printSmall(setting_x, setting_y0 + 2, "Directory_not_found", grey_dir) -- Directory not found
-        Font.print(fnt22, setting_x, setting_y1, "...", white)--Back
+        RetroText.printNonLocaMedium(setting_x, setting_y1, "...", white)--Back
 
 
 
@@ -12520,7 +12502,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)--dark background
 
-        Font.print(fnt22, setting_x, setting_yh, filebrowser_heading, white)--Game heading from menu 8
+        RetroText.printNonLocaMedium(setting_x, setting_yh, filebrowser_heading, white)--Game heading from menu 8
         Graphics.fillRect(60, 900, 78, 81, white)
 
         -- Graphics.fillRect(60, 900, 150 + (menuY * 46), 200 + (menuY * 46), themeCol)-- selection
@@ -12546,21 +12528,21 @@ while true do
 
                     -- No Icon - ...
                     if file.directory == true and file.previous_directory == true then
-                        Font.print(fnt22, setting_x, y, file.name, color)
+                        RetroText.printNonLocaMedium(setting_x, y, file.name, color)
 
                     -- Icon - Folder Open -- Use this directory
                     elseif file.directory == true and file.save == true then
-                        Font.print(fnt22, setting_x_icon_offset, y, file.name, color)
+                        RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
                         Graphics.drawImage(setting_x, y, file_browser_folder_open)
 
                     -- Icon - Folder Closed
                     elseif file.directory == true and file.save == false and file.previous_directory == false then
-                        Font.print(fnt22, setting_x_icon_offset, y, file.name, color)
+                        RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
                         Graphics.drawImage(setting_x, y, file_browser_folder_closed)
 
                     -- Icon - File
                     elseif file.directory == false then
-                        Font.print(fnt22, setting_x_icon_offset, y, file.name, color)
+                        RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
                         Graphics.drawImage(setting_x, y, file_browser_file)
 
                     else
@@ -12831,7 +12813,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Audio, white)--Audio
+        RetroText.printMedium(setting_x, setting_yh, "Audio", white)--Audio
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -12844,35 +12826,35 @@ while true do
         end
 
         -- MENU 12 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- MENU 12 / #1 SOUNDS
-        Font.print(fnt22, setting_x, setting_y1, lang_lines.Sounds_colon, white)--SOUNDS
+        RetroText.printMedium(setting_x, setting_y1, "Sounds_colon", white)--SOUNDS
         if setSounds == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y1, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y1, "Off", white)--OFF
         end
 
         -- MENU 12 / #2 MUSIC
-        Font.print(fnt22, setting_x, setting_y2, lang_lines.Music_colon, white)--MUSIC
+        RetroText.printMedium(setting_x, setting_y2, "Music_colon", white)--MUSIC
         if setMusic == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y2, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y2, "Off", white)--OFF
         end
 
         -- MENU 12 / #3 SHUFFLE MUSIC
-        Font.print(fnt22, setting_x, setting_y3, lang_lines.Shuffle_music_colon, white)--SHUFFLE MUSIC
+        RetroText.printMedium(setting_x, setting_y3, "Shuffle_music_colon", white)--SHUFFLE MUSIC
         if setMusicShuffle == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y3, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y3, "Off", white)--OFF
         end
 
         -- MENU 12 / #4 SKIP TRACK
         if #music_sequential > 1 then
-            Font.print(fnt22, setting_x, setting_y4, lang_lines.Skip_track, white)--SKIP TRACK
+            RetroText.printMedium(setting_x, setting_y4, "Skip_track", white)--SKIP TRACK
         else
         end
 
@@ -12973,7 +12955,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.guide_1_heading, white)-- Guide 1 Heading
+        RetroText.printMedium(setting_x, setting_yh, "guide_1_heading", white)-- Guide 1 Heading
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -12981,14 +12963,14 @@ while true do
         menuItems = 1
         
         -- MENU 13 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 13 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
-            Font.print(fnt22, setting_x, setting_y1, lang_lines.guide_1_content, white)-- Guide 1 Content
+            RetroText.printMedium(setting_x, setting_y1, "guide_1_content", white)-- Guide 1 Content
         else
-            Font.print(fnt22, setting_x, setting_y1, wraptextlength(lang_lines.guide_1_content, 75), white)-- Guide 1 Content
+            RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_1_content, 75), white)-- Guide 1 Content
         end
         
         -- MENU 13 - FUNCTIONS
@@ -13020,7 +13002,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.guide_2_heading, white)-- Guide 2 Heading
+        RetroText.printMedium(setting_x, setting_yh, "guide_2_heading", white)-- Guide 2 Heading
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -13028,14 +13010,14 @@ while true do
         menuItems = 1
         
         -- MENU 14 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 14 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
-            Font.print(fnt22, setting_x, setting_y1, lang_lines.guide_2_content, white)-- Guide 2 Content
+            RetroText.printMedium(setting_x, setting_y1, "guide_2_content", white)-- Guide 2 Content
         else
-            Font.print(fnt22, setting_x, setting_y1, wraptextlength(lang_lines.guide_2_content, 75), white)-- Guide 2 Content
+            RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_2_content, 75), white)-- Guide 2 Content
         end
         
         -- MENU 14 - FUNCTIONS
@@ -13067,7 +13049,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.guide_3_heading, white)-- Guide 3 Heading
+        RetroText.printMedium(setting_x, setting_yh, "guide_3_heading", white)-- Guide 3 Heading
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -13075,14 +13057,14 @@ while true do
         menuItems = 1
         
         -- MENU 15 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 15 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
-            Font.print(fnt22, setting_x, setting_y1, lang_lines.guide_3_content, white)-- Guide 3 Content
+            RetroText.printMedium(setting_x, setting_y1, "guide_3_content", white)-- Guide 3 Content
         else
-            Font.print(fnt22, setting_x, setting_y1, wraptextlength(lang_lines.guide_3_content, 75), white)-- Guide 3 Content
+            RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_3_content, 75), white)-- Guide 3 Content
         end
 
         
@@ -13115,7 +13097,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.guide_4_heading, white)-- Guide 4 Heading
+        RetroText.printMedium(setting_x, setting_yh, "guide_4_heading", white)-- Guide 4 Heading
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -13123,14 +13105,14 @@ while true do
         menuItems = 1
         
         -- MENU 16 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 16 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
-            Font.print(fnt22, setting_x, setting_y1, lang_lines.guide_4_content, white)-- Guide 4 Content
+            RetroText.printMedium(setting_x, setting_y1, "guide_4_content", white)-- Guide 4 Content
         else
-            Font.print(fnt22, setting_x, setting_y1, wraptextlength(lang_lines.guide_4_content, 75), white)-- Guide 4 Content
+            RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_4_content, 75), white)-- Guide 4 Content
         end
 
         
@@ -13163,7 +13145,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.guide_5_heading, white)-- Guide 5 Heading
+        RetroText.printMedium(setting_x, setting_yh, "guide_5_heading", white)-- Guide 5 Heading
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -13171,14 +13153,14 @@ while true do
         menuItems = 1
         
         -- MENU 17 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 17 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
-            Font.print(fnt22, setting_x, setting_y1, lang_lines.guide_5_content, white)-- Guide 5 Content
+            RetroText.printMedium(setting_x, setting_y1, "guide_5_content", white)-- Guide 5 Content
         else
-            Font.print(fnt22, setting_x, setting_y1, wraptextlength(lang_lines.guide_5_content, 75), white)-- Guide 5 Content
+            RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_5_content, 75), white)-- Guide 5 Content
         end
         
         -- MENU 17 - FUNCTIONS
@@ -13210,7 +13192,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.guide_6_heading, white)-- Guide 6 Heading
+        RetroText.printMedium(setting_x, setting_yh, "guide_6_heading", white)-- Guide 6 Heading
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -13218,16 +13200,16 @@ while true do
         menuItems = 1
         
         -- MENU 18 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 18 / #1 Content
-        Font.print(fnt22, setting_x, setting_y1, "RetroFlow version " .. appversion, white)-- Guide 6 Content
+        RetroText.printNonLocaMedium(setting_x, setting_y1, "RetroFlow version " .. appversion, white)-- Guide 6 Content
         
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
-            Font.print(fnt22, setting_x, setting_y2, lang_lines.guide_6_content, white)-- Guide 6 Content
+            RetroText.printMedium(setting_x, setting_y2, "guide_6_content", white)-- Guide 6 Content
         else
-            Font.print(fnt22, setting_x, setting_y2, wraptextlength(lang_lines.guide_6_content, 75), white)-- Guide 6 Content
+            RetroText.printNonLocaMedium(setting_x, setting_y2, wraptextlength(lang_lines.guide_6_content, 75), white)-- Guide 6 Content
         end
 
         -- MENU 18 - FUNCTIONS
@@ -13262,7 +13244,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Other_Settings, white)--Other Settings
+        RetroText.printMedium(setting_x, setting_yh, "Other_Settings", white)--Other Settings
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -13271,36 +13253,36 @@ while true do
         menuItems = 4
 
         -- MENU 19 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- MENU 19 / #1 Remap X and O buttons
-        Font.print(fnt22, setting_x, setting_y1,  lang_lines.Swap_X_and_O_buttons_colon, white)
+        RetroText.printMedium(setting_x, setting_y1,  "Swap_X_and_O_buttons_colon", white)
         if setSwap_X_O_buttons == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y1, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y1, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y1, "Off", white)--OFF
         end
 
         -- MENU 19 / #2 Adrenaline PS Button
-        Font.print(fnt22, setting_x, setting_y2, lang_lines.Adrenaline_PS_button_colon, white)--Adrenaline PS Button
+        RetroText.printMedium(setting_x, setting_y2, "Adrenaline_PS_button_colon", white)--Adrenaline PS Button
         if setAdrPSButton == 0 then
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.Menu, white)--Menu
+            RetroText.printMedium(setting_x_offset, setting_y2, "Menu", white)--Menu
         elseif setAdrPSButton == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.LiveArea, white)--LiveArea
+            RetroText.printMedium(setting_x_offset, setting_y2, "LiveArea", white)--LiveArea
         elseif setAdrPSButton == 2 then
-            Font.print(fnt22, setting_x_offset, setting_y2, lang_lines.Standard, white)--Standard
+            RetroText.printMedium(setting_x_offset, setting_y2, "Standard", white)--Standard
         end
 
         -- MENU 19 / #3 Show missing covers
-        Font.print(fnt22, setting_x, setting_y3,  lang_lines.Show_missing_covers_colon, white)
+        RetroText.printMedium(setting_x, setting_y3,  "Show_missing_covers_colon", white)
         if showMissingCovers == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.On, white)--ON
+            RetroText.printMedium(setting_x_offset, setting_y3, "On", white)--ON
         else
-            Font.print(fnt22, setting_x_offset, setting_y3, lang_lines.Off, white)--OFF
+            RetroText.printMedium(setting_x_offset, setting_y3, "Off", white)--OFF
         end
 
         -- MENU 19 / #4 Edit collections
-        Font.print(fnt22, setting_x, setting_y4, lang_lines.Edit_collections, white)--Edit collections
+        RetroText.printMedium(setting_x, setting_y4, "Edit_collections", white)--Edit collections
 
         -- MENU 19 - FUNCTIONS
         status = System.getMessageState()
@@ -13497,44 +13479,44 @@ while true do
 
         -- MENU 20 / Heading
         GetInfoSelected() -- Get game info for heading
-        Font.print(fnt22, setting_x, setting_yh + y_centre_text_offset, app_title, white)--Game Options
+        RetroText.printNonLocaMedium(setting_x, setting_yh + y_centre_text_offset, app_title, white)--Game Options
 
         -- MENU 20 / #0 Favorites
         if favourite_flag == true then
-            Font.print(fnt22, setting_x, setting_y0 + y_centre_text_offset, lang_lines.Remove_from_favorites, white)--Remove from favourites
+            RetroText.printMedium(setting_x, setting_y0 + y_centre_text_offset, "Remove_from_favorites", white)--Remove from favourites
         else
-            Font.print(fnt22, setting_x, setting_y0 + y_centre_text_offset, lang_lines.Add_to_favorites, white)--Add to favourites
+            RetroText.printMedium(setting_x, setting_y0 + y_centre_text_offset, "Add_to_favorites", white)--Add to favourites
         end
 
         -- MENU 20 / #1 Rename
-        Font.print(fnt22, setting_x, setting_y1 + y_centre_text_offset, lang_lines.Rename, white)--Rename
+        RetroText.printMedium(setting_x, setting_y1 + y_centre_text_offset, "Rename", white)--Rename
 
         -- MENU 20 / #2 Hide Game
         if hide_game_flag == true then
-            Font.print(fnt22, setting_x, setting_y2 + y_centre_text_offset, lang_lines.Unhide_game, white)--Unhide game
+            RetroText.printMedium(setting_x, setting_y2 + y_centre_text_offset, "Unhide_game", white)--Unhide game
         else
-            Font.print(fnt22, setting_x, setting_y2 + y_centre_text_offset, lang_lines.Hide_game, white)--Hide game
+            RetroText.printMedium(setting_x, setting_y2 + y_centre_text_offset, "Hide_game", white)--Hide game
         end
 
         -- MENU 20 / #3 Add to collection
-        Font.print(fnt22, setting_x, setting_y3 + y_centre_text_offset, lang_lines.Add_to_collection, white)--Add to collection
+        RetroText.printMedium(setting_x, setting_y3 + y_centre_text_offset, "Add_to_collection", white)--Add to collection
 
 
         -- MENU 20 / #4 / #5 / #6 - Dynamic based on Remove from collection / Recent Category / Adrenaline options
         if remove_from_collection_flag == true then
 
-            Font.print(fnt22, setting_x, setting_y4 + y_centre_text_offset, lang_lines.Remove_from_collection, white)--Remove from collection
+            RetroText.printMedium(setting_x, setting_y4 + y_centre_text_offset, "Remove_from_collection", white)--Remove from collection
 
             if recent_cat_flag == true then
                 if adrenaline_flag == true then
-                    Font.print(fnt22, setting_x, setting_y5 + y_centre_text_offset, lang_lines.Adrenaline_options, white)--Adrenaline options
-                    Font.print(fnt22, setting_x, setting_y6 + y_centre_text_offset, lang_lines.Remove_from_recently_played, white)--Remove from recently played
+                    RetroText.printMedium(setting_x, setting_y5 + y_centre_text_offset, "Adrenaline_options", white)--Adrenaline options
+                    RetroText.printMedium(setting_x, setting_y6 + y_centre_text_offset, "Remove_from_recently_played", white)--Remove from recently played
                 else
-                    Font.print(fnt22, setting_x, setting_y5 + y_centre_text_offset, lang_lines.Remove_from_recently_played, white)--Remove from recently played
+                    RetroText.printMedium(setting_x, setting_y5 + y_centre_text_offset, "Remove_from_recently_played", white)--Remove from recently played
                 end
             else
                 if adrenaline_flag == true then
-                    Font.print(fnt22, setting_x, setting_y5 + y_centre_text_offset, lang_lines.Adrenaline_options, white)--Adrenaline options
+                    RetroText.printMedium(setting_x, setting_y5 + y_centre_text_offset, "Adrenaline_options", white)--Adrenaline options
                 end
             end
 
@@ -13542,14 +13524,14 @@ while true do
 
             if recent_cat_flag == true then
                 if adrenaline_flag == true then
-                    Font.print(fnt22, setting_x, setting_y4 + y_centre_text_offset, lang_lines.Adrenaline_options, white)--Adrenaline options
-                    Font.print(fnt22, setting_x, setting_y5 + y_centre_text_offset, lang_lines.Remove_from_recently_played, white)--Remove from recently played
+                    RetroText.printMedium(setting_x, setting_y4 + y_centre_text_offset, "Adrenaline_options", white)--Adrenaline options
+                    RetroText.printMedium(setting_x, setting_y5 + y_centre_text_offset, "Remove_from_recently_played", white)--Remove from recently played
                 else
-                    Font.print(fnt22, setting_x, setting_y4 + y_centre_text_offset, lang_lines.Remove_from_recently_played, white)--Remove from recently played
+                    RetroText.printMedium(setting_x, setting_y4 + y_centre_text_offset, "Remove_from_recently_played", white)--Remove from recently played
                 end
             else
                 if adrenaline_flag == true then
-                    Font.print(fnt22, setting_x, setting_y4 + y_centre_text_offset, lang_lines.Adrenaline_options, white)--Adrenaline options
+                    RetroText.printMedium(setting_x, setting_y4 + y_centre_text_offset, "Adrenaline_options", white)--Adrenaline options
                 end
             end
 
@@ -13815,49 +13797,49 @@ while true do
 
 
         -- MENU 21 / Heading
-        Font.print(fnt22, setting_x, setting_yh + y_centre_text_offset, lang_lines.Adrenaline_options, white)--Adrenaline options
+        RetroText.printMedium(setting_x, setting_yh + y_centre_text_offset, "Adrenaline_options", white)--Adrenaline options
 
         -- MENU 21 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0 + y_centre_text_offset, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0 + y_centre_text_offset, "Back_Chevron", white)--Back
 
         -- MENU 21 / #1 Driver
-        Font.print(fnt22, setting_x, setting_y1 + y_centre_text_offset, lang_lines.Driver_colon, white)--Driver
+        RetroText.printMedium(setting_x, setting_y1 + y_centre_text_offset, "Driver_colon", white)--Driver
 
         
 
         -- Menu
         if game_adr_bin_driver == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. "INFERNO" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  INFERNO  >", white)
         elseif game_adr_bin_driver == 2 then
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. "MARCH33" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  MARCH33  >", white)
         elseif game_adr_bin_driver == 3 then
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. "NP9660" .."  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  NP9660  >", white)
         elseif setLanguage == 11 then
             -- Use alternate translation for Polish
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. lang_lines.Default_alt_translation_1 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. lang_lines.Default_alt_translation_1 .. "  >", white)
         else
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. lang_lines.Default .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. lang_lines.Default .. "  >", white)
         end
 
         -- MENU 21 / #2 Execute bin
-        Font.print(fnt22, setting_x, setting_y2 + y_centre_text_offset, lang_lines.Execute_colon, white)--Execute
+        RetroText.printMedium(setting_x, setting_y2 + y_centre_text_offset, "Execute_colon", white)--Execute
 
         if game_adr_exec_bin == 1 then
-            Font.print(fnt22, setting_x_offset, setting_y2 + y_centre_text_offset, "<  " .. "EBOOT.BIN" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2 + y_centre_text_offset, "<  EBOOT.BIN  >", white)
         elseif game_adr_exec_bin == 2 then
-            Font.print(fnt22, setting_x_offset, setting_y2 + y_centre_text_offset, "<  " .. "EBOOT.OLD" .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2 + y_centre_text_offset, "<  EBOOT.OLD  >", white)
         elseif game_adr_exec_bin == 3 then
-            Font.print(fnt22, setting_x_offset, setting_y2 + y_centre_text_offset, "<  " .. "BOOT.BIN" .."  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2 + y_centre_text_offset, "<  BOOT.BIN  >", white)
         elseif setLanguage == 11 then
             -- Use alternate translation for Polish
-            Font.print(fnt22, setting_x_offset, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.Default_alt_translation_2 .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.Default_alt_translation_2 .. "  >", white)
         else
-            Font.print(fnt22, setting_x_offset, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.Default .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.Default .. "  >", white)
         end
 
 
         -- MENU 21 / #3 Save
-        Font.print(fnt22, setting_x, setting_y3 + y_centre_text_offset, lang_lines.Save, white)--Save
+        RetroText.printMedium(setting_x, setting_y3 + y_centre_text_offset, "Save", white)--Save
 
         
         -- MENU 21 - FUNCTIONS
@@ -14009,24 +13991,26 @@ while true do
 
 
         -- MENU 22 / Heading
-        Font.print(fnt22, setting_x, setting_yh + y_centre_text_offset, lang_lines.Add_to_collection, white)--Add to collection
+        RetroText.printMedium(setting_x, setting_yh + y_centre_text_offset, "Add_to_collection", white)--Add to collection
 
         -- MENU 22 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0 + y_centre_text_offset, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0 + y_centre_text_offset, "Back_Chevron", white)--Back
 
         -- MENU 22 / #1 Collections
-        Font.print(fnt22, setting_x, setting_y1 + y_centre_text_offset, lang_lines.Collections_colon, white)--Collections:
+        RetroText.printMedium(setting_x, setting_y1 + y_centre_text_offset, "Collections_colon", white)--Collections:
 
         -- Menu
-        if collection_number == 0 then 
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. lang_lines.New_collection .. "  >", white)
+        if collection_number == 0 then
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. lang_lines.New_collection .. "  >", white)
+        elseif collection_files ~= nil and collection_files[collection_number] ~= nil then
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. collection_files[collection_number].display_name .. "  >", white)
         else
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. collection_files[collection_number].display_name .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  !MENU22_ERROR  >", white)
         end
 
 
         -- MENU 22 / #3 Add to collection
-        Font.print(fnt22, setting_x, setting_y2 + y_centre_text_offset, lang_lines.Add_to_collection, white)--Add to collection
+        RetroText.printMedium(setting_x, setting_y2 + y_centre_text_offset, "Add_to_collection", white)--Add to collection
 
         
         -- MENU 22 - FUNCTIONS
@@ -14187,26 +14171,26 @@ while true do
 
             
         -- MENU 23 / Heading
-        Font.print(fnt22, setting_x, setting_yh + y_centre_text_offset, lang_lines.Remove_from_collection, white)--Remove from collection
+        RetroText.printMedium(setting_x, setting_yh + y_centre_text_offset, "Remove_from_collection", white)--Remove from collection
 
         -- MENU 23 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0 + y_centre_text_offset, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0 + y_centre_text_offset, "Back_Chevron", white)--Back
 
         -- MENU 23 / #1 Collections
-        Font.print(fnt22, setting_x, setting_y1 + y_centre_text_offset, lang_lines.Collections_colon, white)--Collections:
+        RetroText.printMedium(setting_x, setting_y1 + y_centre_text_offset, "Collections_colon", white)--Collections:
 
         -- Menu
         
         if remove_from_collection_flag == false then
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, lang_lines.No_collections, white) -- No collections
+            RetroText.printMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "No_collections", white) -- No collections
         else
             -- xxxnum = collection_removal_table[xcollection_number].matched_collection_num
-            Font.print(fnt22, setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. collection_files[collection_removal_table[xcollection_number].matched_collection_num].display_name .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "<  " .. collection_files[collection_removal_table[xcollection_number].matched_collection_num].display_name .. "  >", white)
         end
 
 
         -- MENU 23 / #3 Remove from collection
-        Font.print(fnt22, setting_x, setting_y2 + y_centre_text_offset, lang_lines.Remove_from_collection, white)--Remove from collection
+        RetroText.printMedium(setting_x, setting_y2 + y_centre_text_offset, "Remove_from_collection", white)--Remove from collection
 
         
         -- MENU 23 - FUNCTIONS
@@ -14331,7 +14315,7 @@ while true do
 
         Graphics.fillRect(60, 900, 34, 460, darkalpha)
 
-        Font.print(fnt22, setting_x, setting_yh, lang_lines.Edit_collections, white)--Edit_collections
+        RetroText.printMedium(setting_x, setting_yh, "Edit_collections", white)--Edit_collections
         Graphics.fillRect(60, 900, 78, 81, white)
 
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
@@ -14339,7 +14323,7 @@ while true do
         menuItems = 3
 
         -- MENU 24 / #0 Back
-        Font.print(fnt22, setting_x, setting_y0, lang_lines.Back_Chevron, white)--Back
+        RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- Menu
         no_collections_flag = false
@@ -14371,29 +14355,33 @@ while true do
 
         -- MENU 24 / #1 Collections
         if collections_flag == true then
-            Font.print(fnt22, setting_x, setting_y1, lang_lines.Collections_colon, white)--Collections:
+            RetroText.printMedium(setting_x, setting_y1, "Collections_colon", white)--Collections:
         else
-            Font.print(fnt22, setting_x, setting_y1, lang_lines.Collections_colon, white_opaque)--Collections:
+            RetroText.printMedium(setting_x, setting_y1, "Collections_colon", white_opaque)--Collections:
         end
 
         if collections_flag == true then
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. collection_files[xcollection_number].display_name .. "  >", white)
+            if collection_files ~= nil and collection_files[xcollection_number] ~= nil then
+                RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. collection_files[xcollection_number].display_name .. "  >", white)
+            else
+                RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  !MENU24_ERROR  >", white)
+            end
         else
-            Font.print(fnt22, setting_x_offset, setting_y1, "<  " .. lang_lines.No_collections .. "  >", white_opaque)
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y1, "<  " .. lang_lines.No_collections .. "  >", white_opaque)
         end
 
         -- MENU 24 / #2 Rename
         if collections_flag == true then
-            Font.print(fnt22, setting_x, setting_y2, lang_lines.Rename, white)--Rename
+            RetroText.printMedium(setting_x, setting_y2, "Rename", white)--Rename
         else
-            Font.print(fnt22, setting_x, setting_y2, lang_lines.Rename, white_opaque)--Rename
+            RetroText.printMedium(setting_x, setting_y2, "Rename", white_opaque)--Rename
         end
 
         -- MENU 24 / #3 Delete
         if collections_flag == true then
-            Font.print(fnt22, setting_x, setting_y3, lang_lines.Delete, white)--Delete
+            RetroText.printMedium(setting_x, setting_y3, "Delete", white)--Delete
         else
-            Font.print(fnt22, setting_x, setting_y3, lang_lines.Delete, white_opaque)--Delete
+            RetroText.printMedium(setting_x, setting_y3, "Delete", white_opaque)--Delete
         end
     
 
@@ -14534,23 +14522,23 @@ while true do
 
 
         -- MENU 25 / Heading
-        Font.print(fnt22, setting_x, setting_yh + y_centre_text_offset, lang_lines.Category, white)--Category
+        RetroText.printMedium(setting_x, setting_yh + y_centre_text_offset, "Category", white)--Category
 
         -- MENU 25 / #0 Favorites
         Graphics.drawImage(setting_x, setting_y0 + y_centre_text_offset, setting_icon_heart)
-        Font.print(fnt22, setting_x_icon_offset + 70, setting_y0 + y_centre_text_offset, lang_lines.Favorites, white)--Favourites
+        RetroText.printMedium(setting_x_icon_offset + 70, setting_y0 + y_centre_text_offset, "Favorites", white)--Favourites
 
         -- MENU 25 / #1 Recently Played
         Graphics.drawImage(setting_x, setting_y1 + y_centre_text_offset, setting_icon_categories)
-        Font.print(fnt22, setting_x_icon_offset + 70, setting_y1 + y_centre_text_offset, lang_lines.Recently_Played, white)--Recently Played
+        RetroText.printMedium(setting_x_icon_offset + 70, setting_y1 + y_centre_text_offset, "Recently_Played", white)--Recently Played
 
         -- MENU 25 / #2 Filter games
         Graphics.drawImage(setting_x, setting_y2 + y_centre_text_offset, setting_icon_filter)
 
         if filterGames == 0 then
-            Font.print(fnt22, setting_x_icon_offset + 70, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.All .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_icon_offset + 70, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.All .. "  >", white)
         else
-            Font.print(fnt22, setting_x_icon_offset + 70, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.Collections .. "  >", white)
+            RetroText.printNonLocaMedium(setting_x_icon_offset + 70, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.Collections .. "  >", white)
         end
 
         
