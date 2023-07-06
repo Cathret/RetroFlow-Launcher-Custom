@@ -18,10 +18,13 @@ local CONSTANTS = require("modules/text/RetroText_Const")
 --- @description Contains all the const information for Localization
 ---
 --- @field TRANSLATION_DIR string Folder containing the Localization/Translation files
+--- @field ERROR_PREFIX string Prefix to add if a Localization can't be found
 ---
 local LOCA_CONSTANTS =
 {
-    TRANSLATION_DIR = "app0:/translations/"
+    TRANSLATION_DIR = "app0:/translations/",
+    
+    ERROR_PREFIX = "err!"
 }
 
 ---
@@ -36,6 +39,11 @@ function RetroLoca:getLocaTextFromStr(_locaStr)
     -- If can't find in current loaded language, fallback on Default Text
     if localizedString == nil then
         localizedString = CONSTANTS.getDefaultLangLines()[_locaStr]
+
+        -- If still can't find in Default LangLines, return LocalStr prefixed by err!
+        if localizedString == nil then
+            localizedString = LOCA_CONSTANTS.ERROR_PREFIX .. _locaStr
+        end
     end
     
     return localizedString
