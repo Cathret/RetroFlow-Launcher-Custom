@@ -1,6 +1,14 @@
 ﻿---
---- RetroLoca Const
---- Contains const informations to be used by RetroLoca Module
+--- @module RetroLoca_Const
+--- @description Contains const informations to be used by RetroLoca Module
+---
+--- @field getLangFileFromId function Static. Get Language Filename From Id
+--- @field getFontForLangId function Static. Get Language Filename From Id
+---
+--- @field LANGUAGE_IDS any List<number> All the IDs for each supported language
+--- @field LANG_FILE any List<string> All the file names for each supported language
+--- @field FONTS any List<string> All the fonts used for default or specific languages
+--- @field LANG_DEFAULT any Map<string, string> All the default localization for each localized string
 ---
 
 local RetroLoca_Const =
@@ -61,6 +69,14 @@ local RetroLoca_Const =
         PORTUGUESE_BRA = "PT_BR.lua",  -- Portuguese (Brasil)
 
         DEFAULT = "EN.lua" -- (= ENGLISH UK)
+    },
+
+    FONTS =
+    {
+        DEFAULT       = "font-SawarabiGothic-Regular.woff",
+        KOREAN        = "font-NotoSansCJKkr-Regular-Slim.otf",
+        CHINESE       = "font-NotoSansCJKsc-Regular-Slim.otf",
+        CHINESE_TRADI = "font-NotoSansCJKtc-Regular.otf"
     },
 
     LANG_DEFAULT =
@@ -407,36 +423,59 @@ local RetroLoca_Const =
     }
 }
 
-function RetroLoca_Const:getLangFileFromId(_languageId)
-    local langFile = self.LANG_FILE.DEFAULT
+---
+--- @function Get Language Filename From Id
+--- @description Retrieve the language Filename for a language ID
+--- @param _languageId number Language ID of the language for which we want the Language Filename
+--- @return string Language Filename for the inputted ID 
+---
+function RetroLoca_Const.getLangFileFromId(_languageId)
+    local langFile = RetroLoca_Const.LANG_FILE.DEFAULT
     
-    if     _languageId == self.LANGUAGE_IDS.ENGLISH_UK     then langFile = self.LANG_FILE.ENGLISH_UK    
-    elseif _languageId == self.LANGUAGE_IDS.ENGLISH_US     then langFile = self.LANG_FILE.ENGLISH_US    
-    elseif _languageId == self.LANGUAGE_IDS.GERMAN         then langFile = self.LANG_FILE.GERMAN        
-    elseif _languageId == self.LANGUAGE_IDS.FRENCH         then langFile = self.LANG_FILE.FRENCH        
-    elseif _languageId == self.LANGUAGE_IDS.ITALIAN        then langFile = self.LANG_FILE.ITALIAN       
-    elseif _languageId == self.LANGUAGE_IDS.SPANISH        then langFile = self.LANG_FILE.SPANISH       
-    elseif _languageId == self.LANGUAGE_IDS.SPANISH_LATIN  then langFile = self.LANG_FILE.SPANISH_LATIN 
-    elseif _languageId == self.LANGUAGE_IDS.PORTUGUESE     then langFile = self.LANG_FILE.PORTUGUESE    
-    elseif _languageId == self.LANGUAGE_IDS.SWEDISH        then langFile = self.LANG_FILE.SWEDISH       
-    elseif _languageId == self.LANGUAGE_IDS.RUSSIAN        then langFile = self.LANG_FILE.RUSSIAN       
-    elseif _languageId == self.LANGUAGE_IDS.JAPANESE       then langFile = self.LANG_FILE.JAPANESE      
-    elseif _languageId == self.LANGUAGE_IDS.CHINESE_TRADI  then langFile = self.LANG_FILE.CHINESE_TRADI 
-    elseif _languageId == self.LANGUAGE_IDS.POLSKI         then langFile = self.LANG_FILE.POLSKI        
-    elseif _languageId == self.LANGUAGE_IDS.DUTCH          then langFile = self.LANG_FILE.DUTCH         
-    elseif _languageId == self.LANGUAGE_IDS.DANISH         then langFile = self.LANG_FILE.DANISH        
-    elseif _languageId == self.LANGUAGE_IDS.NORWEGIAN      then langFile = self.LANG_FILE.NORWEGIAN     
-    elseif _languageId == self.LANGUAGE_IDS.FINNISH        then langFile = self.LANG_FILE.FINNISH       
-    elseif _languageId == self.LANGUAGE_IDS.TURKISH        then langFile = self.LANG_FILE.TURKISH       
-    elseif _languageId == self.LANGUAGE_IDS.KOREAN         then langFile = self.LANG_FILE.KOREAN        
-    elseif _languageId == self.LANGUAGE_IDS.CHINESE        then langFile = self.LANG_FILE.CHINESE       
-    elseif _languageId == self.LANGUAGE_IDS.JAPANESE_RYU   then langFile = self.LANG_FILE.JAPANESE_RYU  
-    elseif _languageId == self.LANGUAGE_IDS.HUNGARIAN      then langFile = self.LANG_FILE.HUNGARIAN     
-    elseif _languageId == self.LANGUAGE_IDS.PORTUGUESE_BRA then langFile = self.LANG_FILE.PORTUGUESE_BRA
-    else                                                        langFile = self.LANG_FILE.ENGLISH_UK
+    if     _languageId == RetroLoca_Const.LANGUAGE_IDS.ENGLISH_UK     then langFile = RetroLoca_Const.LANG_FILE.ENGLISH_UK    
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.ENGLISH_US     then langFile = RetroLoca_Const.LANG_FILE.ENGLISH_US    
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.GERMAN         then langFile = RetroLoca_Const.LANG_FILE.GERMAN        
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.FRENCH         then langFile = RetroLoca_Const.LANG_FILE.FRENCH        
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.ITALIAN        then langFile = RetroLoca_Const.LANG_FILE.ITALIAN       
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.SPANISH        then langFile = RetroLoca_Const.LANG_FILE.SPANISH       
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.SPANISH_LATIN  then langFile = RetroLoca_Const.LANG_FILE.SPANISH_LATIN 
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.PORTUGUESE     then langFile = RetroLoca_Const.LANG_FILE.PORTUGUESE    
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.SWEDISH        then langFile = RetroLoca_Const.LANG_FILE.SWEDISH       
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.RUSSIAN        then langFile = RetroLoca_Const.LANG_FILE.RUSSIAN       
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.JAPANESE       then langFile = RetroLoca_Const.LANG_FILE.JAPANESE      
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.CHINESE_TRADI  then langFile = RetroLoca_Const.LANG_FILE.CHINESE_TRADI 
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.POLSKI         then langFile = RetroLoca_Const.LANG_FILE.POLSKI        
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.DUTCH          then langFile = RetroLoca_Const.LANG_FILE.DUTCH         
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.DANISH         then langFile = RetroLoca_Const.LANG_FILE.DANISH        
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.NORWEGIAN      then langFile = RetroLoca_Const.LANG_FILE.NORWEGIAN     
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.FINNISH        then langFile = RetroLoca_Const.LANG_FILE.FINNISH       
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.TURKISH        then langFile = RetroLoca_Const.LANG_FILE.TURKISH       
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.KOREAN         then langFile = RetroLoca_Const.LANG_FILE.KOREAN        
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.CHINESE        then langFile = RetroLoca_Const.LANG_FILE.CHINESE       
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.JAPANESE_RYU   then langFile = RetroLoca_Const.LANG_FILE.JAPANESE_RYU  
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.HUNGARIAN      then langFile = RetroLoca_Const.LANG_FILE.HUNGARIAN     
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.PORTUGUESE_BRA then langFile = RetroLoca_Const.LANG_FILE.PORTUGUESE_BRA
+    else                                                                   langFile = RetroLoca_Const.LANG_FILE.ENGLISH_UK
     end
     
     return langFile
+end
+
+---
+--- @function Get Font for Language Id
+--- @description Retrieve the Font name for a language ID
+--- @param _languageId number Language ID of the language for which we want the Font name
+--- @return string Font name for the language ID
+---
+function RetroLoca_Const.getFontForLangId(_languageId)
+    local font = RetroLoca_Const.FONTS.DEFAULT 
+    
+    if     _languageId == RetroLoca_Const.LANGUAGE_IDS.KOREAN        then font = RetroLoca_Const.FONTS.KOREAN
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.CHINESE       then font = RetroLoca_Const.FONTS.CHINESE
+    elseif _languageId == RetroLoca_Const.LANGUAGE_IDS.CHINESE_TRADI then font = RetroLoca_Const.FONTS.CHINESE_TRADI
+    end
+    
+    return font
 end
 
 return RetroLoca_Const
