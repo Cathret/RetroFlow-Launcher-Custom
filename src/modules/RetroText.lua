@@ -15,6 +15,12 @@
 --- @field getSmallNonLocaTextWidth function Public Static. Get the Width of some Small-sized String
 --- @field getMediumNonLocaTextWidth function Public Static. Get the Width of some Medium-sized String
 --- @field getLargeNonLocaTextWidth function Public Static. Get the Width of some Large-sized String
+--- @field printSmallCentered function Public Static. Print some small-sized Text to the screen from its Localized String and centered on location
+--- @field printMediumCentered function Public Static. Print some medium-sized Text to the screen from its Localized String and centered on location
+--- @field printLargeCentered function Public Static. Print some large-sized Text to the screen from its Localized String and centered on location
+--- @field printNonLocaSmallCentered function Public Static. Print some small-sized String to the screen centered on location
+--- @field printNonLocaMediumCentered function Public Static. Print some medium-sized String to the screen centered on location
+--- @field printNonLocaLargeCentered function Public Static. Print some large-sized String to the screen centered on location
 --- @field printSmall function Public Static. Print some small-sized Text to the screen from its Localized String
 --- @field printMedium function Public Static. Print some medium-sized Text to the screen from its Localized String
 --- @field printLarge function Public Static. Print some large-sized Text to the screen from its Localized String
@@ -24,6 +30,8 @@
 ---
 --- @field _getTextWidth function Private Static. Get the Width of some Text from its Localized String
 --- @field _getNonLocalizedTextWidth function Private Static. Get the Width of some String
+--- @field _printCentered function Private Static. Print some Text to the screen centered on location from its Localized String
+--- @field _printNonLocalizedCentered function Private Static. Print some String to the screen centered on location
 --- @field _print function Private Static. Print some Text to the screen from its Localized String
 --- @field _printNonLocalized function Private Static. Print some String to the screen
 ---
@@ -149,6 +157,78 @@ function RetroText.getLargeNonLocaTextWidth(_string)
 end
 
 ---
+--- @function Print Small Centered
+--- @description Print a Small-sized Localized String on the screen centered on location
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _localizedString string Localized String of the Text we want to print
+--- @param _color number Color of the printed text
+---
+function RetroText.printSmallCentered(_posX, _posY, _localizedString, _color)
+    RetroText._printCentered(RetroFont.fontIdSmall, _posX, _posY, _localizedString, _color)
+end
+
+---
+--- @function Print Medium Centered
+--- @description Print a Medium-sized Localized String on the screen centered on location
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _localizedString string Localized String of the Text we want to print
+--- @param _color number Color of the printed text
+---
+function RetroText.printMediumCentered(_posX, _posY, _localizedString, _color)
+    RetroText._printCentered(RetroFont.fontIdMedium, _posX, _posY, _localizedString, _color)
+end
+
+---
+--- @function Print Large Centered
+--- @description Print a Large-sized Localized String on the screen centered on location
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _localizedString string Localized String of the Text we want to print
+--- @param _color number Color of the printed text
+---
+function RetroText.printLargeCentered(_posX, _posY, _localizedString, _color)
+    RetroText._printCentered(RetroFont.fontIdSmall, _posX, _posY, _localizedString, _color)
+end
+
+---
+--- @function Print NonLocalized Small Centered
+--- @description Print a Small-sized Localized String on the screen centered on location
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _string string String to be printed
+--- @param _color number Color of the printed text
+---
+function RetroText.printNonLocaSmallCentered(_posX, _posY, _string, _color)
+    RetroText._printNonLocalizedCentered(RetroFont.fontIdSmall, _posX, _posY, _string, _color)
+end
+
+---
+--- @function Print NonLocalized Medium Centered
+--- @description Print a Medium-sized Localized String on the screen centered on location
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _string string String to be printed
+--- @param _color number Color of the printed text
+---
+function RetroText.printNonLocaMediumCentered(_posX, _posY, _string, _color)
+    RetroText._printNonLocalizedCentered(RetroFont.fontIdMedium, _posX, _posY, _string, _color)
+end
+
+---
+--- @function Print NonLocalized Large Centered
+--- @description Print a Large-sized Localized String on the screen centered on location
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _string string String to be printed
+--- @param _color number Color of the printed text
+---
+function RetroText.printNonLocaLargeCentered(_posX, _posY, _string, _color)
+    RetroText._printNonLocalizedCentered(RetroFont.fontIdLarge, _posX, _posY, _string, _color)
+end
+
+---
 --- @function Print Small
 --- @description Print a Small-sized Localized String on the screen 
 --- @param _posX number PositionX of the printed text
@@ -223,6 +303,7 @@ end
 ---
 --- @function Get Text Width
 --- @description Get the width of a Localized String with a specific Font 
+--- @param _fontId number ID of the Font to be used
 --- @param _localizedString string Localized String of the Text
 --- @return number Width of the Localized Text
 ---
@@ -233,11 +314,40 @@ end
 ---
 --- @function Get Text Width
 --- @description Get the width of a Localized String with a specific Font 
+--- @param _fontId number ID of the Font to be used
 --- @param _string string String we want to get the size of
 --- @return number Width of the Localized Text
 ---
 function RetroText._getNonLocalizedTextWidth(_fontId, _string)
     return Font.getTextWidth(_fontId, _string)
+end
+
+---
+--- @function Print Centered
+--- @description Print a Localized String on the screen centered on location
+--- @param _fontId number ID of the Font to be used
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _localizedString string Localized String of the Text we want to print
+--- @param _color number Color of the printed text
+---
+function RetroText._printCentered(_fontId, _posX, _posY, _localizedString, _color)
+    RetroText._printNonLocalizedCentered(_fontId, _posX, _posY, RetroLoca:getLocaTextFromStr(_localizedString), _color)
+end
+
+---
+--- @function Print Non Localized Centered
+--- @description Print a String on the screen centered on location
+--- @param _fontId number ID of the Font to be used
+--- @param _posX number PositionX of the center of the printed text
+--- @param _posY number PositionY of the center of the printed text
+--- @param _string string String containing the Text to display
+--- @param _color number Color of the printed text
+---
+function RetroText._printNonLocalizedCentered(_fontId, _posX, _posY, _string, _color)
+    _string = _string:gsub("\n","") -- Needed?
+    local width = RetroText._getNonLocalizedTextWidth(_fontId, _string)
+    RetroText._printNonLocalized(_fontId, _posX - width / 2, _posY, _string, _color)
 end
 
 ---
