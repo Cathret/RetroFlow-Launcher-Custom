@@ -9,6 +9,12 @@
 --- @field changeTextForLanguageId function Public Self. Change language for new Language ID. Loads Language and associated Font
 ---
 --- @field getTextForLocalizedString function Public Static. Retrieve the Text to be displayed from its Localized String
+--- @field getSmallTextWidth function Public Static. Get the Width of some Small-sized Text from its Localized String
+--- @field getMediumTextWidth function Public Static. Get the Width of some Medium-sized Text from its Localized String
+--- @field getLargeTextWidth function Public Static. Get the Width of some Large-sized Text from its Localized String
+--- @field getSmallNonLocaTextWidth function Public Static. Get the Width of some Small-sized String
+--- @field getMediumNonLocaTextWidth function Public Static. Get the Width of some Medium-sized String
+--- @field getLargeNonLocaTextWidth function Public Static. Get the Width of some Large-sized String
 --- @field printSmall function Public Static. Print some small-sized Text to the screen from its Localized String
 --- @field printMedium function Public Static. Print some medium-sized Text to the screen from its Localized String
 --- @field printLarge function Public Static. Print some large-sized Text to the screen from its Localized String
@@ -16,6 +22,8 @@
 --- @field printNonLocaMedium function Public Static. Print some medium-sized String to the screen
 --- @field printNonLocaLarge function Public Static. Print some large-sized String to the screen
 ---
+--- @field _getTextWidth function Private Static. Get the Width of some Text from its Localized String
+--- @field _getNonLocalizedTextWidth function Private Static. Get the Width of some String
 --- @field _print function Private Static. Print some Text to the screen from its Localized String
 --- @field _printNonLocalized function Private Static. Print some String to the screen
 ---
@@ -78,6 +86,66 @@ end
 ---
 function RetroText.getTextForLocalizedString(_localizedString)
     return RetroLoca:getLocaTextFromStr(_localizedString)
+end
+
+---
+--- @function Get Small Text Width
+--- @description Get the width of a Small-sized Localized String 
+--- @param _localizedString string Localized String of the Text
+--- @return number Width of the Localized Text
+---
+function RetroText.getSmallTextWidth(_localizedString)
+    return RetroText._getTextWidth(RetroFont.fontIdSmall, _localizedString)
+end
+
+---
+--- @function Get Medium Text Width
+--- @description Get the width of a Medium-sized Localized String 
+--- @param _localizedString string Localized String of the Text
+--- @return number Width of the Localized Text
+---
+function RetroText.getMediumTextWidth(_localizedString)
+    return RetroText._getTextWidth(RetroFont.fontIdMedium, _localizedString)
+end
+
+---
+--- @function Get Large Text Width
+--- @description Get the width of a Large-sized Localized String 
+--- @param _localizedString string Localized String of the Text
+--- @return number Width of the Localized Text
+---
+function RetroText.getLargeTextWidth(_localizedString)
+    return RetroText._getTextWidth(RetroFont.fontIdLarge, _localizedString)
+end
+
+---
+--- @function Get Small Non Loca Text Width
+--- @description Get the width of a Small-sized Text 
+--- @param _string string String we want to get the size of
+--- @return number Width of the Localized Text
+---
+function RetroText.getSmallNonLocaTextWidth(_string)
+    return RetroText._getNonLocalizedTextWidth(RetroFont.fontIdSmall, _string)
+end
+
+---
+--- @function Get Medium Non Loca Text Width
+--- @description Get the width of a Medium-sized Text 
+--- @param _string string String we want to get the size of
+--- @return number Width of the Localized Text
+---
+function RetroText.getMediumNonLocaTextWidth(_string)
+    return RetroText._getNonLocalizedTextWidth(RetroFont.fontIdMedium, _string)
+end
+
+---
+--- @function Get Large Non Loca Text Width
+--- @description Get the width of a Large-sized Text 
+--- @param _string string String we want to get the size of
+--- @return number Width of the Localized Text
+---
+function RetroText.getLargeNonLocaTextWidth(_string)
+    return RetroText._getNonLocalizedTextWidth(RetroFont.fontIdLarge, _string)
 end
 
 ---
@@ -150,6 +218,26 @@ end
 ---
 function RetroText.printNonLocaLarge(_posX, _posY, _string, _color)
     RetroText._printNonLocalized(RetroFont.fontIdLarge, _posX, _posY, _string, _color)
+end
+
+---
+--- @function Get Text Width
+--- @description Get the width of a Localized String with a specific Font 
+--- @param _localizedString string Localized String of the Text
+--- @return number Width of the Localized Text
+---
+function RetroText._getTextWidth(_fontId, _localizedString)
+    return Font.getTextWidth(_fontId, RetroLoca:getLocaTextFromStr(_localizedString))
+end
+
+---
+--- @function Get Text Width
+--- @description Get the width of a Localized String with a specific Font 
+--- @param _string string String we want to get the size of
+--- @return number Width of the Localized Text
+---
+function RetroText._getNonLocalizedTextWidth(_fontId, _string)
+    return Font.getTextWidth(_fontId, _string)
 end
 
 ---
