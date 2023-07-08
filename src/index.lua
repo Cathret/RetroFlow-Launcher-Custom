@@ -3,6 +3,7 @@
 -- https://www.patreon.com/vitahex
 
 local Threads       = require("addons/threads")
+local RetroConst    = require("modules/common/RetroConst")
 local RetroSettings = require("modules/RetroSettings")
 local RetroText     = require("modules/RetroText")
 
@@ -13,7 +14,6 @@ local RetroText     = require("modules/RetroText")
 oneLoopTimer = Timer.new()
 
 working_dir = "ux0:/app"
-appversion = "6.1.1"
 function System.currentDirectory(dir)
     if dir == nil then
         return working_dir
@@ -13203,7 +13203,7 @@ while true do
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
         
         -- MENU 18 / #1 Content
-        RetroText.printNonLocaMedium(setting_x, setting_y1, "RetroFlow version " .. appversion, white)-- Guide 6 Content
+        RetroText.printNonLocaMedium(setting_x, setting_y1, "RetroFlow version " .. RetroConst.getAppVersion(), white)-- Guide 6 Content
         
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets

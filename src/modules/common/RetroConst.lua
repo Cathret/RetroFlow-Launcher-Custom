@@ -4,6 +4,8 @@
 ---
 --- @field getDefaultRomsPaths function Public Self. Retrieve the Default Roms Paths for all the consoles
 ---
+--- @field getAppVersion function Public Static. Get the current version of the Application
+---
 --- @field RomsMainDir string Path to the main ROMS directory
 --- @field CoversDir string Path to the COVERS directory
 --- @field BackgroundDir string Path to the BACKGROUND directory
@@ -48,6 +50,14 @@ function RetroConst:getDefaultRomsPaths()
         defaultConsoleFolders[key] = self.RomsMainDir .. value -- Concatenate RomsMainDir and name of the Folders
     end
     return defaultConsoleFolders
+end
+
+---
+--- @function Get Application Version
+--- @return string The current version of the Application
+---
+function RetroConst.getAppVersion()
+    return INVARIABLE_CONSTANTS.AppVersion
 end
 
 return RetroConst
