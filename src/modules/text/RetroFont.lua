@@ -54,10 +54,11 @@ function RetroFont:changeFont(_newFontName)
 
         self:_loadFont(_newFontName)
 
+        -- TODO: Find a way to unload Font correctly without crashing
         -- Unload old font if some is already loaded
-        Font.unload(oldFontSmall)
-        Font.unload(oldFontMedium)
-        Font.unload(oldFontLarge)
+        -- Font.unload(oldFontSmall)
+        -- Font.unload(oldFontMedium)
+        -- Font.unload(oldFontLarge)
     end
 end
 
