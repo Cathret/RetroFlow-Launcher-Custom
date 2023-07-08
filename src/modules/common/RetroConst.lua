@@ -2,6 +2,8 @@
 --- @module RetroConst
 --- @description Submodule for all RetroFlow modules to handle const and common information
 ---
+--- @field getDefaultRomsPaths function Public Self. Retrieve the Default Roms Paths for all the consoles
+---
 --- @field RomsMainDir string Path to the main ROMS directory
 --- @field CoversDir string Path to the COVERS directory
 --- @field BackgroundDir string Path to the BACKGROUND directory
@@ -24,12 +26,24 @@ local INVARIABLE_CONSTANTS =
     AppVersion    = "0.2"
 }
 
-RetroConst.RomsMainDir = INVARIABLE_CONSTANTS.DataDirectory .. "ROMS/"
-RetroConst.CoversDir = INVARIABLE_CONSTANTS.DataDirectory .. "COVERS/"
+RetroConst.RomsMainDir    = INVARIABLE_CONSTANTS.DataDirectory .. "ROMS/"
+RetroConst.CoversDir      = INVARIABLE_CONSTANTS.DataDirectory .. "COVERS/"
 RetroConst.BackgroundsDir = INVARIABLE_CONSTANTS.DataDirectory .. "BACKGROUNDS/"
-RetroConst.IconsDir = INVARIABLE_CONSTANTS.DataDirectory .. "ICONS/"
+RetroConst.IconsDir       = INVARIABLE_CONSTANTS.DataDirectory .. "ICONS/"
 
--- We retrieve only relative path, so we need to add DataDirectory to values
 RetroConst.ConsoleFolderNames = require("modules/common/const/RetroConst_RomFolders.lua")
+
+---
+--- @function Get Default Roms Paths
+--- @description Retrieve the Default Roms Paths for all the consoles
+--- @return any Map<ConsoleKey, String> Path of all the Default Console Folders 
+---
+function RetroConst:getDefaultRomsPaths()
+    local defaultConsoleFolders = {}
+    for key,value in pairs(self.ConsoleFolderNames) do
+        defaultConsoleFolders[key] = self.RomsMainDir .. value -- Concatenate RomsMainDir and name of the Folders
+    end
+    return defaultConsoleFolders
+end
 
 return RetroConst
