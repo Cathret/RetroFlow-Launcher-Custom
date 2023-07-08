@@ -2,12 +2,12 @@
 -- Based on HexFlow Launcher  version 0.5 by VitaHEX
 -- https://www.patreon.com/vitahex
 
-local Threads   = require("addons/threads")
-local RetroText = require("modules/RetroText")
+local Threads       = require("addons/threads")
+local RetroSettings = require("modules/RetroSettings")
+local RetroText     = require("modules/RetroText")
 
 -- local RetroDir = require("modules/retrodir")
 -- local RetroRender = require("modules/retrorender")
--- local RetroSettings = require("modules/retrosettings")
 -- local RetroScan = require("modules/retroscan")
 
 oneLoopTimer = Timer.new()
