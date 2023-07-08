@@ -1,6 +1,6 @@
 ﻿---
 --- @module RetroSettings
---- @description Submodule for RetroText to handle Localization-related stuff
+--- @description Module for RetroFlow to handle applications settings
 ---
 --- @field CATEGORIES any All settings located in the Categories menu
 --- @field THEME any All settings located in the Theme menu
@@ -51,11 +51,7 @@ local RetroSettings =
     
     SCAN =
     {
-        GAME_DIRECTORIES =
-        {
-            
-        },
-        
+        gameDirectories = nil,
         enableStartupScan = false,
         adrenalineGamesToScanFolder = ""
     },
@@ -66,9 +62,12 @@ local RetroSettings =
         adrenalinePsButtonBehaviour = {},
         enableShowMissingCovers = true,
         
-        CUSTOM_COLLECTIONS =
-        {
-            
-        }
+        customCollections = {}
     }
 }
+
+local RetroConst = require("modules/common/RetroConst")
+
+RetroSettings.gameDirectories = RetroConst:getDefaultRomsPaths()
+
+return RetroSettings
