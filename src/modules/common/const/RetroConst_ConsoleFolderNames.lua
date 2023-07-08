@@ -3,7 +3,7 @@
 --- @return any Map<String, String> Key=Console | Value=FolderName
 ---
 
-local CONSOLE_KEYS = require("RetroConst_ConsoleKeys")
+local CONSOLE_KEYS = require("modules/common/const/RetroConst_ConsoleKeys")
 
 -- Default system name folders
 local ConsoleFolderNames =

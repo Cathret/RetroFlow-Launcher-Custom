@@ -19,6 +19,10 @@ local RetroConst =
     ConsoleFolderNames = nil,
 }
 
+---
+--- @class INVARIABLE_CONSTANTS
+--- @description Contains invariable values which are set directly in this file
+---
 local INVARIABLE_CONSTANTS =
 {
     AppDirectory  = "app0:", -- Equivalent to "ux0:/app/RETROFLOW/"
@@ -31,7 +35,7 @@ RetroConst.CoversDir      = INVARIABLE_CONSTANTS.DataDirectory .. "COVERS/"
 RetroConst.BackgroundsDir = INVARIABLE_CONSTANTS.DataDirectory .. "BACKGROUNDS/"
 RetroConst.IconsDir       = INVARIABLE_CONSTANTS.DataDirectory .. "ICONS/"
 
-RetroConst.ConsoleFolderNames = require("modules/common/const/RetroConst_RomFolders.lua")
+RetroConst.ConsoleFolderNames = require("modules/common/const/RetroConst_ConsoleFolderNames")
 
 ---
 --- @function Get Default Roms Paths
