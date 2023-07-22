@@ -7,7 +7,8 @@
 --- @field warningPopup function Public Static. Use Vita's system to display an Warning Popup, that will stop the execution of the app while shown. If clicking on "No", will exit the app
 --- @field errorPopup function Public Static. Use Vita's system to display an Warning Popup, that will stop the execution of the app while shown. After clicking on ok, will exit the app
 ---
---- @field _generatePopup function Private Static. Use Vita's system to display an Popup
+--- @field _generatePopup function Private Static. Generate a popup and handle breaking if needed
+--- @field _showPopup function Private Static. Use Vita's system to display an Popup
 ---
 local RetroDebug = {}
 
@@ -31,8 +32,6 @@ local RetroDebug = {}
 -- Severity
 -- OnClosed
 ---
-local PopupTasks = {}
-local CurrentPopupTask = nil;
 
 local SEVERITY =
 {
@@ -41,29 +40,6 @@ local SEVERITY =
     WARNING = 2,
     ERROR   = 3
 }
-
-local MS_TO_WAIT = 1000 -- 1s
-
-function RetroDebug:update()
-    if CurrentPopupTask ~= nil then
-        local messageState = System.getMessageState()
-        if messageState ~= RUNNING then
-            CurrentPopupTask.OnClosed(messageState)
-            CurrentPopupTask = nil
-            self.shouldDebugBreak = false
-        else -- If popup is still opened, don't do anything
-            return
-        end
-    end
-    
-    if #PopupTasks > 0 then
-        CurrentPopupTask = table.remove(PopupTasks, 1) -- Unlike other language, first item is idx 1 and not 0
-        RetroDebug._showPopup(CurrentPopupTask.Text, CurrentPopupTask.HasProgressBar, CurrentPopupTask.ButtonMode)
-        if CurrentPopupTask.Severity ~= SEVERITY.INFO then
-            self.shouldDebugBreak = true
-        end
-    end
-end
 
 ---
 --- @function Info Popup
