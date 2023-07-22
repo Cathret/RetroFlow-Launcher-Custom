@@ -68,6 +68,6 @@ local RetroSettings =
 
 local RetroConst = require("modules/common/RetroConst")
 
-RetroSettings.gameDirectories = RetroConst:getDefaultRomsPaths()
+RetroSettings.SCAN.gameDirectories = RetroConst:getDefaultRomsPaths()
 
 return RetroSettings
