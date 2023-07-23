@@ -6,19 +6,30 @@
 ---
 --- @field getAppVersion function Public Static. Get the current version of the Application
 ---
+--- @field CONSOLE_KEYS any Every key as number for each console
 --- @field RomsMainDir string Path to the main ROMS directory
 --- @field CoversDir string Path to the COVERS directory
 --- @field BackgroundsDir string Path to the BACKGROUND directory
 --- @field IconsDir string Path to the ICONS directory
+--- @field WallpapersDir string Path to the WALLPAPER directory
+--- @field MusicDir string Path to the MUSIC directory
+--- @field UserDatabaseDir string Path to the TITLES directory
+--- @field DatabaseDir string Path to the DATABASES directory
 --- @field ConsoleFolderNames any Map<ConsoleKey, String> Name of all the Console folders
 ---
 local RetroConst =
 {
-    RomsMainDir        = nil,
-    CoversDir          = nil,
-    BackgroundsDir     = nil,
-    IconsDir           = nil,
-    ConsoleFolderNames = nil,
+    CONSOLE_KEYS       = require("modules/common/const/RetroConst_ConsoleKeys"),
+    
+    RomsMainDir        = nil, -- Contains list of game Roms
+    CoversDir          = nil, -- Contains list of game Covers
+    BackgroundsDir     = nil, -- Contains list of game Backgrounds
+    IconsDir           = nil, -- Contains list of ?
+    WallpapersDir      = nil, -- Contains list of application Wallpapers
+    MusicDir           = nil, -- Contains list of application music (TODO: for now)
+    UserDatabaseDir    = nil, -- Contains list of ?Titles? TODO
+    DatabaseDir        = nil, -- Contains list of ? TODO
+    ConsoleFolderNames = nil, -- Contains list of all the directories name for each console
 }
 
 ---
@@ -32,10 +43,14 @@ local INVARIABLE_CONSTANTS =
     AppVersion    = "0.2"
 }
 
-RetroConst.RomsMainDir    = INVARIABLE_CONSTANTS.DataDirectory .. "ROMS/"
-RetroConst.CoversDir      = INVARIABLE_CONSTANTS.DataDirectory .. "COVERS/"
-RetroConst.BackgroundsDir = INVARIABLE_CONSTANTS.DataDirectory .. "BACKGROUNDS/"
-RetroConst.IconsDir       = INVARIABLE_CONSTANTS.DataDirectory .. "ICONS/"
+RetroConst.RomsMainDir     = INVARIABLE_CONSTANTS.DataDirectory .. "ROMS/"
+RetroConst.CoversDir       = INVARIABLE_CONSTANTS.DataDirectory .. "COVERS/"
+RetroConst.BackgroundsDir  = INVARIABLE_CONSTANTS.DataDirectory .. "BACKGROUNDS/"
+RetroConst.IconsDir        = INVARIABLE_CONSTANTS.DataDirectory .. "ICONS/"
+RetroConst.WallpapersDir   = INVARIABLE_CONSTANTS.DataDirectory .. "WALLPAPER/"
+RetroConst.MusicDir        = INVARIABLE_CONSTANTS.DataDirectory .. "MUSIC/"
+RetroConst.UserDatabaseDir = INVARIABLE_CONSTANTS.DataDirectory .. "TITLES/"
+RetroConst.DatabaseDir     = INVARIABLE_CONSTANTS.DataDirectory .. "DATABASES/"
 
 RetroConst.ConsoleFolderNames = require("modules/common/const/RetroConst_ConsoleFolderNames")
 
