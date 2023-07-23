@@ -8,7 +8,7 @@
 ---
 --- @field RomsMainDir string Path to the main ROMS directory
 --- @field CoversDir string Path to the COVERS directory
---- @field BackgroundDir string Path to the BACKGROUND directory
+--- @field BackgroundsDir string Path to the BACKGROUND directory
 --- @field IconsDir string Path to the ICONS directory
 --- @field ConsoleFolderNames any Map<ConsoleKey, String> Name of all the Console folders
 ---
