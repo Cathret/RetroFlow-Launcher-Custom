@@ -3,9 +3,11 @@
 --- @description Module containing stuff to be able to debug RetroFlow. Can't be called before App is started.
 ---
 --- @field infoPopup function Public Static. Use Vita's system to display an Info Popup, that won't stop the execution of the app
---- @field debugPopup function Public Static. Use Vita's system to display an Debug Popup, that will stop the execution of the app while shown
---- @field warningPopup function Public Static. Use Vita's system to display an Warning Popup, that will stop the execution of the app while shown. If clicking on "No", will exit the app
---- @field errorPopup function Public Static. Use Vita's system to display an Warning Popup, that will stop the execution of the app while shown. After clicking on ok, will exit the app
+--- @field debugPopup function Public Static. Use Vita's system to display a Debug Popup, that will stop the execution of the app while shown
+--- @field warningPopup function Public Static. Use Vita's system to display a Warning Popup, that will stop the execution of the app while shown. If clicking on "No", will exit the app
+--- @field errorPopup function Public Static. Use Vita's system to display an Error Popup, that will stop the execution of the app while shown. After clicking on ok, will exit the app
+--- @field assertWithMessage function Public Static. Verifies that a condition returns true. If not, will display an Error popup and will then exit the app
+--- @field expectEqual function Public Static. Expect the two parameters to be equal, else will assert using assertWithMessage with some info
 ---
 --- @field _generatePopup function Private Static. Generate a popup and handle breaking if needed
 --- @field _showPopup function Private Static. Use Vita's system to display an Popup
@@ -41,6 +43,8 @@ local SEVERITY =
     ERROR   = 3
 }
 
+local MAX_CHARACTERS_IN_POPUP = 300
+
 ---
 --- @function Info Popup
 --- @description Display an Info popup that won't stop the execution
@@ -53,7 +57,7 @@ end
 
 ---
 --- @function Debug Popup
---- @description Display an Debug popup that will stop the execution of the app while shown
+--- @description Display a Debug popup that will stop the execution of the app while shown
 --- 
 --- @param _text string Text to be displayed on the popup
 ---
@@ -63,7 +67,7 @@ end
 
 ---
 --- @function Warning Popup
---- @description Display an Warning popup that will stop the execution of the app while shown. If "no" is clicked, will exit the app
+--- @description Display a Warning popup that will stop the execution of the app while shown. If "no" is clicked, will exit the app
 --- 
 --- @param _text string Text to be displayed on the popup
 ---
@@ -72,13 +76,46 @@ function RetroDebug.warningPopup(_text)
 end
 
 ---
---- @function Warning Popup
---- @description Display an Warning popup that will stop the execution of the app while shown. After being closed, will exit the app
+--- @function Error Popup
+--- @description Display an Error popup that will stop the execution of the app while shown. After being closed, will exit the app
 --- 
 --- @param _text string Text to be displayed on the popup
 ---
 function RetroDebug.errorPopup(_text)
     RetroDebug._generatePopup(_text, false, BUTTON_OK, SEVERITY.ERROR)
+end
+
+---
+--- @function Assert With Message
+--- @description Verifies that a condition returns true. If not, will display an Error popup that will stop the execution of the app while shown. After being closed, will exit the app
+--- 
+--- @param _condition boolean Condition to be true. Else will lift an Error
+--- @param _text string Text to be displayed on the popup
+---
+function RetroDebug.assertWithMessage(_condition, _text)
+    if _condition == false then
+        RetroDebug.errorPopup("ASSERT: " .. _text)
+    end
+end
+
+---
+--- @function Expect Equal
+--- @description Expect the two parameters to be equal, else will assert using assertWithMessage with some info
+--- 
+--- @param _left any First value to be equal to second value
+--- @param _right any Second value to be equal to first value
+--- @param _title string Is Optional. Text to prefix the popup content
+---
+function RetroDebug.expectEqual(_left, _right, --[[opt]]_title)
+    _title = _title or nil
+    
+    local valueIfNil = "~NIL~"
+    local text = "Expected Equal [" .. (_left or valueIfNil) .. "] and [" .. (_right or valueIfNil) .. "]"
+    if _title ~= nil then
+        text = _title .. "\n" .. text
+    end
+    
+    RetroDebug.assertWithMessage(_left == _right, text)
 end
 
 ---
@@ -110,16 +147,29 @@ function RetroDebug._generatePopup(_text, _hasProgressBar, _btnMode, _severity)
         end
     end
     
-    RetroDebug._showPopup(_text, _hasProgressBar, _btnMode)
-
-    local messageState = System.getMessageState()
-    while messageState == RUNNING do
-        Graphics.initBlend()
-        Graphics.termBlend()
-        Screen.waitVblankStart()
-        Screen.flip()
+    -- Quite annoying check since having too many characters in Vita's popup will make them not display
+    local textSize = string.len(_text)
+    for i = 1, textSize, MAX_CHARACTERS_IN_POPUP do
+        local isLastRun = i == textSize
+        local shrinkedText = string.sub(_text, i, i + MAX_CHARACTERS_IN_POPUP) -- Get maximum characters to display in a single popup
+        local btnMode = isLastRun and _btnMode or BUTTON_YES_NO -- If we are not on the last popup, use Yes/No choice to continue displaying missing popups (since Ok/Cancel doens't return Cancel)
         
-        messageState = System.getMessageState()
+        RetroDebug._showPopup(shrinkedText, _hasProgressBar, btnMode)
+    
+        local messageState = System.getMessageState()
+        while messageState == RUNNING do
+            Graphics.initBlend()
+            Graphics.termBlend()
+            Screen.waitVblankStart()
+            Screen.flip()
+            
+            messageState = System.getMessageState()
+        end
+
+        -- If we chose "No" in popup, do not display future ones
+        if isLastRun == false and messageState == CANCELED then
+            break
+        end
     end
 
     onClosedFunc(messageState)
