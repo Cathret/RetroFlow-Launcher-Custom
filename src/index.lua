@@ -1,11 +1,13 @@
--- RetroFlow Launcher - HexFlow Mod version by jimbob4000
+-- RetroFlow Launcher - HexFlow Mod version by jimbob4000 - Refactored by Cathret
 -- Based on HexFlow Launcher  version 0.5 by VitaHEX
 -- https://www.patreon.com/vitahex
 
 local Threads       = require("addons/threads")
 local RetroConst    = require("modules/common/RetroConst")
+local RetroDebug    = require("modules/common/RetroDebug")
 local RetroSettings = require("modules/RetroSettings")
 local RetroText     = require("modules/RetroText")
+local RetroUtils    = require("modules/common/RetroUtils")
 
 -- local RetroDir = require("modules/retrodir")
 -- local RetroRender = require("modules/retrorender")
@@ -31,6 +33,11 @@ romsMainDir = "ux0:/data/RetroFlow/ROMS/"
 covDir = "ux0:/data/RetroFlow/COVERS/"
 snapDir = "ux0:/data/RetroFlow/BACKGROUNDS/"
 iconDir = "ux0:/data/RetroFlow/ICONS/"
+
+RetroDebug.expectEqual(romsMainDir, RetroConst.RomsMainDir, "RomsMainDir")
+RetroDebug.expectEqual(covDir, RetroConst.CoversDir, "CoversDir")
+RetroDebug.expectEqual(snapDir, RetroConst.BackgroundsDir, "BackgroundsDir")
+RetroDebug.expectEqual(iconDir, RetroConst.IconsDir, "IconsDir")
 
 -- Tidy up legacy COVER folder structure to a more standard naming convention
 if System.doesDirExist("ux0:/data/RetroFlow/COVERS/MAME") then System.rename("ux0:/data/RetroFlow/COVERS/MAME", "ux0:/data/RetroFlow/COVERS/MAME 2000") end
@@ -78,6 +85,8 @@ romDir_Default =
 ["Pico8"] = "ux0:/data/RetroFlow/ROMS/Lexaloffle Games - Pico-8",
 
 }
+
+RetroDebug.expectEqual(romDir_Default["Atari_2600"], RetroConst:getDefaultRomsPaths()[RetroConst.CONSOLE_KEYS.Atari2600])
 
 adr_partition_table =
 {
@@ -847,11 +856,13 @@ Graphics.setImageFilters(imgFloor, FILTER_LINEAR, FILTER_LINEAR)
 -- CREATE DIRECTORIES
 
 -- Create directory: Backgrounds
-local background_dir = "ux0:/data/RetroFlow/WALLPAPER/"
+background_dir = "ux0:/data/RetroFlow/WALLPAPER/"
+RetroDebug.expectEqual(background_dir, RetroConst.WallpapersDir, "WallpapersDir")
 System.createDirectory(background_dir)
 
 -- Create directory: Music
-local music_dir = "ux0:/data/RetroFlow/MUSIC/"
+music_dir = "ux0:/data/RetroFlow/MUSIC/"
+RetroDebug.expectEqual(music_dir, RetroConst.MusicDir, "MusicDir")
 System.createDirectory(music_dir)
 
 -- Create directory: Cover Folders
@@ -867,7 +878,8 @@ for k, v in pairs(SystemsToScan) do
 end
 
 -- Create directory: User Database
-local user_DB_Folder = "ux0:/data/RetroFlow/TITLES/"
+user_DB_Folder = "ux0:/data/RetroFlow/TITLES/"
+RetroDebug.expectEqual(user_DB_Folder, RetroConst.UserDatabaseDir, "UserDbDir")
 System.createDirectory(user_DB_Folder)
 
 -- Import scummvm titles early for loading screen
@@ -878,7 +890,8 @@ else
 end
 
 -- Create directory: Databases
-local db_Folder = "ux0:/data/RetroFlow/DATABASES/"
+db_Folder = "ux0:/data/RetroFlow/DATABASES/"
+RetroDebug.expectEqual(db_Folder, RetroConst.DatabaseDir, "UserDbDir")
 System.createDirectory(db_Folder)
 
 -- Copy databases from app to data
@@ -9221,22 +9234,22 @@ functionTime = Timer.getTime(oneLoopTimer)
 
 -- Main loop
 while true do
-    
+
     -- Threads update
     Threads.update()
-    
+
     -- Reading input
     pad = Controls.read()
-    
+
     mx, my = Controls.readLeftAnalog()
-    
+
     -- touch input
     x1, y1 = Controls.readTouch()
-    
+
     -- Initializing rendering
     Graphics.initBlend()
     Screen.clear(black)
-    
+
     if delayButton > 0 then
         delayButton = delayButton - 0.1
     else
@@ -9248,447 +9261,447 @@ while true do
     else
         hideBoxes = 0
     end
-    
+
     -- Music
     if setMusic == 1 then
 
         -- More than 1 track - move to next if the song is over
         if #music_sequential > 1 then
-            
+
             -- Is it playing?
 
             if Sound.isPlaying(sndMusic) then
                 -- Yes - do nothing
             else
                 -- No - go to the next track
-                track = track + 1 
+                track = track + 1
                 PlayMusic()
             end
 
-        -- Only 1 track - do nothing
-        else   
+            -- Only 1 track - do nothing
+        else
         end
     end
 
 
     -- Keyboard functions
-    
-        function keyboard_search_function()
-            if state ~= RUNNING and hasTyped == true then
-                        
-                hasTyped = false
 
-                -- Typed text
-                ret_search = "" .. Keyboard.getInput()
+    function keyboard_search_function()
+        if state ~= RUNNING and hasTyped == true then
 
-                -- Bug fix, for when enter pressed without text, do nothing
-                if string.len(ret_search) == 0 then
-                    state = CANCELED
-                    -- Terminating keyboard
-                    Keyboard.clear()
-                end
+            hasTyped = false
 
-                if state == CANCELED then
-                else
+            -- Typed text
+            ret_search = "" .. Keyboard.getInput()
 
-                    search_results_table = {}
-                    -- If already on search category, move away
-                    if showCat == 44 then 
-                        showCat = 0
-                    end
-
-                    -- Typed text
-                    -- Converted to upper, lower case and proper case for broader results
-                    ret_search_lc = string.lower(ret_search)
-                    ret_search_uc = string.upper(ret_search)
-                    ret_search_pc = string.gsub(" "..ret_search, "%W%l", string.upper):sub(2)
-
-                    for l, file in pairs(files_table) do
-                        if string.match(file.apptitle, escape_pattern(ret_search)) or string.match(file.apptitle, escape_pattern(ret_search_lc)) or string.match(file.apptitle, escape_pattern(ret_search_uc)) or string.match(file.apptitle, escape_pattern(ret_search_pc)) then
-                            table.insert(search_results_table, file)
-                            table.sort(search_results_table, function(a, b) return (a.apptitle:lower() < b.apptitle:lower()) end)
-                            local app_title = search_results_table[1].app_title
-                        else
-                            local app_title = lang_lines.Search_No_Results -- Workaround - hides last name shown before searching
-                        end
-                    end
-
-                    showCat = 44
-                    p = 1
-                    master_index = p
-                    showMenu = 0
-                    GetNameAndAppTypeSelected()
-                end
-
+            -- Bug fix, for when enter pressed without text, do nothing
+            if string.len(ret_search) == 0 then
+                state = CANCELED
                 -- Terminating keyboard
-                keyboard_search = false
                 Keyboard.clear()
-            else
             end
-        end
 
-        function keyboard_rename_function()
-            if state ~= RUNNING and hasTyped == true then
+            if state == CANCELED then
+            else
 
-                hasTyped = false
-
-                -- Typed text
-                ret_rename = "" .. Keyboard.getInput()
-
-                -- Bug fix, for when enter pressed without text, do nothing
-                if string.len(ret_rename) == 0 then
-                    state = CANCELED
-                    -- Terminating keyboard
-                    Keyboard.clear()
+                search_results_table = {}
+                -- If already on search category, move away
+                if showCat == 44 then
+                    showCat = 0
                 end
 
-                if state == CANCELED and keyboard_rename == true then
-                else
+                -- Typed text
+                -- Converted to upper, lower case and proper case for broader results
+                ret_search_lc = string.lower(ret_search)
+                ret_search_uc = string.upper(ret_search)
+                ret_search_pc = string.gsub(" "..ret_search, "%W%l", string.upper):sub(2)
 
-                    -- Update current table
-                    xCatLookup(showCat)[p].apptitle = ret_rename
-                    xCatLookup(showCat)[p].title = ret_rename    
-                    txtname = ret_rename
-
-                    -- START updating other tables -- 
-
-                    -- Recent
-                    if #recently_played_table ~= nil then
-                        local key = find_game_table_pos_key(recently_played_table, app_titleid)
-                        if key ~= nil then
-                            -- Yes - Found in files table
-                            recently_played_table[key].title = ret_rename
-                            recently_played_table[key].apptitle = ret_rename
-
-
-                            -- Look for custom cover name - Recent table
-
-                                -- Custom name
-                                if System.doesFileExist(recently_played_table[key].cover_path_local .. recently_played_table[key].apptitle .. ".png") then
-                                    recently_played_table[key].icon_path = (recently_played_table[key].cover_path_local .. recently_played_table[key].apptitle .. ".png")
-                                
-                                -- App name
-                                elseif System.doesFileExist(recently_played_table[key].cover_path_local .. recently_played_table[key].name .. ".png") then
-                                    recently_played_table[key].icon_path = recently_played_table[key].cover_path_local .. recently_played_table[key].name .. ".png"
-                                
-                                -- Vita ur0 png
-                                elseif System.doesFileExist("ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png") then
-                                    recently_played_table[key].icon_path = "ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png"
-
-                                -- Pico8 rom folder png
-                                elseif recently_played_table[key].app_type == 41 then
-                                    recently_played_table[key].icon_path = recently_played_table[key].game_path
-
-                                -- Missing cover png -- find me
-                                elseif System.doesFileExist("app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png") then
-                                    recently_played_table[key].icon_path = "app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png"
-
-                                -- Fallback - blank grey
-                                else
-                                    recently_played_table[key].icon_path = "app0:/DATA/noimg.png" --blank grey
-                                end
-
-
-                            -- Look for custom cover name - Game table by app type
-
-                                local key2 = find_game_table_pos_key(xAppNumTableLookup(apptype), app_titleid)
-                                if key2 ~= nil then
-
-                                    -- Custom name
-                                    if System.doesFileExist(xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].apptitle .. ".png") then
-                                        xAppNumTableLookup(apptype)[key2].icon_path = xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].apptitle .. ".png"
-                                    
-                                    -- App name
-                                    elseif System.doesFileExist(xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].name .. ".png") then
-                                        xAppNumTableLookup(apptype)[key2].icon_path = xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].name .. ".png"
-                                    
-                                    -- Vita ur0 png
-                                    elseif System.doesFileExist("ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png") then
-                                        xAppNumTableLookup(apptype)[key2].icon_path = "ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png"
-
-                                    -- Pico8 rom folder png
-                                    elseif xAppNumTableLookup(apptype)[key2].app_type == 41 then
-                                        xAppNumTableLookup(apptype)[key2].icon_path = xAppNumTableLookup(apptype)[key2].game_path
-
-                                    -- Missing cover png -- find me
-                                    elseif System.doesFileExist("app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png") then
-                                        xAppNumTableLookup(apptype)[key2].icon_path = "app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png"
-
-                                    -- Fallback - blank grey
-                                    else
-                                        xAppNumTableLookup(apptype)[key2].icon_path = "app0:/DATA/noimg.png" --blank grey
-                                    end
-                                else
-                                end
-
-                            update_cached_table_recently_played()
-                        else
-                          -- No
-                        end
+                for l, file in pairs(files_table) do
+                    if string.match(file.apptitle, escape_pattern(ret_search)) or string.match(file.apptitle, escape_pattern(ret_search_lc)) or string.match(file.apptitle, escape_pattern(ret_search_uc)) or string.match(file.apptitle, escape_pattern(ret_search_pc)) then
+                        table.insert(search_results_table, file)
+                        table.sort(search_results_table, function(a, b) return (a.apptitle:lower() < b.apptitle:lower()) end)
+                        local app_title = search_results_table[1].app_title
                     else
+                        local app_title = lang_lines.Search_No_Results -- Workaround - hides last name shown before searching
                     end
+                end
 
-                    -- Favourites
-                    if #fav_count ~= nil then
-                        local key = find_game_table_pos_key(fav_count, app_titleid)
-                        if key ~= nil then
-                            -- Yes - Found in files table
-                            fav_count[key].title = ret_rename
-                            fav_count[key].apptitle = ret_rename
-                        else
-                            -- No
-                        end
-                    else
-                    end
-                    
+                showCat = 44
+                p = 1
+                master_index = p
+                showMenu = 0
+                GetNameAndAppTypeSelected()
+            end
 
-                    -- Look for custom cover name
+            -- Terminating keyboard
+            keyboard_search = false
+            Keyboard.clear()
+        else
+        end
+    end
+
+    function keyboard_rename_function()
+        if state ~= RUNNING and hasTyped == true then
+
+            hasTyped = false
+
+            -- Typed text
+            ret_rename = "" .. Keyboard.getInput()
+
+            -- Bug fix, for when enter pressed without text, do nothing
+            if string.len(ret_rename) == 0 then
+                state = CANCELED
+                -- Terminating keyboard
+                Keyboard.clear()
+            end
+
+            if state == CANCELED and keyboard_rename == true then
+            else
+
+                -- Update current table
+                xCatLookup(showCat)[p].apptitle = ret_rename
+                xCatLookup(showCat)[p].title = ret_rename
+                txtname = ret_rename
+
+                -- START updating other tables -- 
+
+                -- Recent
+                if #recently_played_table ~= nil then
+                    local key = find_game_table_pos_key(recently_played_table, app_titleid)
+                    if key ~= nil then
+                        -- Yes - Found in files table
+                        recently_played_table[key].title = ret_rename
+                        recently_played_table[key].apptitle = ret_rename
+
+
+                        -- Look for custom cover name - Recent table
 
                         -- Custom name
-                        if System.doesFileExist(xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].apptitle .. ".png") then
-                            xCatLookup(showCat)[p].icon_path = xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].apptitle .. ".png"
-                        
-                        -- App name
-                        elseif System.doesFileExist(xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].name .. ".png") then
-                            xCatLookup(showCat)[p].icon_path = xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].name .. ".png"
-                        
-                        -- Vita ur0 png
-                        elseif System.doesFileExist("ur0:/appmeta/" .. xCatLookup(showCat)[p].name .. "/icon0.png") then
-                            xCatLookup(showCat)[p].icon_path = "ur0:/appmeta/" .. xCatLookup(showCat)[p].name .. "/icon0.png"
+                        if System.doesFileExist(recently_played_table[key].cover_path_local .. recently_played_table[key].apptitle .. ".png") then
+                            recently_played_table[key].icon_path = (recently_played_table[key].cover_path_local .. recently_played_table[key].apptitle .. ".png")
 
-                        -- Pico8 rom folder png
-                        elseif xCatLookup(showCat)[p].app_type == 41 then
-                            xCatLookup(showCat)[p].icon_path = xCatLookup(showCat)[p].game_path
+                            -- App name
+                        elseif System.doesFileExist(recently_played_table[key].cover_path_local .. recently_played_table[key].name .. ".png") then
+                            recently_played_table[key].icon_path = recently_played_table[key].cover_path_local .. recently_played_table[key].name .. ".png"
 
-                        -- Missing cover png -- find me
-                        elseif System.doesFileExist("app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(xCatLookup(showCat)[p].app_type) .. ".png") then
-                            xCatLookup(showCat)[p].icon_path = "app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(xCatLookup(showCat)[p].app_type) .. ".png"
+                            -- Vita ur0 png
+                        elseif System.doesFileExist("ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png") then
+                            recently_played_table[key].icon_path = "ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png"
 
-                        -- Fallback - blank grey
+                            -- Pico8 rom folder png
+                        elseif recently_played_table[key].app_type == 41 then
+                            recently_played_table[key].icon_path = recently_played_table[key].game_path
+
+                            -- Missing cover png -- find me
+                        elseif System.doesFileExist("app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png") then
+                            recently_played_table[key].icon_path = "app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png"
+
+                            -- Fallback - blank grey
                         else
-                            xCatLookup(showCat)[p].icon_path = "app0:/DATA/noimg.png" --blank grey
+                            recently_played_table[key].icon_path = "app0:/DATA/noimg.png" --blank grey
                         end
 
 
-                    -- Renamed
-                    -- Has the game been renamed before?
-                    if #renamed_games_table ~= nil then
-                        local key = find_game_table_pos_key(renamed_games_table, app_titleid)
-                        if key ~= nil then
-                            -- Yes - it's already in the rename list, update it.
-                            renamed_games_table[key].title = ret_rename
-                        else
-                            -- No, it's new, add it to the rename list
-                            renamed_game_temp = {}
-                            table.insert(renamed_game_temp, {name = app_titleid, title = ret_rename})
+                        -- Look for custom cover name - Game table by app type
 
-                            for i, file in pairs(renamed_game_temp) do
-                                table.insert(renamed_games_table, file)
+                        local key2 = find_game_table_pos_key(xAppNumTableLookup(apptype), app_titleid)
+                        if key2 ~= nil then
+
+                            -- Custom name
+                            if System.doesFileExist(xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].apptitle .. ".png") then
+                                xAppNumTableLookup(apptype)[key2].icon_path = xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].apptitle .. ".png"
+
+                                -- App name
+                            elseif System.doesFileExist(xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].name .. ".png") then
+                                xAppNumTableLookup(apptype)[key2].icon_path = xAppNumTableLookup(apptype)[key2].cover_path_local .. recently_played_table[key].name .. ".png"
+
+                                -- Vita ur0 png
+                            elseif System.doesFileExist("ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png") then
+                                xAppNumTableLookup(apptype)[key2].icon_path = "ur0:/appmeta/" .. recently_played_table[key].name .. "/icon0.png"
+
+                                -- Pico8 rom folder png
+                            elseif xAppNumTableLookup(apptype)[key2].app_type == 41 then
+                                xAppNumTableLookup(apptype)[key2].icon_path = xAppNumTableLookup(apptype)[key2].game_path
+
+                                -- Missing cover png -- find me
+                            elseif System.doesFileExist("app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png") then
+                                xAppNumTableLookup(apptype)[key2].icon_path = "app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(recently_played_table[key].app_type) .. ".png"
+
+                                -- Fallback - blank grey
+                            else
+                                xAppNumTableLookup(apptype)[key2].icon_path = "app0:/DATA/noimg.png" --blank grey
                             end
-                        end
-                        -- Save the renamed table for importing on restart
-                        update_cached_table_renamed_games()
-                    else
-                    end
-
-                    temp_import_homebrew()
-
-                    -- Apptype table
-                    update_cached_table(xAppDbFileLookup(apptype), xAppNumTableLookup(apptype))
-
-                    -- All other tables - re-import cache and rename if match rename table
-                    files_table = import_cached_DB()
-                    import_collections()
-
-                    -- Get favourites list - so can stay on favourites category if renaming from there
-                    create_fav_count_table(return_table)
-
-                    -- END updating other tables -- 
-
-                    -- Get ready for reload - Game position may change due to alphabetical sorting, find its new position
-                    if #xCatLookup(showCat) ~= nil then
-                        local key = find_game_table_pos_key(xCatLookup(showCat), app_titleid)
-                        if key ~= nil then
-                            p = key
-                            master_index = p
-                            -- showMenu = 0
-                            
-                            -- Instantly move to selection
-                            if startCovers == false then
-                                targetX = base_x
-                                startCovers = true
-                                GetInfoSelected()
-                            end
-
                         else
-                            showCat = 1
-                            p = 1
-                            master_index = p
-                            -- showMenu = 0
                         end
+
+                        update_cached_table_recently_played()
                     else
+                        -- No
                     end
+                else
+                end
 
-                    GetNameAndAppTypeSelected()
-                    -- Render.useTexture(modBackground, imgCustomBack)
+                -- Favourites
+                if #fav_count ~= nil then
+                    local key = find_game_table_pos_key(fav_count, app_titleid)
+                    if key ~= nil then
+                        -- Yes - Found in files table
+                        fav_count[key].title = ret_rename
+                        fav_count[key].apptitle = ret_rename
+                    else
+                        -- No
+                    end
+                else
+                end
 
-                    GetInfoSelected()
 
-                    
+                -- Look for custom cover name
 
-                    -- Instant cover update - Credit BlackSheepBoy69
-                    Threads.addTask(xCatLookup(showCat)[p], {
+                -- Custom name
+                if System.doesFileExist(xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].apptitle .. ".png") then
+                    xCatLookup(showCat)[p].icon_path = xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].apptitle .. ".png"
+
+                    -- App name
+                elseif System.doesFileExist(xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].name .. ".png") then
+                    xCatLookup(showCat)[p].icon_path = xCatLookup(showCat)[p].cover_path_local .. xCatLookup(showCat)[p].name .. ".png"
+
+                    -- Vita ur0 png
+                elseif System.doesFileExist("ur0:/appmeta/" .. xCatLookup(showCat)[p].name .. "/icon0.png") then
+                    xCatLookup(showCat)[p].icon_path = "ur0:/appmeta/" .. xCatLookup(showCat)[p].name .. "/icon0.png"
+
+                    -- Pico8 rom folder png
+                elseif xCatLookup(showCat)[p].app_type == 41 then
+                    xCatLookup(showCat)[p].icon_path = xCatLookup(showCat)[p].game_path
+
+                    -- Missing cover png -- find me
+                elseif System.doesFileExist("app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(xCatLookup(showCat)[p].app_type) .. ".png") then
+                    xCatLookup(showCat)[p].icon_path = "app0:/DATA/" .. xAppNumTableLookup_Missing_Cover(xCatLookup(showCat)[p].app_type) .. ".png"
+
+                    -- Fallback - blank grey
+                else
+                    xCatLookup(showCat)[p].icon_path = "app0:/DATA/noimg.png" --blank grey
+                end
+
+
+                -- Renamed
+                -- Has the game been renamed before?
+                if #renamed_games_table ~= nil then
+                    local key = find_game_table_pos_key(renamed_games_table, app_titleid)
+                    if key ~= nil then
+                        -- Yes - it's already in the rename list, update it.
+                        renamed_games_table[key].title = ret_rename
+                    else
+                        -- No, it's new, add it to the rename list
+                        renamed_game_temp = {}
+                        table.insert(renamed_game_temp, {name = app_titleid, title = ret_rename})
+
+                        for i, file in pairs(renamed_game_temp) do
+                            table.insert(renamed_games_table, file)
+                        end
+                    end
+                    -- Save the renamed table for importing on restart
+                    update_cached_table_renamed_games()
+                else
+                end
+
+                temp_import_homebrew()
+
+                -- Apptype table
+                update_cached_table(xAppDbFileLookup(apptype), xAppNumTableLookup(apptype))
+
+                -- All other tables - re-import cache and rename if match rename table
+                files_table = import_cached_DB()
+                import_collections()
+
+                -- Get favourites list - so can stay on favourites category if renaming from there
+                create_fav_count_table(return_table)
+
+                -- END updating other tables -- 
+
+                -- Get ready for reload - Game position may change due to alphabetical sorting, find its new position
+                if #xCatLookup(showCat) ~= nil then
+                    local key = find_game_table_pos_key(xCatLookup(showCat), app_titleid)
+                    if key ~= nil then
+                        p = key
+                        master_index = p
+                        -- showMenu = 0
+
+                        -- Instantly move to selection
+                        if startCovers == false then
+                            targetX = base_x
+                            startCovers = true
+                            GetInfoSelected()
+                        end
+
+                    else
+                        showCat = 1
+                        p = 1
+                        master_index = p
+                        -- showMenu = 0
+                    end
+                else
+                end
+
+                GetNameAndAppTypeSelected()
+                -- Render.useTexture(modBackground, imgCustomBack)
+
+                GetInfoSelected()
+
+
+
+                -- Instant cover update - Credit BlackSheepBoy69
+                Threads.addTask(xCatLookup(showCat)[p], {
                     Type = "ImageLoad",
                     Path = xCatLookup(showCat)[p].icon_path,
                     Table = xCatLookup(showCat)[p],
                     Index = "ricon"
-                    })
+                })
 
-                end
+            end
 
-                keyboard_rename = false
+            keyboard_rename = false
+            -- Terminating keyboard
+            Keyboard.clear()
+        else
+        end
+    end
+
+    function keyboard_collection_name_new_function()
+        if state ~= RUNNING and hasTyped == true then
+
+            hasTyped = false
+
+            -- Typed text
+            ret_collection = "" .. Keyboard.getInput()
+
+            -- Bug fix, for when enter pressed without text, do nothing
+            if string.len(ret_collection) == 0 then
+                state = CANCELED
                 -- Terminating keyboard
                 Keyboard.clear()
-            else
             end
-        end
 
-        function keyboard_collection_name_new_function()
-            if state ~= RUNNING and hasTyped == true then
-                    
-                hasTyped = false
+            if state == CANCELED then
+            else
 
-                -- Typed text
-                ret_collection = "" .. Keyboard.getInput()
-
-                -- Bug fix, for when enter pressed without text, do nothing
-                if string.len(ret_collection) == 0 then
-                    state = CANCELED
-                    -- Terminating keyboard
-                    Keyboard.clear()
-                end
-
-                if state == CANCELED then
-                else
-
-                    ret_collection_filename = "Collection_" .. ret_collection:gsub(" ", "_") .. ".lua"
+                ret_collection_filename = "Collection_" .. ret_collection:gsub(" ", "_") .. ".lua"
 
 
-                    local duplicate_name_num = 1
-                    function check_if_collection_file_exists(def_duplicate_name_num)
-                        if System.doesFileExist(collections_dir .. "Collection_" .. ret_collection:gsub(" ", "_") .. "_(" .. (def_duplicate_name_num) .. ")".. ".lua") then
-                            return true
-                        else
-                            return false
-                        end
-                    end
-
-                    -- Append number if filename already exists (prevents overwriting a list)
-                    if System.doesFileExist(collections_dir .. ret_collection_filename) then
-                        
-                        while check_if_collection_file_exists(duplicate_name_num) == true do
-                            duplicate_name_num = duplicate_name_num + 1  
-                        end
-
-                        ret_collection_filename = "Collection_" .. ret_collection:gsub(" ", "_") .. "_(" .. duplicate_name_num .. ")".. ".lua"
+                local duplicate_name_num = 1
+                function check_if_collection_file_exists(def_duplicate_name_num)
+                    if System.doesFileExist(collections_dir .. "Collection_" .. ret_collection:gsub(" ", "_") .. "_(" .. (def_duplicate_name_num) .. ")".. ".lua") then
+                        return true
                     else
+                        return false
+                    end
+                end
+
+                -- Append number if filename already exists (prevents overwriting a list)
+                if System.doesFileExist(collections_dir .. ret_collection_filename) then
+
+                    while check_if_collection_file_exists(duplicate_name_num) == true do
+                        duplicate_name_num = duplicate_name_num + 1
                     end
 
-                    new_collection = {}
-                    new_collection = 
-                    { 
-                        [1] = 
-                        {
-                            ["apptitle"] = xCatLookup(showCat)[p].title,
-                            ["name"] = xCatLookup(showCat)[p].name,
-                            ["app_type"] = xCatLookup(showCat)[p].app_type,
-                        },
-                    }
-
-                    update_cached_collection(ret_collection_filename, new_collection)
-                    create_collections_list()
-                    -- import_collections()
-                    -- count_cache_and_reload()
-
-                    keyboard_collection_name_new = false
-                    -- Terminating keyboard
-                    Keyboard.clear()
-
-                    FreeIcons()
-                    FreeMemory()
-                    Network.term()
-                    dofile("app0:index.lua")
-
+                    ret_collection_filename = "Collection_" .. ret_collection:gsub(" ", "_") .. "_(" .. duplicate_name_num .. ")".. ".lua"
+                else
                 end
+
+                new_collection = {}
+                new_collection =
+                {
+                    [1] =
+                    {
+                        ["apptitle"] = xCatLookup(showCat)[p].title,
+                        ["name"] = xCatLookup(showCat)[p].name,
+                        ["app_type"] = xCatLookup(showCat)[p].app_type,
+                    },
+                }
+
+                update_cached_collection(ret_collection_filename, new_collection)
+                create_collections_list()
+                -- import_collections()
+                -- count_cache_and_reload()
 
                 keyboard_collection_name_new = false
                 -- Terminating keyboard
                 Keyboard.clear()
-            else
+
+                FreeIcons()
+                FreeMemory()
+                Network.term()
+                dofile("app0:index.lua")
+
             end
+
+            keyboard_collection_name_new = false
+            -- Terminating keyboard
+            Keyboard.clear()
+        else
         end
+    end
 
-        function keyboard_collection_rename_function()
-            if state ~= RUNNING and hasTyped == true then
-                    
-                hasTyped = false
+    function keyboard_collection_rename_function()
+        if state ~= RUNNING and hasTyped == true then
 
-                -- Typed text
-                ret_rename_collection = "" .. Keyboard.getInput()
+            hasTyped = false
 
-                -- Bug fix, for when enter pressed without text, do nothing
-                if string.len(ret_rename_collection) == 0 then
-                    state = CANCELED
-                    -- Terminating keyboard
-                    Keyboard.clear()
+            -- Typed text
+            ret_rename_collection = "" .. Keyboard.getInput()
+
+            -- Bug fix, for when enter pressed without text, do nothing
+            if string.len(ret_rename_collection) == 0 then
+                state = CANCELED
+                -- Terminating keyboard
+                Keyboard.clear()
+            end
+
+            if state == CANCELED then
+            else
+
+                ret_rename_collection_new_filename = "Collection_" .. ret_rename_collection:gsub(" ", "_") .. ".lua"
+
+                if System.doesFileExist(collections_dir .. keyboard_collection_rename_filename) then
+                    System.rename(collections_dir .. keyboard_collection_rename_filename, collections_dir .. ret_rename_collection_new_filename)
+                else
                 end
 
-                if state == CANCELED then
+                if string.match(startCategory_collection, keyboard_collection_rename_table_name) then
+                    startCategory_collection_renamed = "Collection_" .. ret_rename_collection:gsub(" ", "_")
+                    SaveSettings()
                 else
-
-                    ret_rename_collection_new_filename = "Collection_" .. ret_rename_collection:gsub(" ", "_") .. ".lua"
-                
-                    if System.doesFileExist(collections_dir .. keyboard_collection_rename_filename) then
-                        System.rename(collections_dir .. keyboard_collection_rename_filename, collections_dir .. ret_rename_collection_new_filename)
-                    else
-                    end
-
-                    if string.match(startCategory_collection, keyboard_collection_rename_table_name) then
-                        startCategory_collection_renamed = "Collection_" .. ret_rename_collection:gsub(" ", "_")
-                        SaveSettings()
-                    else
-                        startCategory_collection_renamed = {}
-                    end
-                    
-                    keyboard_collection_rename = false
-                    -- Terminating keyboard
-                    Keyboard.clear()
-
-                    FreeIcons()
-                    FreeMemory()
-                    Network.term()
-                    dofile("app0:index.lua")
-
+                    startCategory_collection_renamed = {}
                 end
 
                 keyboard_collection_rename = false
                 -- Terminating keyboard
                 Keyboard.clear()
-            else
+
+                FreeIcons()
+                FreeMemory()
+                Network.term()
+                dofile("app0:index.lua")
+
             end
+
+            keyboard_collection_rename = false
+            -- Terminating keyboard
+            Keyboard.clear()
+        else
         end
+    end
 
     -- Keyboard logic
 
-        state = Keyboard.getState()
+    state = Keyboard.getState()
 
-        if      keyboard_rename == true     and keyboard_collection_name_new == false   and keyboard_collection_rename == false     then keyboard_rename_function()
-        elseif  keyboard_rename == false    and keyboard_collection_name_new == true    and keyboard_collection_rename == false     then keyboard_collection_name_new_function()
-        elseif  keyboard_rename == false    and keyboard_collection_name_new == false   and keyboard_collection_rename == true      then keyboard_collection_rename_function()
+    if      keyboard_rename == true     and keyboard_collection_name_new == false   and keyboard_collection_rename == false     then keyboard_rename_function()
+    elseif  keyboard_rename == false    and keyboard_collection_name_new == true    and keyboard_collection_rename == false     then keyboard_collection_name_new_function()
+    elseif  keyboard_rename == false    and keyboard_collection_name_new == false   and keyboard_collection_rename == true      then keyboard_collection_rename_function()
 
-        else
-            keyboard_search_function()
-        end
+    else
+        keyboard_search_function()
+    end
 
 
     -- Graphics
@@ -9697,11 +9710,11 @@ while true do
     else
         Render.drawModel(modDefaultBackground, 0, 0, -5, 0, 0, 0)-- Draw Background as model
     end
-    
+
     Graphics.fillRect(0, 960, 496, 544, themeCol)-- footer bottom
 
 
--- MENU 0 - GAMES SCREEN
+    -- MENU 0 - GAMES SCREEN
     if showMenu == 0 then
         -- MAIN VIEW
 
@@ -9730,7 +9743,7 @@ while true do
         label2 = RetroText.getSmallTextWidth("Details")
         label3 = RetroText.getSmallTextWidth("Category")
         label4 = RetroText.getSmallTextWidth("View")
-        
+
         if showCat == 1 then RetroText.printMedium(32, 34,      "PS_Vita", white)
         elseif showCat == 2 then RetroText.printMedium(32, 34,  "Homebrews", white)
         elseif showCat == 3 then RetroText.printMedium(32, 34,  "PSP", white)
@@ -9747,7 +9760,7 @@ while true do
         elseif showCat == 14 then RetroText.printMedium(32, 34, "Sega_32X", white)
         elseif showCat == 15 then RetroText.printMedium(32, 34, "Sega_Mega_Drive", white)
         elseif showCat == 16 then RetroText.printMedium(32, 34, "Sega_Master_System", white)
-        elseif showCat == 17 then RetroText.printMedium(32, 34, "Sega_Game_Gear", white)        
+        elseif showCat == 17 then RetroText.printMedium(32, 34, "Sega_Game_Gear", white)
         elseif showCat == 18 then RetroText.printMedium(32, 34, "TurboGrafx_16", white)
         elseif showCat == 19 then RetroText.printMedium(32, 34, "TurboGrafx_CD", white)
         elseif showCat == 20 then RetroText.printMedium(32, 34, "PC_Engine", white)
@@ -9783,7 +9796,7 @@ while true do
             Graphics.drawImage(800 + pstv_offset, 35, imgWifi)-- wifi icon
         end
 
-    
+
         if showView ~= 2 then
             if showView == 5 then
                 RetroText.printNonLocaMedium(fv_left_margin - fv_border, fv_cover_height + fv_cover_y + 30, app_title, white)
@@ -9794,7 +9807,7 @@ while true do
             end
         else
             Graphics.fillRect(0, 960, 496, 544, themeCol)-- footer bottom
-            
+
             -- Add gradient to mask out long names so they don't crash into the footer controls 
             RetroText.printNonLocaMedium(24, 506, app_title, white)
             Graphics.drawImage(900-(btnMargin * 8)-label1-label2-label3-label4, 496, footer_gradient, themeCol)
@@ -9814,14 +9827,14 @@ while true do
             Graphics.drawImage(900-(btnMargin * 6)-label1-label2-label3-label4, 510, btnO)
             RetroText.printSmall(900+28-(btnMargin * 6)-label1-label2-label3-label4, 508, "View", white)
         end
-        
+
         -- Draw Covers
         base_x = 0
-        
+
         if showCat == 42 then
             -- count favorites
             create_fav_count_table(files_table)
-            
+
             drawCategory (fav_count)
             GetNameAndAppTypeSelected() -- Added to refresh names as games removed from fav cat whilst on fav cat
 
@@ -9859,7 +9872,7 @@ while true do
             startCovers = true
             GetNameAndAppTypeSelected()
         end
-        
+
         if setReflections==1 then
             floorY = 0
             if showView == 2 then
@@ -9872,15 +9885,15 @@ while true do
                 Render.drawModel(modFloor, 0, -0.6+floorY, 0, 0, 0, 0)
             end
         end
-        
+
         prevX = 0
         prevZ = 0
         prevRot = 0
         inPreview = false
 
--- MENU 1 - GET INFO
+        -- MENU 1 - GET INFO
     elseif showMenu == 1 then
-        
+
         -- PREVIEW
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -9897,7 +9910,7 @@ while true do
 
         Graphics.drawImage(900-(btnMargin * 4)-label1-label2-label3, 510, btnT)
         RetroText.printSmall(900+28-(btnMargin * 4)-label1-label2-label3, 508, "Options", white)--Options
-        
+
         if wide_getinfoscreen == true then
             Graphics.fillRect(24, 470+24, 24, 470, darkalpha)
         else
@@ -9920,7 +9933,7 @@ while true do
             else
                 Render.useTexture(modBackground, imgCustomBack)
             end
-            
+
             if folder == true then
                 if System.doesDirExist(appdir) then
                     app_size = getAppSize(appdir)/1024/1024
@@ -9948,13 +9961,13 @@ while true do
                 end
 
             end
-            
+
             menuY=0
             tmpappcat=0
             tmpimagecat=0
             inPreview = true
         end
-        
+
         -- animate cover zoom in
         if prevX < 1.4 then
             prevX = prevX + 0.1
@@ -9965,8 +9978,8 @@ while true do
         if prevRot > -0.6 then
             prevRot = prevRot - 0.04
         end
-        
-        
+
+
         -- Rescale icon images to 128px x 128px
 
         -- Get sizes
@@ -9982,9 +9995,9 @@ while true do
 
         -- txtname = string.sub(app_title, 1, 32) .. "\n" .. string.sub(app_title, 33)
         txtname = wraptextlength(app_title, 32)
-        
-        
-        
+
+
+
         function set_cover_image (def_table_name)
             --Graphics.setImageFilters(games_table[p].icon, FILTER_LINEAR, FILTER_LINEAR)
             if (def_table_name)[p].ricon ~= nil then
@@ -10042,7 +10055,7 @@ while true do
                 Render.useTexture(modCoverSNESJapanNoref, (def_table_name)[p].ricon) -- Snes Japan
                 Render.useTexture(modCoverMiddleNoref, (def_table_name)[p].ricon) -- Middle
 
-            else 
+            else
 
                 local box_width = Graphics.getImageWidth((def_table_name)[p].icon)
                 local box_height = Graphics.getImageHeight((def_table_name)[p].icon)
@@ -10100,7 +10113,7 @@ while true do
 
             end
         end
-        
+
         -- Set cover image
         set_cover_image (xCatLookup(showCat))
 
@@ -10121,7 +10134,7 @@ while true do
                 end
             end
         end
-        
+
         local tmpapptype=""
         local tmpcatText=""
         local tmpimageText=""
@@ -10129,30 +10142,30 @@ while true do
         if apptype==1 then
             Render.drawModel(modCoverNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
             Render.drawModel(modBoxNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.PS_Vita_Game 
+            tmpapptype = lang_lines.PS_Vita_Game
         elseif apptype==2 then
             Render.drawModel(modCoverPSPNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
             Render.drawModel(modBoxPSPNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.PSP_Game 
+            tmpapptype = lang_lines.PSP_Game
         elseif apptype==3 then
             Render.drawModel(modCoverPSXNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
             Render.drawModel(modBoxPSXNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.PS1_Game 
+            tmpapptype = lang_lines.PS1_Game
         elseif apptype==5 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.N64_Game 
+            tmpapptype = lang_lines.N64_Game
         elseif apptype==6 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.SNES_Game 
+            tmpapptype = lang_lines.SNES_Game
         elseif apptype==7 then
             Render.drawModel(modCoverNESNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.NES_Game 
+            tmpapptype = lang_lines.NES_Game
         elseif apptype==8 then
             Render.drawModel(modCoverGBNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.GBA_Game 
+            tmpapptype = lang_lines.GBA_Game
         elseif apptype==9 then
             Render.drawModel(modCoverGBNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.GBC_Game 
+            tmpapptype = lang_lines.GBC_Game
         elseif apptype==10 then
             Render.drawModel(modCoverGBNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
             tmpapptype = lang_lines.GB_Game
@@ -10161,28 +10174,28 @@ while true do
             tmpapptype = lang_lines.DC_Game
         elseif apptype==12 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.SCD_Game 
+            tmpapptype = lang_lines.SCD_Game
         elseif apptype==13 then
             Render.drawModel(modCoverMDNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.S32X_Game 
+            tmpapptype = lang_lines.S32X_Game
         elseif apptype==14 then
             Render.drawModel(modCoverMDNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.MD_Game 
+            tmpapptype = lang_lines.MD_Game
         elseif apptype==15 then
             Render.drawModel(modCoverMDNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.SMS_Game 
+            tmpapptype = lang_lines.SMS_Game
         elseif apptype==16 then
             Render.drawModel(modCoverMDNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.GG_Game 
+            tmpapptype = lang_lines.GG_Game
         elseif apptype==17 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.TurboGrafx_16_Game 
+            tmpapptype = lang_lines.TurboGrafx_16_Game
         elseif apptype==18 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.TurboGrafx_CD_Game 
+            tmpapptype = lang_lines.TurboGrafx_CD_Game
         elseif apptype==19 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.PC_Engine_Game 
+            tmpapptype = lang_lines.PC_Engine_Game
         elseif apptype==20 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
             tmpapptype = lang_lines.PC_Engine_CD_Game
@@ -10234,16 +10247,16 @@ while true do
             tmpapptype = lang_lines.FBA2012_Game
         elseif apptype==35 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.MAME2003_Game 
+            tmpapptype = lang_lines.MAME2003_Game
         elseif apptype==36 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.MAME_2000_Game 
+            tmpapptype = lang_lines.MAME_2000_Game
         elseif apptype==37 then
             Render.drawModel(modCoverMDNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.Neo_Geo_Game 
+            tmpapptype = lang_lines.Neo_Geo_Game
         elseif apptype==38 then
             Render.drawModel(closestBoxNoref_getinfo(), prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.Neo_Geo_Pocket_Color_Game 
+            tmpapptype = lang_lines.Neo_Geo_Pocket_Color_Game
         elseif apptype==39 then
             Render.drawModel(modCoverHbrNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
             tmpapptype = lang_lines.Playstation_Mobile_Game
@@ -10255,9 +10268,9 @@ while true do
             tmpapptype = lang_lines.PICO8_Game
         else
             Render.drawModel(modCoverHbrNoref, prevX, -1.0, -5 + prevZ, 0, math.deg(prevRot+prvRotY), 0)
-            tmpapptype = lang_lines.Homebrew 
+            tmpapptype = lang_lines.Homebrew
         end
-    
+
         RetroText.printNonLocaMedium(50, 190, txtname, white)-- app name
 
 
@@ -10298,10 +10311,10 @@ while true do
             end
         elseif apptype == 40 then
             RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.App_ID_colon .. app_titleid .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
-                --                                               App ID:                                       Size:
+            --                                               App ID:                                       Size:
         elseif apptype == 41 then -- Pico8
             RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
-                --                                           Size:
+            --                                           Size:
         else
             RetroText.printNonLocaMedium(50, 240, tmpapptype .. "\n" .. lang_lines.Version_colon .. app_version .. "\n" .. lang_lines.Size_colon .. game_size, white)-- Draw info
             --                                               Version:                                           Size:
@@ -10351,10 +10364,10 @@ while true do
 
         -- Vita and Homebrew
         -- if folder == true then -- start Disable category override for retro
-        if apptype == 0 or apptype == 1 or apptype == 2 or apptype == 3 
-        and string.match (game_path, "pspemu") 
-        or string.match (game_path, "ux0:/app/") then
-             -- start Disable category override for retro
+        if apptype == 0 or apptype == 1 or apptype == 2 or apptype == 3
+                and string.match (game_path, "pspemu")
+                or string.match (game_path, "ux0:/app/") then
+            -- start Disable category override for retro
             if menuY==1 then
                 if wide_getinfoscreen == true then
                     Graphics.fillRect(24, 470+24, 350 + (menuY * 40), 430 + (menuY * 40), themeCol)-- selection two lines
@@ -10369,10 +10382,10 @@ while true do
                 end
             end
 
-            if setSwap_X_O_buttons == 1 then 
+            if setSwap_X_O_buttons == 1 then
                 -- Swap buttons is - On
                 Press_Button_to_apply_Category = tostring(lang_lines.Press_O_to_apply_Category)
-            else 
+            else
                 -- Swap buttons is - Off
                 Press_Button_to_apply_Category = tostring(lang_lines.Press_X_to_apply_Category)
             end
@@ -10385,7 +10398,7 @@ while true do
             end
 
 
-        -- All other systems
+            -- All other systems
         elseif apptype == 39 or apptype == 41 then
             -- dont show anything
         else
@@ -10406,11 +10419,11 @@ while true do
         else
             RetroText.printNonLocaMedium(50, 352+3, "< " .. tmpimageText .. " >", white)
         end
-        
+
 
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
                 if menuY == 0 then
                     if tmpimagecat==0 then
@@ -10431,13 +10444,13 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
@@ -10488,9 +10501,9 @@ while true do
             end
         end
 
--- MENU 2 - SETTINGS
+        -- MENU 2 - SETTINGS
     elseif showMenu == 2 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -10517,11 +10530,11 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 7
-        
+
         -- MENU 2 / #0 Search
         Graphics.drawImage(setting_x_icon, setting_y0, setting_icon_search)
         RetroText.printMedium(setting_x_icon_offset, setting_y0, "Search", white)--Search
-        
+
         -- MENU 2 / #1 Categories
         Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_categories)
         RetroText.printMedium(setting_x_icon_offset, setting_y1, "Categories", white)--Categories
@@ -10551,91 +10564,91 @@ while true do
         RetroText.printMedium(setting_x_icon_offset, setting_y7, "Language_colon", white)--Language
 
         -- MENU 2 / #7 Language 
-        if chooseLanguage == 1 then 
+        if chooseLanguage == 1 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Deutsch", white) -- German
-            
-        elseif chooseLanguage == 2 then 
+
+        elseif chooseLanguage == 2 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "English (United Kingdom)", white) -- English (United Kingdom)
 
             -- Megadrive, update regional missing cover
             for k, v in pairs(md_table) do
-                  if v.icon_path=="app0:/DATA/missing_cover_md_usa.png" then
-                      v.icon_path="app0:/DATA/missing_cover_md.png"
-                  end
+                if v.icon_path=="app0:/DATA/missing_cover_md_usa.png" then
+                    v.icon_path="app0:/DATA/missing_cover_md.png"
+                end
             end
             -- Dreamcast, update regional missing cover - Blue logo
             for k, v in pairs(dreamcast_table) do
-                  if v.icon_path=="app0:/DATA/missing_cover_dreamcast_usa.png" or v.icon_path=="app0:/DATA/missing_cover_dreamcast_j.png" then
-                      v.icon_path="app0:/DATA/missing_cover_dreamcast_eur.png"
-                  end
+                if v.icon_path=="app0:/DATA/missing_cover_dreamcast_usa.png" or v.icon_path=="app0:/DATA/missing_cover_dreamcast_j.png" then
+                    v.icon_path="app0:/DATA/missing_cover_dreamcast_eur.png"
+                end
             end
 
-        elseif chooseLanguage == 3 then 
+        elseif chooseLanguage == 3 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "English (United States)", white) -- English (United States)
             -- Megadrive, update regional missing cover
             for k, v in pairs(md_table) do
-                  if v.icon_path=="app0:/DATA/missing_cover_md.png" then
-                      v.icon_path="app0:/DATA/missing_cover_md_usa.png"
-                  end
+                if v.icon_path=="app0:/DATA/missing_cover_md.png" then
+                    v.icon_path="app0:/DATA/missing_cover_md_usa.png"
+                end
             end
             -- Dreamcast, update regional missing cover - USA - Red logo
-            for k, v in pairs(dreamcast_table) do 
-                  if v.icon_path=="app0:/DATA/missing_cover_dreamcast_eur.png" or v.icon_path=="app0:/DATA/missing_cover_dreamcast_j.png" then
-                      v.icon_path="app0:/DATA/missing_cover_dreamcast_usa.png"
-                  end
+            for k, v in pairs(dreamcast_table) do
+                if v.icon_path=="app0:/DATA/missing_cover_dreamcast_eur.png" or v.icon_path=="app0:/DATA/missing_cover_dreamcast_j.png" then
+                    v.icon_path="app0:/DATA/missing_cover_dreamcast_usa.png"
+                end
             end
 
-        elseif chooseLanguage == 4 then 
+        elseif chooseLanguage == 4 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Español", white) -- Spanish
-        elseif chooseLanguage == 5 then 
+        elseif chooseLanguage == 5 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, " Français", white) -- French
-        elseif chooseLanguage == 6 then 
+        elseif chooseLanguage == 6 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Italiano", white) -- Italian
         elseif chooseLanguage == 7 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Magyar", white) -- Hungarian
-        elseif chooseLanguage == 8 then 
+        elseif chooseLanguage == 8 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Nederlands", white) -- Dutch
-        elseif chooseLanguage == 9 then 
+        elseif chooseLanguage == 9 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Norsk", white) -- Norwegian
-        elseif chooseLanguage == 10 then 
+        elseif chooseLanguage == 10 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Polski", white) -- Polish
-        elseif chooseLanguage == 11 then 
+        elseif chooseLanguage == 11 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Português (Brasil)", white) -- Portuguese (Brasil)
-        elseif chooseLanguage == 12 then 
+        elseif chooseLanguage == 12 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Português (Portugal)", white) -- Portuguese
-        elseif chooseLanguage == 13 then 
+        elseif chooseLanguage == 13 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Pусский", white) -- Russian
-        elseif chooseLanguage == 14 then 
+        elseif chooseLanguage == 14 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Suomi", white) -- Finnish
-        elseif chooseLanguage == 15 then 
+        elseif chooseLanguage == 15 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Svenska", white) -- Swedish
-        elseif chooseLanguage == 16 then 
+        elseif chooseLanguage == 16 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Türkçe", white) -- Turkish
-        elseif chooseLanguage == 17 then 
+        elseif chooseLanguage == 17 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "日本語", white) -- Japanese
             -- Dreamcast, update regional missing cover - Japan - Orange logo
             for k, v in pairs(dreamcast_table) do
-                  if v.icon_path=="app0:/DATA/missing_cover_dreamcast_eur.png" or v.icon_path=="app0:/DATA/missing_cover_dreamcast_usa.png" then
-                      v.icon_path="app0:/DATA/missing_cover_dreamcast_j.png"
-                  end
+                if v.icon_path=="app0:/DATA/missing_cover_dreamcast_eur.png" or v.icon_path=="app0:/DATA/missing_cover_dreamcast_usa.png" then
+                    v.icon_path="app0:/DATA/missing_cover_dreamcast_j.png"
+                end
             end
         elseif chooseLanguage == 18 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "琉球語派", white) -- Japanese (Ryukyuan) 
-        elseif chooseLanguage == 19 then 
+        elseif chooseLanguage == 19 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "한국어", white) -- Korean
         elseif chooseLanguage == 20 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "简体中文", white) -- Chinese (Simplified)
-        elseif chooseLanguage == 21 then 
+        elseif chooseLanguage == 21 then
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "繁體中文", white) -- Chinese (Traditional)    
-        else 
+        else
             RetroText.printNonLocaMedium(setting_x_icon_offset + label_lang, setting_y7, "Dansk", white) -- Danish            
         end
 
-        
+
         -- MENU 2 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 2 / #0 Search
@@ -10647,19 +10660,19 @@ while true do
                         keyboard_search=true
                     end
                 elseif menuY == 1 then -- Categories
-                    showMenu = 3 
+                    showMenu = 3
                     menuY = 0
                 elseif menuY == 2 then -- Theme
-                    showMenu = 4 
+                    showMenu = 4
                     menuY = 0
                 elseif menuY == 3 then -- Audio
-                    showMenu = 12 
+                    showMenu = 12
                     menuY = 0
                 elseif menuY == 4 then -- Artwork
-                    showMenu = 5 
+                    showMenu = 5
                     menuY = 0
                 elseif menuY == 5 then -- Scan Settings
-                    showMenu = 6 
+                    showMenu = 6
                     menuY = 0
                 elseif menuY == 6 then -- Other Settings
                     showMenu = 19
@@ -10682,7 +10695,7 @@ while true do
                 if state ~= RUNNING then
                     if menuY > 0 then
                         menuY = menuY - 1
-                        else
+                    else
                         menuY=menuItems
                     end
                 else
@@ -10692,20 +10705,20 @@ while true do
                 if state ~= RUNNING then
                     if menuY < menuItems then
                         menuY = menuY + 1
-                        else
+                    else
                         menuY=0
                     end
                 else
                 end
             elseif (Controls.check(pad, SCE_CTRL_TRIANGLE) and not Controls.check(oldpad, SCE_CTRL_TRIANGLE)) then
-                showMenu = 7 
+                showMenu = 7
                 menuY = 0
             end
         end
 
--- MENU 3 - CATEGORIES
+        -- MENU 3 - CATEGORIES
     elseif showMenu == 3 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -10777,7 +10790,7 @@ while true do
         elseif startCategory == 41 then RetroText.printMedium(setting_x_offset, setting_y1,     "Neo_Geo_Pocket_Color", white)--Neo_Geo_Pocket_Color
         elseif startCategory == 42 then RetroText.printMedium(setting_x_offset, setting_y1,     "Favorites", white)--Favorite
         elseif startCategory == 43 then RetroText.printMedium(setting_x_offset, setting_y1,     "Recently_Played", white)--Recently Played
-        
+
         elseif startCategory >= 45 then
             Collection_CatNum = startCategory - 44
 
@@ -10831,7 +10844,7 @@ while true do
         -- MENU 3 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- count favorites
@@ -10893,7 +10906,7 @@ while true do
                     if startCategory == 44 then startCategory = 0 end -- TODO: startCategory = startCategory + 1 (crashing), fixed by not using custom collections
                     -- if startCategory == 43 then if #recently_played_table == 0 then startCategory = startCategory + 1 end end
 
-  
+
                     if startCategory >= 45 and startCategory < collection_count_of_start_categories then
                         if next(xCatLookup(startCategory)) ~= nil then
                         else
@@ -10910,7 +10923,7 @@ while true do
                         -- Import cache to update All games category
                         FreeIcons()
                         count_cache_and_reload()
-                        
+
                         -- If currently on homebrew category view, move to Vita category to hide empty homebrew category
                         if showCat == 2 then
                             showCat = 1
@@ -10968,7 +10981,7 @@ while true do
                         -- Import cache to update All games category
                         FreeIcons()
                         count_cache_and_reload()
-                        if showCat == 42 then 
+                        if showCat == 42 then
                             create_fav_count_table(files_table)
                         end
                         check_for_out_of_bounds()
@@ -10978,7 +10991,7 @@ while true do
                         -- Import cache to update All games category
                         FreeIcons()
                         count_cache_and_reload()
-                        if showCat == 42 then 
+                        if showCat == 42 then
                             create_fav_count_table(files_table)
                         end
                         check_for_out_of_bounds()
@@ -10988,7 +11001,7 @@ while true do
                 elseif menuY == 6 then -- #5 Show collections
                     if showCollections == 1 then
                         showCollections = 0
-                        
+
                         if showCat >= 45 and showCat <= collection_syscount then
                             if showAll==0 then
                                 showCat = 1
@@ -11007,25 +11020,25 @@ while true do
 
                 --Save settings
                 SaveSettings()
-                
+
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             end
         end
 
--- MENU 4 - THEME
+        -- MENU 4 - THEME
     elseif showMenu == 4 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -11092,7 +11105,7 @@ while true do
             end
         end
 
-        if setBackground == 0 then 
+        if setBackground == 0 then
             RetroText.printMedium(setting_x_offset, setting_y3, "Off", white) --OFF
         else
             wallpaper_print_string (setBackground)
@@ -11126,7 +11139,7 @@ while true do
         -- MENU 4 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-    
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
                 if menuY == 0 then -- #0 Back
                     showMenu = 2
@@ -11203,22 +11216,22 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             end
-            
+
         end
 
--- MENU 5 - ARTWORK
+        -- MENU 5 - ARTWORK
     elseif showMenu == 5 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -11427,12 +11440,12 @@ while true do
         -- MENU 5 / #6 Extract PICO-8 backgounds
         RetroText.printMedium(setting_x, setting_y6, "Extract_PICO8_backgrounds", white) -- Extract PICO-8 backgounds
 
-        
+
 
         -- MENU 5 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 5
@@ -11453,10 +11466,10 @@ while true do
                                 bg_table = {}
                                 for k, v in pairs(return_table) do
                                     if v.app_type == 0 then
-                                            -- ignore homebrew
-                                        elseif v.app_type == 1 then
-                                            -- ignore vita
-                                        else
+                                        -- ignore homebrew
+                                    elseif v.app_type == 1 then
+                                        -- ignore vita
+                                    else
                                         table.insert(bg_table, v)
                                     end
                                 end
@@ -11503,7 +11516,7 @@ while true do
                         for i, file in pairs(pico8_table) do
 
                             -- Create pico8 background from image
-                            
+
                             if not System.doesFileExist(file.snap_path_local .. file.name .. ".png") then
                                 -- Missing background - crop pico-8 cart, resize and take screenshot
                                 local pico_image = Graphics.loadImage(file.game_path)
@@ -11516,7 +11529,7 @@ while true do
                                 Screen.flip()
                                 System.takeScreenshot(file.snap_path_local .. file.name .. ".png", FORMAT_PNG)
 
-                                
+
                             else
                                 -- Image exists, display it and move onto next
                                 local pico_image = Graphics.loadImage(file.snap_path_local .. file.name .. ".png")
@@ -11536,28 +11549,28 @@ while true do
 
                                 Graphics.freeImage(pico_image)
                             end
-                            
+
                         end
-                        
+
                     end
 
                 end
-                
+
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
                 --covers download selection
-                
+
                 if menuY==1 then -- #1 Download Covers
                     if getCovers > 0 then
                         getCovers = getCovers - 1
@@ -11566,7 +11579,7 @@ while true do
                     end
 
                     -- Skip empty categories
-                    
+
                     if getCovers == 38 then if #ngpc_table == 0 then getCovers = getCovers - 1 end end
                     if getCovers == 37 then if #neogeo_table == 0 then getCovers = getCovers - 1 end end
                     if getCovers == 36 then if #mame_2000_table == 0 then getCovers = getCovers - 1 end end
@@ -11590,7 +11603,7 @@ while true do
                     if getCovers == 18 then if #pce_table == 0 then getCovers = getCovers - 1 end end
                     if getCovers == 17 then if #tgcd_table == 0 then getCovers = getCovers - 1 end end
                     if getCovers == 16 then if #tg16_table == 0 then getCovers = getCovers - 1 end end
-                    if getCovers == 15 then if #gg_table == 0 then getCovers = getCovers - 1 end end                
+                    if getCovers == 15 then if #gg_table == 0 then getCovers = getCovers - 1 end end
                     if getCovers == 14 then if #sms_table == 0 then getCovers = getCovers - 1 end end
                     if getCovers == 13 then if #md_table == 0 then getCovers = getCovers - 1 end end
                     if getCovers == 12 then if #s32x_table == 0 then getCovers = getCovers - 1 end end
@@ -11638,7 +11651,7 @@ while true do
                     if getSnaps == 17 then if #pce_table == 0 then getSnaps = getSnaps - 1 end end
                     if getSnaps == 16 then if #tgcd_table == 0 then getSnaps = getSnaps - 1 end end
                     if getSnaps == 15 then if #tg16_table == 0 then getSnaps = getSnaps - 1 end end
-                    if getSnaps == 14 then if #gg_table == 0 then getSnaps = getSnaps - 1 end end                
+                    if getSnaps == 14 then if #gg_table == 0 then getSnaps = getSnaps - 1 end end
                     if getSnaps == 13 then if #sms_table == 0 then getSnaps = getSnaps - 1 end end
                     if getSnaps == 12 then if #md_table == 0 then getSnaps = getSnaps - 1 end end
                     if getSnaps == 11 then if #s32x_table == 0 then getSnaps = getSnaps - 1 end end
@@ -11680,7 +11693,7 @@ while true do
                     if getCovers == 12 then if #s32x_table == 0 then getCovers = getCovers + 1 end end
                     if getCovers == 13 then if #md_table == 0 then getCovers = getCovers + 1 end end
                     if getCovers == 14 then if #sms_table == 0 then getCovers = getCovers + 1 end end
-                    if getCovers == 15 then if #gg_table == 0 then getCovers = getCovers + 1 end end                
+                    if getCovers == 15 then if #gg_table == 0 then getCovers = getCovers + 1 end end
                     if getCovers == 16 then if #tg16_table == 0 then getCovers = getCovers + 1 end end
                     if getCovers == 17 then if #tgcd_table == 0 then getCovers = getCovers + 1 end end
                     if getCovers == 18 then if #pce_table == 0 then getCovers = getCovers + 1 end end
@@ -11704,7 +11717,7 @@ while true do
                     if getCovers == 36 then if #mame_2000_table == 0 then getCovers = getCovers + 1 end end
                     if getCovers == 37 then if #neogeo_table == 0 then getCovers = getCovers + 1 end end
                     if getCovers == 38 then if #ngpc_table == 0 then getCovers = getCovers + 1 end end
-                    
+
 
                 elseif menuY==2 then -- #1 Download Backgrounds
                     if getSnaps < count_of_get_snaps then -- Check getcover number against sytem
@@ -11728,7 +11741,7 @@ while true do
                     if getSnaps == 11 then if #s32x_table == 0 then getSnaps = getSnaps + 1 end end
                     if getSnaps == 12 then if #md_table == 0 then getSnaps = getSnaps + 1 end end
                     if getSnaps == 13 then if #sms_table == 0 then getSnaps = getSnaps + 1 end end
-                    if getSnaps == 14 then if #gg_table == 0 then getSnaps = getSnaps + 1 end end                
+                    if getSnaps == 14 then if #gg_table == 0 then getSnaps = getSnaps + 1 end end
                     if getSnaps == 15 then if #tg16_table == 0 then getSnaps = getSnaps + 1 end end
                     if getSnaps == 16 then if #tgcd_table == 0 then getSnaps = getSnaps + 1 end end
                     if getSnaps == 17 then if #pce_table == 0 then getSnaps = getSnaps + 1 end end
@@ -11752,14 +11765,14 @@ while true do
                     if getSnaps == 35 then if #mame_2000_table == 0 then getSnaps = getSnaps + 1 end end
                     if getSnaps == 36 then if #neogeo_table == 0 then getSnaps = getSnaps + 1 end end
                     if getSnaps == 37 then if #ngpc_table == 0 then getSnaps = getSnaps + 1 end end
-                    
+
                 end
             end
         end
 
--- MENU 6 - SCAN SETTINGS
+        -- MENU 6 - SCAN SETTINGS
     elseif showMenu == 6 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -11808,7 +11821,7 @@ while true do
         elseif Adrenaline_roms == 4 then
             RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  xmc0:/pspemu  >", white)
         elseif Adrenaline_roms == 5 then
-            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  " .. lang_lines.All .. "  >", white)   
+            RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  " .. lang_lines.All .. "  >", white)
         else
             RetroText.printNonLocaMedium(setting_x_offset, setting_y3, "<  uma0:/pspemu  >", white)
         end
@@ -11816,12 +11829,12 @@ while true do
         -- MENU 6 / #4 Rescan
         RetroText.printMedium(setting_x, setting_y4, "Rescan", white)--Rescan
 
-        
+
 
         -- MENU 6 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 2
@@ -11847,22 +11860,22 @@ while true do
                         count_cache_and_reload()
                     end
                 elseif menuY == 4 then -- #4 Rescan
-                        delete_cache()
-                        FreeIcons()
-                        FreeMemory()
-                        Network.term()
-                        dofile("app0:index.lua")
+                    delete_cache()
+                    FreeIcons()
+                    FreeMemory()
+                    Network.term()
+                    dofile("app0:index.lua")
                 end
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
@@ -11888,9 +11901,9 @@ while true do
 
         end
 
--- MENU 7 - ABOUT
+        -- MENU 7 - ABOUT
     elseif showMenu == 7 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -11911,10 +11924,10 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 6
-        
+
         -- MENU 7 / #0 Back
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
-        
+
         -- MENU 7 / #1 Guide 1
         Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_about)
         RetroText.printMedium(setting_x_icon_offset, setting_y1, "guide_1_heading", white)--Guide 1
@@ -11943,11 +11956,11 @@ while true do
         RetroText.printNonLocaSmall(10, 508, "Overall load time: " .. (functionTime + oneLoopTime) / 1000 .. " s.  Functions: ".. functionTime / 1000 .. " s.   Main loop: ".. oneLoopTime / 1000 .. " s.", timercolor)
 
 
-        
+
         -- MENU 7 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 2 / #0 Search
@@ -11955,22 +11968,22 @@ while true do
                     showMenu = 2
                     menuY = 0 -- Search
                 elseif menuY == 1 then -- Guide 1
-                    showMenu = 13 
+                    showMenu = 13
                     menuY = 0
                 elseif menuY == 2 then -- Guide 2
-                    showMenu = 14 
+                    showMenu = 14
                     menuY = 0
                 elseif menuY == 3 then -- Guide 3
-                    showMenu = 15 
+                    showMenu = 15
                     menuY = 0
                 elseif menuY == 4 then -- Guide 4
-                    showMenu = 16 
+                    showMenu = 16
                     menuY = 0
                 elseif menuY == 5 then -- Guide 5
-                    showMenu = 17 
+                    showMenu = 17
                     menuY = 0
                 elseif menuY == 6 then -- Guide 6
-                    showMenu = 18 
+                    showMenu = 18
                     menuY = 0
                 else
                 end
@@ -11980,7 +11993,7 @@ while true do
                 if state ~= RUNNING then
                     if menuY > 0 then
                         menuY = menuY - 1
-                        else
+                    else
                         menuY=menuItems
                     end
                 else
@@ -11990,13 +12003,13 @@ while true do
                 if state ~= RUNNING then
                     if menuY < menuItems then
                         menuY = menuY + 1
-                        else
+                    else
                         menuY=0
                     end
                 else
                 end
             elseif (Controls.check(pad, SCE_CTRL_TRIANGLE) and not Controls.check(oldpad, SCE_CTRL_TRIANGLE)) then
-                showMenu = 7 
+                showMenu = 7
                 -- menuY = 0
             elseif (Controls.check(pad, SCE_CTRL_SELECT) and not Controls.check(oldpad, SCE_CTRL_SELECT)) then
                 -- How hidden timer
@@ -12009,9 +12022,9 @@ while true do
             end
         end
 
--- MENU 8 - EDIT GAME DIRECTORIES
+        -- MENU 8 - EDIT GAME DIRECTORIES
     elseif showMenu == 8 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -12037,151 +12050,151 @@ while true do
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
 
         -- MENU 8 / #1 and 2 Game category and directory
-            if getRomDir == 1 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Amiga .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Amiga, white)
-                filebrowser_heading = lang_lines.Amiga
-            elseif getRomDir == 2 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_2600 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_2600, white)
-                filebrowser_heading = lang_lines.Atari_2600
-            elseif getRomDir == 3 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_5200 .."  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_5200, white)
-                filebrowser_heading = lang_lines.Atari_5200
-            elseif getRomDir == 4 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_7800 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_7800, white)
-                filebrowser_heading = lang_lines.Atari_7800
-            elseif getRomDir == 5 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_Lynx, white)
-                filebrowser_heading = lang_lines.Atari_Lynx
-            elseif getRomDir == 6 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.ColecoVision .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ColecoVision, white)
-                filebrowser_heading = lang_lines.ColecoVision
-            elseif getRomDir == 7 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Commodore_64 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Commodore_64, white)
-                filebrowser_heading = lang_lines.Commodore_64
-            elseif getRomDir == 8 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.FBA_2012 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.FBA_2012, white)
-                filebrowser_heading = lang_lines.FBA_2012
-            elseif getRomDir == 9 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Advance, white)
-                filebrowser_heading = lang_lines.Game_Boy_Advance
-            elseif getRomDir == 10 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Color, white)
-                filebrowser_heading = lang_lines.Game_Boy_Color
-            elseif getRomDir == 11 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy, white)
-                filebrowser_heading = lang_lines.Game_Boy
-            elseif getRomDir == 12 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MAME_2000 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2000, white)
-                filebrowser_heading = lang_lines.MAME_2000
-            elseif getRomDir == 13 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2003Plus, white)
-                filebrowser_heading = lang_lines.MAME_2003Plus
-            elseif getRomDir == 14 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MSX .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX, white)
-                filebrowser_heading = lang_lines.MSX
-            elseif getRomDir == 15 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MSX2 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX2, white)
-                filebrowser_heading = lang_lines.MSX2
-            elseif getRomDir == 16 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo_Pocket_Color, white)
-                filebrowser_heading = lang_lines.Neo_Geo_Pocket_Color
-            elseif getRomDir == 17 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo, white)
-                filebrowser_heading = lang_lines.Neo_Geo
-            elseif getRomDir == 18 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_64, white)
-                filebrowser_heading = lang_lines.Nintendo_64
-            elseif getRomDir == 19 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_Entertainment_System, white)
-                filebrowser_heading = lang_lines.Nintendo_Entertainment_System
-            elseif getRomDir == 20 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine_CD, white)
-                filebrowser_heading = lang_lines.PC_Engine_CD
-            elseif getRomDir == 21 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PC_Engine .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine, white)
-                filebrowser_heading = lang_lines.PC_Engine
-            elseif getRomDir == 22 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PICO8 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Pico8, white)
-                filebrowser_heading = lang_lines.PICO8   
-            elseif getRomDir == 23 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PlayStation .. " (RetroArch)" ..  "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PlayStation, white)
-                filebrowser_heading = lang_lines.PlayStation .. " (RetroArch)"
-            elseif getRomDir == 24 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_32X .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_32X, white)
-                filebrowser_heading = lang_lines.Sega_32X
-            elseif getRomDir == 25 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_CD .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_CD, white)
-                filebrowser_heading = lang_lines.Sega_CD
-            elseif getRomDir == 26 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Dreamcast, white)
-                filebrowser_heading = lang_lines.Sega_Dreamcast
-            elseif getRomDir == 27 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Game_Gear, white)
-                filebrowser_heading = lang_lines.Sega_Game_Gear
-            elseif getRomDir == 28 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Master_System, white)
-                filebrowser_heading = lang_lines.Sega_Master_System
-            elseif getRomDir == 29 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Mega_Drive, white)
-                filebrowser_heading = lang_lines.Sega_Mega_Drive
-            elseif getRomDir == 30 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Super_Nintendo, white)
-                filebrowser_heading = lang_lines.Super_Nintendo
-            elseif getRomDir == 31 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_16, white)
-                filebrowser_heading = lang_lines.TurboGrafx_16
-            elseif getRomDir == 32 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_CD, white)
-                filebrowser_heading = lang_lines.TurboGrafx_CD
-            elseif getRomDir == 33 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Vectrex .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Vectrex, white)
-                filebrowser_heading = lang_lines.Vectrex
-            elseif getRomDir == 34 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan_Color, white)
-                filebrowser_heading = lang_lines.WonderSwan_Color
-            elseif getRomDir == 35 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.WonderSwan .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan, white)
-                filebrowser_heading = lang_lines.WonderSwan
-            elseif getRomDir == 36 then
-                RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
-                RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ZX_Spectrum, white)
-                filebrowser_heading = lang_lines.ZX_Spectrum
-            end
+        if getRomDir == 1 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Amiga .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Amiga, white)
+            filebrowser_heading = lang_lines.Amiga
+        elseif getRomDir == 2 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_2600 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_2600, white)
+            filebrowser_heading = lang_lines.Atari_2600
+        elseif getRomDir == 3 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_5200 .."  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_5200, white)
+            filebrowser_heading = lang_lines.Atari_5200
+        elseif getRomDir == 4 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_7800 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_7800, white)
+            filebrowser_heading = lang_lines.Atari_7800
+        elseif getRomDir == 5 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Atari_Lynx .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Atari_Lynx, white)
+            filebrowser_heading = lang_lines.Atari_Lynx
+        elseif getRomDir == 6 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.ColecoVision .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ColecoVision, white)
+            filebrowser_heading = lang_lines.ColecoVision
+        elseif getRomDir == 7 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Commodore_64 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Commodore_64, white)
+            filebrowser_heading = lang_lines.Commodore_64
+        elseif getRomDir == 8 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.FBA_2012 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.FBA_2012, white)
+            filebrowser_heading = lang_lines.FBA_2012
+        elseif getRomDir == 9 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Advance .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Advance, white)
+            filebrowser_heading = lang_lines.Game_Boy_Advance
+        elseif getRomDir == 10 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy_Color .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy_Color, white)
+            filebrowser_heading = lang_lines.Game_Boy_Color
+        elseif getRomDir == 11 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Game_Boy .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Game_Boy, white)
+            filebrowser_heading = lang_lines.Game_Boy
+        elseif getRomDir == 12 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MAME_2000 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2000, white)
+            filebrowser_heading = lang_lines.MAME_2000
+        elseif getRomDir == 13 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MAME_2003Plus .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MAME_2003Plus, white)
+            filebrowser_heading = lang_lines.MAME_2003Plus
+        elseif getRomDir == 14 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MSX .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX, white)
+            filebrowser_heading = lang_lines.MSX
+        elseif getRomDir == 15 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.MSX2 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.MSX2, white)
+            filebrowser_heading = lang_lines.MSX2
+        elseif getRomDir == 16 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo_Pocket_Color .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo_Pocket_Color, white)
+            filebrowser_heading = lang_lines.Neo_Geo_Pocket_Color
+        elseif getRomDir == 17 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Neo_Geo .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Neo_Geo, white)
+            filebrowser_heading = lang_lines.Neo_Geo
+        elseif getRomDir == 18 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Nintendo_64 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_64, white)
+            filebrowser_heading = lang_lines.Nintendo_64
+        elseif getRomDir == 19 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Nintendo_Entertainment_System .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Nintendo_Entertainment_System, white)
+            filebrowser_heading = lang_lines.Nintendo_Entertainment_System
+        elseif getRomDir == 20 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PC_Engine_CD .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine_CD, white)
+            filebrowser_heading = lang_lines.PC_Engine_CD
+        elseif getRomDir == 21 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PC_Engine .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PC_Engine, white)
+            filebrowser_heading = lang_lines.PC_Engine
+        elseif getRomDir == 22 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PICO8 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Pico8, white)
+            filebrowser_heading = lang_lines.PICO8
+        elseif getRomDir == 23 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.PlayStation .. " (RetroArch)" ..  "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.PlayStation, white)
+            filebrowser_heading = lang_lines.PlayStation .. " (RetroArch)"
+        elseif getRomDir == 24 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_32X .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_32X, white)
+            filebrowser_heading = lang_lines.Sega_32X
+        elseif getRomDir == 25 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_CD .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_CD, white)
+            filebrowser_heading = lang_lines.Sega_CD
+        elseif getRomDir == 26 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Dreamcast .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Dreamcast, white)
+            filebrowser_heading = lang_lines.Sega_Dreamcast
+        elseif getRomDir == 27 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Game_Gear .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Game_Gear, white)
+            filebrowser_heading = lang_lines.Sega_Game_Gear
+        elseif getRomDir == 28 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Master_System .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Master_System, white)
+            filebrowser_heading = lang_lines.Sega_Master_System
+        elseif getRomDir == 29 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Sega_Mega_Drive .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Sega_Mega_Drive, white)
+            filebrowser_heading = lang_lines.Sega_Mega_Drive
+        elseif getRomDir == 30 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Super_Nintendo .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Super_Nintendo, white)
+            filebrowser_heading = lang_lines.Super_Nintendo
+        elseif getRomDir == 31 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_16 .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_16, white)
+            filebrowser_heading = lang_lines.TurboGrafx_16
+        elseif getRomDir == 32 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.TurboGrafx_CD .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.TurboGrafx_CD, white)
+            filebrowser_heading = lang_lines.TurboGrafx_CD
+        elseif getRomDir == 33 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.Vectrex .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.Vectrex, white)
+            filebrowser_heading = lang_lines.Vectrex
+        elseif getRomDir == 34 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.WonderSwan_Color .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan_Color, white)
+            filebrowser_heading = lang_lines.WonderSwan_Color
+        elseif getRomDir == 35 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.WonderSwan .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.WonderSwan, white)
+            filebrowser_heading = lang_lines.WonderSwan
+        elseif getRomDir == 36 then
+            RetroText.printNonLocaMedium(setting_x, setting_y1, "<  " .. lang_lines.ZX_Spectrum .. "  >", white)
+            RetroText.printNonLocaSmall(setting_x, setting_y2 + setting_y_smallfont_offset, romUserDir.ZX_Spectrum, white)
+            filebrowser_heading = lang_lines.ZX_Spectrum
+        end
 
         -- MENU 8 / #3 Rescan
         RetroText.printMedium(setting_x, setting_y3, "Rescan", white)--Rescan 
@@ -12189,7 +12202,7 @@ while true do
         -- MENU 8 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
                 -- MENU 8
                 if menuY == 0 then -- #0 Back
@@ -12210,13 +12223,13 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
@@ -12239,9 +12252,9 @@ while true do
 
         end
 
--- MENU 9 - ROM BROWSER PARTITIONS
+        -- MENU 9 - ROM BROWSER PARTITIONS
     elseif showMenu == 9 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -12275,52 +12288,52 @@ while true do
         -- START ROM BROWSER PARTITIONS
 
 
-            RetroText.printSmall(setting_x, setting_y0 + 2, "Home", grey_dir) -- Home
-            
-            -- MENU 9 / #0 ux0 
-            if System.doesDirExist("ux0:/") then
-                Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_scanning)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y1, "ux0:", white)--ux0
-            else
-                Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_scanning, white_opaque)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y1, "ux0:", white_opaque)--ux0
-            end
+        RetroText.printSmall(setting_x, setting_y0 + 2, "Home", grey_dir) -- Home
 
-            -- MENU 9 / #1 uma0
-            if System.doesDirExist("uma0:/") then
-                Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_scanning)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y2, "uma0:", white)--uma0
-            else
-                Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_scanning, white_opaque)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y2, "uma0:", white_opaque)--uma0
-            end
+        -- MENU 9 / #0 ux0 
+        if System.doesDirExist("ux0:/") then
+            Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_scanning)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y1, "ux0:", white)--ux0
+        else
+            Graphics.drawImage(setting_x_icon, setting_y1, setting_icon_scanning, white_opaque)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y1, "ux0:", white_opaque)--ux0
+        end
 
-            -- MENU 9 / #2 imc0
-            if System.doesDirExist("imc0:/") then
-                Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_scanning)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y3, "imc0:", white)--imc0
-            else
-                Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_scanning, white_opaque)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y3, "imc0:", white_opaque)--imc0
-            end
+        -- MENU 9 / #1 uma0
+        if System.doesDirExist("uma0:/") then
+            Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_scanning)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y2, "uma0:", white)--uma0
+        else
+            Graphics.drawImage(setting_x_icon, setting_y2, setting_icon_scanning, white_opaque)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y2, "uma0:", white_opaque)--uma0
+        end
 
-            -- MENU 9 / #3 xmc0
-            if System.doesDirExist("xmc0:/") then
-                Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_scanning)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y4, "xmc0:", white)--xmc0
-            else
-                Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_scanning, white_opaque)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y4, "xmc0:", white_opaque)--xmc0
-            end
+        -- MENU 9 / #2 imc0
+        if System.doesDirExist("imc0:/") then
+            Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_scanning)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y3, "imc0:", white)--imc0
+        else
+            Graphics.drawImage(setting_x_icon, setting_y3, setting_icon_scanning, white_opaque)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y3, "imc0:", white_opaque)--imc0
+        end
 
-            -- MENU 9 / #4 grw0
-            if System.doesDirExist("grw0:/") then
-                Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_scanning)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y5, "grw0:", white)--xmc0
-            else
-                Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_scanning, white_opaque)
-                RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y5, "grw0:", white_opaque)--xmc0
-            end
+        -- MENU 9 / #3 xmc0
+        if System.doesDirExist("xmc0:/") then
+            Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_scanning)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y4, "xmc0:", white)--xmc0
+        else
+            Graphics.drawImage(setting_x_icon, setting_y4, setting_icon_scanning, white_opaque)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y4, "xmc0:", white_opaque)--xmc0
+        end
+
+        -- MENU 9 / #4 grw0
+        if System.doesDirExist("grw0:/") then
+            Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_scanning)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y5, "grw0:", white)--xmc0
+        else
+            Graphics.drawImage(setting_x_icon, setting_y5, setting_icon_scanning, white_opaque)
+            RetroText.printNonLocaMedium(setting_x_icon_offset, setting_y5, "grw0:", white_opaque)--xmc0
+        end
 
 
         -- END ROM BROWSER PARTITIONS
@@ -12329,94 +12342,94 @@ while true do
         -- MENU 9 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
-                -- Check for input
-                pad = Controls.read()
-                if Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP) then
 
-                    function check_partition_and_go_to_menu()
+            -- Check for input
+            pad = Controls.read()
+            if Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP) then
 
-                        -- If partition exists - scan and go menu
-                        if System.doesDirExist(selected_partition) then
-                            scripts = System.listDirectory(selected_partition)
-                            for k, v in pairs(scripts) do
-                                v.previous_directory = false
-                                v.save = false
-                            end
+                function check_partition_and_go_to_menu()
 
-                            -- Add level up
-                            level_up = {}
-                            level_up.name = "..."
-                            level_up.directory = true
-                            level_up.previous_directory = true
-                            level_up.save = false
-                            table.insert(scripts, 1, level_up) -- ...
+                    -- If partition exists - scan and go menu
+                    if System.doesDirExist(selected_partition) then
+                        scripts = System.listDirectory(selected_partition)
+                        for k, v in pairs(scripts) do
+                            v.previous_directory = false
+                            v.save = false
+                        end
 
-                            scripts_sort_by_folder_first()
-                            cur_dir_fm = selected_partition
-                            showMenu = 11
-                            menuY = 0      
+                        -- Add level up
+                        level_up = {}
+                        level_up.name = "..."
+                        level_up.directory = true
+                        level_up.previous_directory = true
+                        level_up.save = false
+                        table.insert(scripts, 1, level_up) -- ...
+
+                        scripts_sort_by_folder_first()
+                        cur_dir_fm = selected_partition
+                        showMenu = 11
+                        menuY = 0
 
                         -- If partition does not exist - go to not found menu
-                        else
-                            showMenu = 10
-                            menuY = 0 
-                        end
-                    end
-
-
-                    if menuY == 0 then
-                        selected_partition = "ux0:/"
-                        selected_partition_menuY = 0
-                        check_partition_and_go_to_menu()
-                    elseif menuY == 1 then
-                        selected_partition = "uma0:/"
-                        selected_partition_menuY = 1
-                        check_partition_and_go_to_menu()
-                    elseif menuY == 2 then
-                        selected_partition = "imc0:/"
-                        selected_partition_menuY = 2
-                        check_partition_and_go_to_menu()
-                    elseif menuY == 3 then
-                        selected_partition = "xmc0:/"
-                        selected_partition_menuY = 3
-                        check_partition_and_go_to_menu()
-                    elseif menuY == 4 then
-                        selected_partition = "grw0:/"
-                        selected_partition_menuY = 4
-                        check_partition_and_go_to_menu()
                     else
+                        showMenu = 10
+                        menuY = 0
                     end
-
-
-
-                elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
-                    oldpad = pad
-                    showMenu = 8
-                    menuY = 2
-                elseif Controls.check(pad, SCE_CTRL_UP) and not Controls.check(oldpad, SCE_CTRL_UP) then
-                    if menuY > 0 then
-                        menuY = menuY - 1
-                        else
-                        menuY=menuItems
-                    end
-                elseif Controls.check(pad, SCE_CTRL_DOWN) and not Controls.check(oldpad, SCE_CTRL_DOWN) then
-                    if menuY < menuItems then
-                        menuY = menuY + 1
-                        else
-                        menuY=0
-                    end
-                elseif Controls.check(pad, SCE_CTRL_TRIANGLE) then
-                    -- break
-                    showMenu = 8
-                    menuY = 2
                 end
+
+
+                if menuY == 0 then
+                    selected_partition = "ux0:/"
+                    selected_partition_menuY = 0
+                    check_partition_and_go_to_menu()
+                elseif menuY == 1 then
+                    selected_partition = "uma0:/"
+                    selected_partition_menuY = 1
+                    check_partition_and_go_to_menu()
+                elseif menuY == 2 then
+                    selected_partition = "imc0:/"
+                    selected_partition_menuY = 2
+                    check_partition_and_go_to_menu()
+                elseif menuY == 3 then
+                    selected_partition = "xmc0:/"
+                    selected_partition_menuY = 3
+                    check_partition_and_go_to_menu()
+                elseif menuY == 4 then
+                    selected_partition = "grw0:/"
+                    selected_partition_menuY = 4
+                    check_partition_and_go_to_menu()
+                else
+                end
+
+
+
+            elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
+                oldpad = pad
+                showMenu = 8
+                menuY = 2
+            elseif Controls.check(pad, SCE_CTRL_UP) and not Controls.check(oldpad, SCE_CTRL_UP) then
+                if menuY > 0 then
+                    menuY = menuY - 1
+                else
+                    menuY=menuItems
+                end
+            elseif Controls.check(pad, SCE_CTRL_DOWN) and not Controls.check(oldpad, SCE_CTRL_DOWN) then
+                if menuY < menuItems then
+                    menuY = menuY + 1
+                else
+                    menuY=0
+                end
+            elseif Controls.check(pad, SCE_CTRL_TRIANGLE) then
+                -- break
+                showMenu = 8
+                menuY = 2
+            end
 
         end
 
--- MENU 10 - ROM BROWSER PARTITION NOT FOUND
+        -- MENU 10 - ROM BROWSER PARTITION NOT FOUND
     elseif showMenu == 10 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -12455,44 +12468,44 @@ while true do
         -- MENU 10 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
-                -- Check for input
-                pad = Controls.read()
-                if Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP) then
 
-                    if menuY == 0 then
-                        oldpad = pad
-                        showMenu = 9
-                        menuY = selected_partition_menuY
-                    end
+            -- Check for input
+            pad = Controls.read()
+            if Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP) then
 
-                elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
-                    oldpad = pad
-                    showMenu = 9
-                    menuY = selected_partition_menuY
-                elseif Controls.check(pad, SCE_CTRL_UP) and not Controls.check(oldpad, SCE_CTRL_UP) then
-                    if menuY > 0 then
-                        menuY = menuY - 1
-                        else
-                        menuY=menuItems
-                    end
-                elseif Controls.check(pad, SCE_CTRL_DOWN) and not Controls.check(oldpad, SCE_CTRL_DOWN) then
-                    if menuY < menuItems then
-                        menuY = menuY + 1
-                        else
-                        menuY=0
-                    end
-                elseif Controls.check(pad, SCE_CTRL_TRIANGLE) then
+                if menuY == 0 then
                     oldpad = pad
                     showMenu = 9
                     menuY = selected_partition_menuY
                 end
 
+            elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
+                oldpad = pad
+                showMenu = 9
+                menuY = selected_partition_menuY
+            elseif Controls.check(pad, SCE_CTRL_UP) and not Controls.check(oldpad, SCE_CTRL_UP) then
+                if menuY > 0 then
+                    menuY = menuY - 1
+                else
+                    menuY=menuItems
+                end
+            elseif Controls.check(pad, SCE_CTRL_DOWN) and not Controls.check(oldpad, SCE_CTRL_DOWN) then
+                if menuY < menuItems then
+                    menuY = menuY + 1
+                else
+                    menuY=0
+                end
+            elseif Controls.check(pad, SCE_CTRL_TRIANGLE) then
+                oldpad = pad
+                showMenu = 9
+                menuY = selected_partition_menuY
+            end
+
         end
 
--- MENU 11 - ROM BROWSER
+        -- MENU 11 - ROM BROWSER
     elseif showMenu == 11 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -12510,47 +12523,47 @@ while true do
 
         -- START ROM BROWSER
 
-            -- Reset y axis for menu blending
-            local y = setting_y1
-            
-            RetroText.printNonLocaSmall(setting_x, setting_y0 + 2, cur_dir_fm, grey_dir)
+        -- Reset y axis for menu blending
+        local y = setting_y1
 
-            -- Write visible menu entries
-            for j, file in pairs(scripts) do
-                x = 20
-                if j >= i and y < 450 then
-                    if i == j then
-                        color = white
-                        x = 20
-                    else
-                        color = white
-                    end
+        RetroText.printNonLocaSmall(setting_x, setting_y0 + 2, cur_dir_fm, grey_dir)
 
-                    -- No Icon - ...
-                    if file.directory == true and file.previous_directory == true then
-                        RetroText.printNonLocaMedium(setting_x, y, file.name, color)
+        -- Write visible menu entries
+        for j, file in pairs(scripts) do
+            x = 20
+            if j >= i and y < 450 then
+                if i == j then
+                    color = white
+                    x = 20
+                else
+                    color = white
+                end
+
+                -- No Icon - ...
+                if file.directory == true and file.previous_directory == true then
+                    RetroText.printNonLocaMedium(setting_x, y, file.name, color)
 
                     -- Icon - Folder Open -- Use this directory
-                    elseif file.directory == true and file.save == true then
-                        RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
-                        Graphics.drawImage(setting_x, y, file_browser_folder_open)
+                elseif file.directory == true and file.save == true then
+                    RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
+                    Graphics.drawImage(setting_x, y, file_browser_folder_open)
 
                     -- Icon - Folder Closed
-                    elseif file.directory == true and file.save == false and file.previous_directory == false then
-                        RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
-                        Graphics.drawImage(setting_x, y, file_browser_folder_closed)
+                elseif file.directory == true and file.save == false and file.previous_directory == false then
+                    RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
+                    Graphics.drawImage(setting_x, y, file_browser_folder_closed)
 
                     -- Icon - File
-                    elseif file.directory == false then
-                        RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
-                        Graphics.drawImage(setting_x, y, file_browser_file)
+                elseif file.directory == false then
+                    RetroText.printNonLocaMedium(setting_x_icon_offset, y, file.name, color)
+                    Graphics.drawImage(setting_x, y, file_browser_file)
 
-                    else
-                    end
-
-                    y = y + 47
+                else
                 end
+
+                y = y + 47
             end
+        end
 
         -- END ROM BROWSER
 
@@ -12574,177 +12587,25 @@ while true do
         -- MENU 11 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             -- START ROM BROWSER
 
-                -- Check for input
-                pad = Controls.read()
-                if Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP) then
+            -- Check for input
+            pad = Controls.read()
+            if Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP) then
 
-                    if scripts[i].directory == true then
-
-                        
-                        if scripts[i].previous_directory == true then
-                            -- Action = Move to previous directory
-                                if string.len(cur_dir_fm) > string.len(selected_partition) then -- Excluding partition name eg: ux0:/
-                                    j=-2
-                                    while string.sub(cur_dir_fm,j,j) ~= "/" do
-                                        j=j-1
-                                    end
-                                    cur_dir_fm = string.sub(cur_dir_fm,1,j)
-
-                                    scripts = System.listDirectory(cur_dir_fm)
-                                    for k, v in pairs(scripts) do
-                                        v.previous_directory = false
-                                        v.save = false
-                                    end
-                                    
-                                    -- Add level up
-                                    level_up = {}
-                                    level_up.name = "..."
-                                    level_up.directory = true
-                                    level_up.previous_directory = true
-                                    level_up.save = false
-                                    table.insert(scripts, 1, level_up) -- ...
-
-                                    scripts_sort_by_folder_first()
+                if scripts[i].directory == true then
 
 
-                                    if string.len(cur_dir_fm) > string.len(selected_partition) then
-                                        selection = {}
-                                        selection.name = lang_lines.Use_this_directory -- Use_this_directory
-                                        selection.directory = true
-                                        selection.previous_directory = false
-                                        selection.save = true
-                                        table.insert(scripts, 2, selection)
-                                    end
-
-                                    i = 1
-                                end
-
-                                if string.len(cur_dir_fm) == string.len(selected_partition) then
-                                    oldpad = pad
-                                    showMenu = 9
-                                    menuY = selected_partition_menuY
-                                end
-
-                        else
-
-                            
-                            if scripts[i].save == true then     
-                                -- Action = Save directory
-                                    cur_dir_fm = string.sub(cur_dir_fm, 1, -2)
-                                    if getRomDir == 1 then romUserDir.Amiga = cur_dir_fm
-                                    elseif getRomDir == 2 then romUserDir.Atari_2600 = cur_dir_fm
-                                    elseif getRomDir == 3 then romUserDir.Atari_5200 = cur_dir_fm
-                                    elseif getRomDir == 4 then romUserDir.Atari_7800 = cur_dir_fm
-                                    elseif getRomDir == 5 then romUserDir.Atari_Lynx = cur_dir_fm
-                                    elseif getRomDir == 6 then romUserDir.ColecoVision = cur_dir_fm
-                                    elseif getRomDir == 7 then romUserDir.Commodore_64 = cur_dir_fm
-                                    elseif getRomDir == 8 then romUserDir.FBA_2012 = cur_dir_fm
-                                    elseif getRomDir == 9 then romUserDir.Game_Boy_Advance = cur_dir_fm
-                                    elseif getRomDir == 10 then romUserDir.Game_Boy_Color = cur_dir_fm
-                                    elseif getRomDir == 11 then romUserDir.Game_Boy = cur_dir_fm
-                                    elseif getRomDir == 12 then romUserDir.MAME_2000 = cur_dir_fm
-                                    elseif getRomDir == 13 then romUserDir.MAME_2003Plus = cur_dir_fm
-                                    elseif getRomDir == 14 then romUserDir.MSX = cur_dir_fm
-                                    elseif getRomDir == 15 then romUserDir.MSX2 = cur_dir_fm
-                                    elseif getRomDir == 16 then romUserDir.Neo_Geo_Pocket_Color = cur_dir_fm
-                                    elseif getRomDir == 17 then romUserDir.Neo_Geo = cur_dir_fm
-                                    elseif getRomDir == 18 then romUserDir.Nintendo_64 = cur_dir_fm
-                                    elseif getRomDir == 19 then romUserDir.Nintendo_Entertainment_System = cur_dir_fm
-                                    elseif getRomDir == 20 then romUserDir.PC_Engine_CD = cur_dir_fm
-                                    elseif getRomDir == 21 then romUserDir.PC_Engine = cur_dir_fm
-                                    elseif getRomDir == 22 then romUserDir.Pico8 = cur_dir_fm
-                                    elseif getRomDir == 23 then romUserDir.PlayStation = cur_dir_fm
-                                    elseif getRomDir == 24 then romUserDir.Sega_32X = cur_dir_fm
-                                    elseif getRomDir == 25 then romUserDir.Sega_CD = cur_dir_fm
-                                    elseif getRomDir == 26 then romUserDir.Sega_Dreamcast = cur_dir_fm
-                                    elseif getRomDir == 27 then romUserDir.Sega_Game_Gear = cur_dir_fm
-                                    elseif getRomDir == 28 then romUserDir.Sega_Master_System = cur_dir_fm
-                                    elseif getRomDir == 29 then romUserDir.Sega_Mega_Drive = cur_dir_fm
-                                    elseif getRomDir == 30 then romUserDir.Super_Nintendo = cur_dir_fm
-                                    elseif getRomDir == 31 then romUserDir.TurboGrafx_16 = cur_dir_fm
-                                    elseif getRomDir == 32 then romUserDir.TurboGrafx_CD = cur_dir_fm
-                                    elseif getRomDir == 33 then romUserDir.Vectrex = cur_dir_fm
-                                    elseif getRomDir == 34 then romUserDir.WonderSwan_Color = cur_dir_fm
-                                    elseif getRomDir == 35 then romUserDir.WonderSwan = cur_dir_fm
-                                    elseif getRomDir == 36 then romUserDir.ZX_Spectrum = cur_dir_fm
-                                    end
-
-                                    print_table_rom_dirs(romUserDir)
-
-                                    
-                                    showMenu = 8
-                                    menuY = 2
-                                    scripts = System.listDirectory(selected_partition)
-                                    scripts_sort_by_folder_first()
-                                    for k, v in pairs(scripts) do
-                                        v.previous_directory = false
-                                        v.save = false
-                                    end
-
-                                    cur_dir_fm = selected_partition
-
-                            else
-                                -- Action = List the directory
-                                    cur_dir_fm = cur_dir_fm .. scripts[i].name .. "/"
-                                    scripts = System.listDirectory(cur_dir_fm)
-                                    for k, v in pairs(scripts) do
-                                        v.previous_directory = false
-                                        v.save = false
-                                    end
-
-                                    scripts_sort_by_folder_first()
-
-                                    level_up = {}
-                                    level_up.name = "..."
-                                    level_up.directory = true
-                                    level_up.previous_directory = true
-                                    level_up.save = false
-                                    
-                                    table.insert(scripts, 1, level_up) -- ...
-
-                                    selection = {}
-                                    selection.name = lang_lines.Use_this_directory -- Use_this_directory
-                                    selection.directory = true
-                                    selection.previous_directory = false
-                                    selection.save = true
-                                    table.insert(scripts, 2, selection)
-
-
-                                    i = 1
-
-                            end
-
-                        end
-
-
-                    end
-
-                elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
-                    
-                    local _, dir_level_count = string.gsub(cur_dir_fm, "/", "")
-                    if dir_level_count == 1 then
-                        oldpad = pad
-                        showMenu = 9
-                        menuY = selected_partition_menuY
-                        scripts = System.listDirectory(selected_partition)
-                        scripts_sort_by_folder_first()
-                        for k, v in pairs(scripts) do
-                            v.previous_directory = false
-                            v.save = false
-                        end
-                        cur_dir_fm = selected_partition
-                    else
-
-
+                    if scripts[i].previous_directory == true then
+                        -- Action = Move to previous directory
                         if string.len(cur_dir_fm) > string.len(selected_partition) then -- Excluding partition name eg: ux0:/
                             j=-2
                             while string.sub(cur_dir_fm,j,j) ~= "/" do
                                 j=j-1
                             end
                             cur_dir_fm = string.sub(cur_dir_fm,1,j)
+
                             scripts = System.listDirectory(cur_dir_fm)
                             for k, v in pairs(scripts) do
                                 v.previous_directory = false
@@ -12760,8 +12621,9 @@ while true do
                             table.insert(scripts, 1, level_up) -- ...
 
                             scripts_sort_by_folder_first()
-                           
-                            if string.len(cur_dir_fm) > string.len(selected_partition) then -- Excluding partition name eg: ux0:/
+
+
+                            if string.len(cur_dir_fm) > string.len(selected_partition) then
                                 selection = {}
                                 selection.name = lang_lines.Use_this_directory -- Use_this_directory
                                 selection.directory = true
@@ -12769,20 +12631,117 @@ while true do
                                 selection.save = true
                                 table.insert(scripts, 2, selection)
                             end
- 
+
                             i = 1
+                        end
+
+                        if string.len(cur_dir_fm) == string.len(selected_partition) then
+                            oldpad = pad
+                            showMenu = 9
+                            menuY = selected_partition_menuY
+                        end
+
+                    else
+
+
+                        if scripts[i].save == true then
+                            -- Action = Save directory
+                            cur_dir_fm = string.sub(cur_dir_fm, 1, -2)
+                            if getRomDir == 1 then romUserDir.Amiga = cur_dir_fm
+                            elseif getRomDir == 2 then romUserDir.Atari_2600 = cur_dir_fm
+                            elseif getRomDir == 3 then romUserDir.Atari_5200 = cur_dir_fm
+                            elseif getRomDir == 4 then romUserDir.Atari_7800 = cur_dir_fm
+                            elseif getRomDir == 5 then romUserDir.Atari_Lynx = cur_dir_fm
+                            elseif getRomDir == 6 then romUserDir.ColecoVision = cur_dir_fm
+                            elseif getRomDir == 7 then romUserDir.Commodore_64 = cur_dir_fm
+                            elseif getRomDir == 8 then romUserDir.FBA_2012 = cur_dir_fm
+                            elseif getRomDir == 9 then romUserDir.Game_Boy_Advance = cur_dir_fm
+                            elseif getRomDir == 10 then romUserDir.Game_Boy_Color = cur_dir_fm
+                            elseif getRomDir == 11 then romUserDir.Game_Boy = cur_dir_fm
+                            elseif getRomDir == 12 then romUserDir.MAME_2000 = cur_dir_fm
+                            elseif getRomDir == 13 then romUserDir.MAME_2003Plus = cur_dir_fm
+                            elseif getRomDir == 14 then romUserDir.MSX = cur_dir_fm
+                            elseif getRomDir == 15 then romUserDir.MSX2 = cur_dir_fm
+                            elseif getRomDir == 16 then romUserDir.Neo_Geo_Pocket_Color = cur_dir_fm
+                            elseif getRomDir == 17 then romUserDir.Neo_Geo = cur_dir_fm
+                            elseif getRomDir == 18 then romUserDir.Nintendo_64 = cur_dir_fm
+                            elseif getRomDir == 19 then romUserDir.Nintendo_Entertainment_System = cur_dir_fm
+                            elseif getRomDir == 20 then romUserDir.PC_Engine_CD = cur_dir_fm
+                            elseif getRomDir == 21 then romUserDir.PC_Engine = cur_dir_fm
+                            elseif getRomDir == 22 then romUserDir.Pico8 = cur_dir_fm
+                            elseif getRomDir == 23 then romUserDir.PlayStation = cur_dir_fm
+                            elseif getRomDir == 24 then romUserDir.Sega_32X = cur_dir_fm
+                            elseif getRomDir == 25 then romUserDir.Sega_CD = cur_dir_fm
+                            elseif getRomDir == 26 then romUserDir.Sega_Dreamcast = cur_dir_fm
+                            elseif getRomDir == 27 then romUserDir.Sega_Game_Gear = cur_dir_fm
+                            elseif getRomDir == 28 then romUserDir.Sega_Master_System = cur_dir_fm
+                            elseif getRomDir == 29 then romUserDir.Sega_Mega_Drive = cur_dir_fm
+                            elseif getRomDir == 30 then romUserDir.Super_Nintendo = cur_dir_fm
+                            elseif getRomDir == 31 then romUserDir.TurboGrafx_16 = cur_dir_fm
+                            elseif getRomDir == 32 then romUserDir.TurboGrafx_CD = cur_dir_fm
+                            elseif getRomDir == 33 then romUserDir.Vectrex = cur_dir_fm
+                            elseif getRomDir == 34 then romUserDir.WonderSwan_Color = cur_dir_fm
+                            elseif getRomDir == 35 then romUserDir.WonderSwan = cur_dir_fm
+                            elseif getRomDir == 36 then romUserDir.ZX_Spectrum = cur_dir_fm
+                            end
+
+                            print_table_rom_dirs(romUserDir)
+
+
+                            showMenu = 8
+                            menuY = 2
+                            scripts = System.listDirectory(selected_partition)
+                            scripts_sort_by_folder_first()
+                            for k, v in pairs(scripts) do
+                                v.previous_directory = false
+                                v.save = false
+                            end
+
+                            cur_dir_fm = selected_partition
+
                         else
+                            -- Action = List the directory
+                            cur_dir_fm = cur_dir_fm .. scripts[i].name .. "/"
+                            scripts = System.listDirectory(cur_dir_fm)
+                            for k, v in pairs(scripts) do
+                                v.previous_directory = false
+                                v.save = false
+                            end
+
+                            scripts_sort_by_folder_first()
+
+                            level_up = {}
+                            level_up.name = "..."
+                            level_up.directory = true
+                            level_up.previous_directory = true
+                            level_up.save = false
+
+                            table.insert(scripts, 1, level_up) -- ...
+
+                            selection = {}
+                            selection.name = lang_lines.Use_this_directory -- Use_this_directory
+                            selection.directory = true
+                            selection.previous_directory = false
+                            selection.save = true
+                            table.insert(scripts, 2, selection)
+
+
+                            i = 1
+
                         end
 
                     end
-                elseif Controls.check(pad, SCE_CTRL_UP) and not Controls.check(oldpad, SCE_CTRL_UP) then
-                    i = i - 1
-                elseif Controls.check(pad, SCE_CTRL_DOWN) and not Controls.check(oldpad, SCE_CTRL_DOWN) then
-                    i = i + 1
-                elseif Controls.check(pad, SCE_CTRL_TRIANGLE) then
-                    -- break
-                    showMenu = 8
-                    menuY = 2
+
+
+                end
+
+            elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
+
+                local _, dir_level_count = string.gsub(cur_dir_fm, "/", "")
+                if dir_level_count == 1 then
+                    oldpad = pad
+                    showMenu = 9
+                    menuY = selected_partition_menuY
                     scripts = System.listDirectory(selected_partition)
                     scripts_sort_by_folder_first()
                     for k, v in pairs(scripts) do
@@ -12790,15 +12749,69 @@ while true do
                         v.save = false
                     end
                     cur_dir_fm = selected_partition
+                else
+
+
+                    if string.len(cur_dir_fm) > string.len(selected_partition) then -- Excluding partition name eg: ux0:/
+                        j=-2
+                        while string.sub(cur_dir_fm,j,j) ~= "/" do
+                            j=j-1
+                        end
+                        cur_dir_fm = string.sub(cur_dir_fm,1,j)
+                        scripts = System.listDirectory(cur_dir_fm)
+                        for k, v in pairs(scripts) do
+                            v.previous_directory = false
+                            v.save = false
+                        end
+
+                        -- Add level up
+                        level_up = {}
+                        level_up.name = "..."
+                        level_up.directory = true
+                        level_up.previous_directory = true
+                        level_up.save = false
+                        table.insert(scripts, 1, level_up) -- ...
+
+                        scripts_sort_by_folder_first()
+
+                        if string.len(cur_dir_fm) > string.len(selected_partition) then -- Excluding partition name eg: ux0:/
+                            selection = {}
+                            selection.name = lang_lines.Use_this_directory -- Use_this_directory
+                            selection.directory = true
+                            selection.previous_directory = false
+                            selection.save = true
+                            table.insert(scripts, 2, selection)
+                        end
+
+                        i = 1
+                    else
+                    end
+
                 end
+            elseif Controls.check(pad, SCE_CTRL_UP) and not Controls.check(oldpad, SCE_CTRL_UP) then
+                i = i - 1
+            elseif Controls.check(pad, SCE_CTRL_DOWN) and not Controls.check(oldpad, SCE_CTRL_DOWN) then
+                i = i + 1
+            elseif Controls.check(pad, SCE_CTRL_TRIANGLE) then
+                -- break
+                showMenu = 8
+                menuY = 2
+                scripts = System.listDirectory(selected_partition)
+                scripts_sort_by_folder_first()
+                for k, v in pairs(scripts) do
+                    v.previous_directory = false
+                    v.save = false
+                end
+                cur_dir_fm = selected_partition
+            end
 
             -- END ROM BROWSER 
 
         end
 
--- MENU 12 - AUDIO
+        -- MENU 12 - AUDIO
     elseif showMenu == 12 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -12861,7 +12874,7 @@ while true do
         -- MENU 12 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-    
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
                 if menuY == 0 then -- #0 Back
                     showMenu = 2
@@ -12871,7 +12884,7 @@ while true do
                         setSounds = 0
                     else
                         setSounds = 1
-                    end            
+                    end
                 elseif menuY == 2 then -- #2 Music
                     if setMusic == 1 then
                         setMusic = 0
@@ -12888,7 +12901,7 @@ while true do
                             track = 1
                             PlayMusic()
                         end
-                    end  
+                    end
                 elseif menuY == 3 then -- #3 Shuffle music
                     if setMusicShuffle == 1 then
                         setMusicShuffle = 0
@@ -12916,34 +12929,34 @@ while true do
                     if setMusic == 1 then
                         if Sound.isPlaying(sndMusic) then
                             Sound.close(sndMusic)
-                            track = track + 1 
+                            track = track + 1
                             PlayMusic()
                         end
                     else
-                    end           
+                    end
                 end
 
                 --Save settings
                 SaveSettings()
-                
+
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             end
         end
 
--- MENU 13 - GUIDE 1
+        -- MENU 13 - GUIDE 1
     elseif showMenu == 13 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -12961,10 +12974,10 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 1
-        
+
         -- MENU 13 / #0 Back
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
-        
+
         -- MENU 13 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
@@ -12972,11 +12985,11 @@ while true do
         else
             RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_1_content, 75), white)-- Guide 1 Content
         end
-        
+
         -- MENU 13 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 13 / #0 Back
@@ -12988,9 +13001,9 @@ while true do
             end
         end
 
--- MENU 14 - GUIDE 2
+        -- MENU 14 - GUIDE 2
     elseif showMenu == 14 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13008,10 +13021,10 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 1
-        
+
         -- MENU 14 / #0 Back
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
-        
+
         -- MENU 14 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
@@ -13019,11 +13032,11 @@ while true do
         else
             RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_2_content, 75), white)-- Guide 2 Content
         end
-        
+
         -- MENU 14 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 14 / #0 Back
@@ -13035,9 +13048,9 @@ while true do
             end
         end
 
--- MENU 15 - GUIDE 3
+        -- MENU 15 - GUIDE 3
     elseif showMenu == 15 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13055,10 +13068,10 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 1
-        
+
         -- MENU 15 / #0 Back
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
-        
+
         -- MENU 15 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
@@ -13067,11 +13080,11 @@ while true do
             RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_3_content, 75), white)-- Guide 3 Content
         end
 
-        
+
         -- MENU 15 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 15 / #0 Back
@@ -13083,9 +13096,9 @@ while true do
             end
         end
 
--- MENU 16 - GUIDE 4
+        -- MENU 16 - GUIDE 4
     elseif showMenu == 16 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13103,10 +13116,10 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 1
-        
+
         -- MENU 16 / #0 Back
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
-        
+
         -- MENU 16 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
@@ -13115,11 +13128,11 @@ while true do
             RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_4_content, 75), white)-- Guide 4 Content
         end
 
-        
+
         -- MENU 16 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 16 / #0 Back
@@ -13131,9 +13144,9 @@ while true do
             end
         end
 
--- MENU 17 - GUIDE 5
+        -- MENU 17 - GUIDE 5
     elseif showMenu == 17 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13151,10 +13164,10 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 1
-        
+
         -- MENU 17 / #0 Back
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
-        
+
         -- MENU 17 / #1 Content
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
@@ -13162,11 +13175,11 @@ while true do
         else
             RetroText.printNonLocaMedium(setting_x, setting_y1, wraptextlength(lang_lines.guide_5_content, 75), white)-- Guide 5 Content
         end
-        
+
         -- MENU 17 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 17 / #0 Back
@@ -13178,9 +13191,9 @@ while true do
             end
         end
 
--- MENU 18 - GUIDE 6
+        -- MENU 18 - GUIDE 6
     elseif showMenu == 18 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13198,13 +13211,13 @@ while true do
         Graphics.fillRect(60, 900, 82 + (menuY * 47), 129 + (menuY * 47), themeCol)-- selection
 
         menuItems = 1
-        
+
         -- MENU 18 / #0 Back
         RetroText.printMedium(setting_x, setting_y0, "Back_Chevron", white)--Back
-        
+
         -- MENU 18 / #1 Content
         RetroText.printNonLocaMedium(setting_x, setting_y1, "RetroFlow version " .. RetroConst.getAppVersion(), white)-- Guide 6 Content
-        
+
         if setLanguage == 8 or setLanguage == 9 or setLanguage == 10 or setLanguage == 17 or setLanguage == 18 or setLanguage == 19 then
             -- Manual text wrapping for non latin alphabets
             RetroText.printMedium(setting_x, setting_y2, "guide_6_content", white)-- Guide 6 Content
@@ -13215,7 +13228,7 @@ while true do
         -- MENU 18 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 18 / #0 Back
@@ -13227,9 +13240,9 @@ while true do
             end
         end
 
--- MENU 19 - OTHER SETTINGS
+        -- MENU 19 - OTHER SETTINGS
     elseif showMenu == 19 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13287,7 +13300,7 @@ while true do
         -- MENU 19 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-    
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
                 if menuY == 0 then -- #0 Back
                     showMenu = 2
@@ -13316,7 +13329,7 @@ while true do
 
                         -- Show missing covers is now off
                         showMissingCovers = 0
-                        
+
 
                         -- Does cache contain missing cover info?
                         if games_table[1].cover == nil then
@@ -13349,7 +13362,7 @@ while true do
                     end
 
                 elseif menuY == 4 then -- #4 Edit collections
-                    showMenu = 24 
+                    showMenu = 24
                     menuY = 0
                 end
 
@@ -13359,23 +13372,23 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             end
-            
+
         end
 
 
--- MENU 20 - GAME OPTIONS
+        -- MENU 20 - GAME OPTIONS
     elseif showMenu == 20 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13384,97 +13397,97 @@ while true do
 
 
         -- GET MENU ITEM COUNT (Some menus app type specific)
-            
-            menuItems = 3
-            
-            -- Check for dynamic menu item
-            local adrenaline_flag = false
-            if apptype == 1 or apptype == 2 or apptype == 3 or apptype == 4 then
-                if string.match (xCatLookup(showCat)[p].game_path, "pspemu") and not System.doesFileExist(xCatLookup(showCat)[p].game_path .. "/EBOOT.PBP") then
-                    
-                    adrenaline_flag = true
+
+        menuItems = 3
+
+        -- Check for dynamic menu item
+        local adrenaline_flag = false
+        if apptype == 1 or apptype == 2 or apptype == 3 or apptype == 4 then
+            if string.match (xCatLookup(showCat)[p].game_path, "pspemu") and not System.doesFileExist(xCatLookup(showCat)[p].game_path .. "/EBOOT.PBP") then
+
+                adrenaline_flag = true
+                menuItems = menuItems + 1
+            else
+                adrenaline_flag = false
+                menuItems = menuItems
+            end
+        end
+
+        -- Add extra for remove from recent
+        local recent_cat_flag = false
+        if showCat == 43 then
+            recent_cat_flag = true
+            menuItems = menuItems + 1
+        else
+            if #recently_played_table ~= nil then
+                local key = find_game_table_pos_key(recently_played_table, app_titleid)
+                if key ~= nil then
+                    recent_cat_flag = true
                     menuItems = menuItems + 1
                 else
-                    adrenaline_flag = false
-                    menuItems = menuItems
+                    recent_cat_flag = false
                 end
             end
+        end
 
-            -- Add extra for remove from recent
-            local recent_cat_flag = false
-            if showCat == 43 then
-                recent_cat_flag = true
-                menuItems = menuItems + 1
-            else
-                if #recently_played_table ~= nil then
-                    local key = find_game_table_pos_key(recently_played_table, app_titleid)
-                    if key ~= nil then
-                        recent_cat_flag = true
-                        menuItems = menuItems + 1
-                    else
-                        recent_cat_flag = false
-                    end
+        -- Add extra for remove from collection
+        remove_from_collection_flag = false
+
+        collection_removal_table = {}
+
+        if #collection_files > 0 then
+            local check_collection_number = 0
+            local count_of_matches = 0
+            while check_collection_number < #collection_files do
+                check_collection_number = check_collection_number + 1
+
+                found = check_if_game_is_in_collection_table(check_collection_number)
+                if found == true then
+                    count_of_matches = count_of_matches + 1
+                    matched_collection_num = check_collection_number
+                    collection_removal_table[count_of_matches]={matched_collection_num = check_collection_number}
+                    -- table.insert(collection_removal_table, count_of_matches, matched_collection_num)
+                else
                 end
-            end
 
-            -- Add extra for remove from collection
+            end
+        end
+
+        if #collection_removal_table == 0 then
             remove_from_collection_flag = false
+        else
+            remove_from_collection_flag = true
+            menuItems = menuItems + 1
+        end
 
-            collection_removal_table = {}
-            
-            if #collection_files > 0 then
-                local check_collection_number = 0
-                local count_of_matches = 0
-                while check_collection_number < #collection_files do
-                    check_collection_number = check_collection_number + 1
-
-                    found = check_if_game_is_in_collection_table(check_collection_number)
-                    if found == true then
-                        count_of_matches = count_of_matches + 1
-                        matched_collection_num = check_collection_number
-                        collection_removal_table[count_of_matches]={matched_collection_num = check_collection_number}
-                        -- table.insert(collection_removal_table, count_of_matches, matched_collection_num)
-                    else
-                    end
-
-                end
-            end
- 
-            if #collection_removal_table == 0 then
-                remove_from_collection_flag = false
-            else
-                remove_from_collection_flag = true
-                menuItems = menuItems + 1
-            end
-
-            -- Calculate vertical centre
-            vertically_centre_mini_menu(menuItems)
+        -- Calculate vertical centre
+        vertically_centre_mini_menu(menuItems)
 
         -- GRAPHIC SETUP
-        
-            -- Apply mini menu margins
-            local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw black overlay
-            Graphics.fillRect(0, 960, 0, 540, blackalpha)
+        -- Apply mini menu margins
+        local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw footer
-            Graphics.fillRect(0, 960, 496, 544, themeCol)
+        -- Draw black overlay
+        Graphics.fillRect(0, 960, 0, 540, blackalpha)
 
-            Graphics.drawImage(900-label1, 510, btnO)
-            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
+        -- Draw footer
+        Graphics.fillRect(0, 960, 496, 544, themeCol)
 
-            Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
-            
-            -- Draw dark overlay
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+        Graphics.drawImage(900-label1, 510, btnO)
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
-            -- Draw white line
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
-            
-            -- Draw selection
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
+        Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
+
+        -- Draw dark overlay
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+
+        -- Draw white line
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
+
+        -- Draw selection
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
 
 
         -- MENU 20 / Heading
@@ -13536,63 +13549,63 @@ while true do
             end
 
         end
-        
-        
-        
+
+
+
         -- MENU 20 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
 
                 -- DYNAMIC MENU FUNCTIONS
-                    function dynamic_menu_remove_from_collection()
-                        showMenu = 23
-                        menuY = 0
+                function dynamic_menu_remove_from_collection()
+                    showMenu = 23
+                    menuY = 0
+                end
+
+                function dynamic_menu_adrenaline_menu()
+                    game_adr_bin_driver = 0
+                    game_adr_exec_bin = 0
+
+                    -- Get existing settings
+                    local key = find_game_table_pos_key(launch_overrides_table, app_titleid)
+                    if key ~= nil then
+                        -- Yes - it's already in the launch override list, update it.
+                        game_adr_bin_driver = launch_overrides_table[key].driver
+                        game_adr_exec_bin = launch_overrides_table[key].bin
                     end
 
-                    function dynamic_menu_adrenaline_menu()
-                        game_adr_bin_driver = 0
-                        game_adr_exec_bin = 0
+                    showMenu = 21
+                    menuY = 0
+                end
 
-                        -- Get existing settings
-                        local key = find_game_table_pos_key(launch_overrides_table, app_titleid)
-                        if key ~= nil then
-                            -- Yes - it's already in the launch override list, update it.
-                            game_adr_bin_driver = launch_overrides_table[key].driver
-                            game_adr_exec_bin = launch_overrides_table[key].bin
-                        end
-
-                        showMenu = 21
-                        menuY = 0
-                    end
-
-                    function dynamic_menu_remove_from_recent()
-                        -- remove recent
-                        if #recently_played_table ~= nil then
-                            if showCat == 43 then
-                                -- We are in the recent category, remove the game and save cache
-                                table.remove(recently_played_table, p)
+                function dynamic_menu_remove_from_recent()
+                    -- remove recent
+                    if #recently_played_table ~= nil then
+                        if showCat == 43 then
+                            -- We are in the recent category, remove the game and save cache
+                            table.remove(recently_played_table, p)
+                            update_cached_table_recently_played()
+                            oldpad = pad -- Prevents it from launching next game accidentally
+                            showMenu = 0
+                            Render.useTexture(modBackground, imgCustomBack)
+                            check_for_out_of_bounds()
+                            GetInfoSelected()
+                        else
+                            -- We are NOT the recent category, Find game in recent table and remove, then save cache
+                            key = find_game_table_pos_key(recently_played_table, app_titleid)
+                            if key ~= nil then
+                                table.remove(recently_played_table, key)
                                 update_cached_table_recently_played()
-                                oldpad = pad -- Prevents it from launching next game accidentally
-                                showMenu = 0
-                                Render.useTexture(modBackground, imgCustomBack)
-                                check_for_out_of_bounds()
                                 GetInfoSelected()
+                                menuY = 0
                             else
-                                -- We are NOT the recent category, Find game in recent table and remove, then save cache
-                                key = find_game_table_pos_key(recently_played_table, app_titleid)
-                                if key ~= nil then
-                                    table.remove(recently_played_table, key)
-                                    update_cached_table_recently_played()
-                                    GetInfoSelected()
-                                    menuY = 0
-                                else
-                                end
                             end
                         end
                     end
+                end
 
                 -- MENU 20
                 if menuY == 0 then -- #0 Favorites
@@ -13614,7 +13627,7 @@ while true do
                         showMenu = 0
                         Render.useTexture(modBackground, imgCustomBack)
                     end
-                    
+
                 elseif menuY == 1 then -- #1 Rename
                     -- Rename
                     if hasTyped==false then
@@ -13622,9 +13635,9 @@ while true do
                         hasTyped=true
                         keyboard_rename=true
                     end
-                    
+
                 elseif menuY == 2 then -- #2 Hide Game
-                    
+
                     GetInfoSelected()
 
                     -- Update text
@@ -13639,37 +13652,37 @@ while true do
                     -- Update other tables in realtime
                     AddOrRemoveHidden(hide_game_flag)
 
-                        -- Check if the hidden game table is empty
-                        if #hidden_games_table ~= nil then -- Is not empty
+                    -- Check if the hidden game table is empty
+                    if #hidden_games_table ~= nil then -- Is not empty
 
-                            -- Check if game is already in the list
-                            local key = find_game_table_pos_key(hidden_games_table, app_titleid)
-                            if key ~= nil then
-                                -- Game found - If set to unhide, then remove from table
-                                hidden_games_table[key].hidden = hide_game_flag
-                            else
-                                -- Game not found, it's new, add it to the hidden list
+                        -- Check if game is already in the list
+                        local key = find_game_table_pos_key(hidden_games_table, app_titleid)
+                        if key ~= nil then
+                            -- Game found - If set to unhide, then remove from table
+                            hidden_games_table[key].hidden = hide_game_flag
+                        else
+                            -- Game not found, it's new, add it to the hidden list
 
-                                -- Find game in app table, update and add to hidden
-                                local key = find_game_table_pos_key(xAppNumTableLookup(apptype), app_titleid)
-                                if key ~= nil then
-                                    table.insert(hidden_games_table, xAppNumTableLookup(apptype)[key])
-                                else
-                                end
-
-                            end
-
-                        else -- Is empty, add first game to hide 
                             -- Find game in app table, update and add to hidden
                             local key = find_game_table_pos_key(xAppNumTableLookup(apptype), app_titleid)
                             if key ~= nil then
                                 table.insert(hidden_games_table, xAppNumTableLookup(apptype)[key])
                             else
                             end
+
                         end
 
-                        -- Save the hidden game table for importing on restart
-                        update_cached_table_hidden_games()
+                    else -- Is empty, add first game to hide 
+                        -- Find game in app table, update and add to hidden
+                        local key = find_game_table_pos_key(xAppNumTableLookup(apptype), app_titleid)
+                        if key ~= nil then
+                            table.insert(hidden_games_table, xAppNumTableLookup(apptype)[key])
+                        else
+                        end
+                    end
+
+                    -- Save the hidden game table for importing on restart
+                    update_cached_table_hidden_games()
 
                     FreeIcons()
                     count_cache_and_reload()
@@ -13684,17 +13697,17 @@ while true do
                         GetInfoSelected()
                         -- Instant cover update - Credit BlackSheepBoy69
                         Threads.addTask(xCatLookup(showCat)[p], {
-                        Type = "ImageLoad",
-                        Path = xCatLookup(showCat)[p].icon_path,
-                        Table = xCatLookup(showCat)[p],
-                        Index = "ricon"
+                            Type = "ImageLoad",
+                            Path = xCatLookup(showCat)[p].icon_path,
+                            Table = xCatLookup(showCat)[p],
+                            Index = "ricon"
                         })
                     end
 
-                elseif menuY == 3 then 
+                elseif menuY == 3 then
                     showMenu = 22 -- Add to collection
                     menuY = 0
-                elseif menuY == 4 then 
+                elseif menuY == 4 then
                     -- Dynamic menu
                     if remove_from_collection_flag == true then
                         dynamic_menu_remove_from_collection()
@@ -13720,26 +13733,26 @@ while true do
                         end
                     else
                         dynamic_menu_remove_from_recent()
-                    end    
-                        
+                    end
+
                 elseif menuY == 6 then -- #5 - Dynamic based on Recent Category and Adrenaline options
                     if recent_cat_flag == true then
                         dynamic_menu_remove_from_recent()
                     else
-                    end                    
+                    end
                 end
 
 
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
@@ -13752,9 +13765,9 @@ while true do
 
 
 
--- MENU 21 - ADRENALINE OPTIONS
+        -- MENU 21 - ADRENALINE OPTIONS
     elseif showMenu == 21 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13763,37 +13776,37 @@ while true do
 
 
         -- GET MENU ITEM COUNT
-            
-            menuItems = 3
-            
+
+        menuItems = 3
+
         -- Calculate vertical centre
-            vertically_centre_mini_menu(menuItems)
+        vertically_centre_mini_menu(menuItems)
 
         -- GRAPHIC SETUP
-        
-            -- Apply mini menu margins
-            local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw black overlay
-            Graphics.fillRect(0, 960, 0, 540, blackalpha)
+        -- Apply mini menu margins
+        local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw footer
-            Graphics.fillRect(0, 960, 496, 544, themeCol)
+        -- Draw black overlay
+        Graphics.fillRect(0, 960, 0, 540, blackalpha)
 
-            Graphics.drawImage(900-label1, 510, btnO)
-            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
+        -- Draw footer
+        Graphics.fillRect(0, 960, 496, 544, themeCol)
 
-            Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
-            
-            -- Draw dark overlay
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+        Graphics.drawImage(900-label1, 510, btnO)
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
-            -- Draw white line
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
-            
-            -- Draw selection
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
+        Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
+
+        -- Draw dark overlay
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+
+        -- Draw white line
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
+
+        -- Draw selection
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
 
 
         -- MENU 21 / Heading
@@ -13805,7 +13818,7 @@ while true do
         -- MENU 21 / #1 Driver
         RetroText.printMedium(setting_x, setting_y1 + y_centre_text_offset, "Driver_colon", white)--Driver
 
-        
+
 
         -- Menu
         if game_adr_bin_driver == 1 then
@@ -13841,11 +13854,11 @@ while true do
         -- MENU 21 / #3 Save
         RetroText.printMedium(setting_x, setting_y3 + y_centre_text_offset, "Save", white)--Save
 
-        
+
         -- MENU 21 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 21
@@ -13858,7 +13871,7 @@ while true do
                     end
 
                 elseif menuY == 3 then -- #3 Save the setting
-                    
+
                     if #launch_overrides_table ~= nil then
                         local key = find_game_table_pos_key(launch_overrides_table, app_titleid)
                         if key ~= nil then
@@ -13891,13 +13904,13 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
@@ -13946,9 +13959,9 @@ while true do
         end
 
 
--- MENU 22 - ADD TO COLLECTION
+        -- MENU 22 - ADD TO COLLECTION
     elseif showMenu == 22 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -13957,37 +13970,37 @@ while true do
 
 
         -- GET MENU ITEM COUNT
-            
-            menuItems = 2
-            
+
+        menuItems = 2
+
         -- Calculate vertical centre
-            vertically_centre_mini_menu(menuItems)
+        vertically_centre_mini_menu(menuItems)
 
         -- GRAPHIC SETUP
-        
-            -- Apply mini menu margins
-            local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw black overlay
-            Graphics.fillRect(0, 960, 0, 540, blackalpha)
+        -- Apply mini menu margins
+        local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw footer
-            Graphics.fillRect(0, 960, 496, 544, themeCol)
+        -- Draw black overlay
+        Graphics.fillRect(0, 960, 0, 540, blackalpha)
 
-            Graphics.drawImage(900-label1, 510, btnO)
-            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
+        -- Draw footer
+        Graphics.fillRect(0, 960, 496, 544, themeCol)
 
-            Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
-            
-            -- Draw dark overlay
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+        Graphics.drawImage(900-label1, 510, btnO)
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
-            -- Draw white line
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
-            
-            -- Draw selection
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
+        Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
+
+        -- Draw dark overlay
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+
+        -- Draw white line
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
+
+        -- Draw selection
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
 
 
         -- MENU 22 / Heading
@@ -14012,11 +14025,11 @@ while true do
         -- MENU 22 / #3 Add to collection
         RetroText.printMedium(setting_x, setting_y2 + y_centre_text_offset, "Add_to_collection", white)--Add to collection
 
-        
+
         -- MENU 22 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 22
@@ -14025,18 +14038,18 @@ while true do
                     menuY=3
 
                 elseif menuY == 2 then -- #3 Add to collection
-                    
+
                     -- Existing collection
                     if collection_number > 0 then
-                        
+
                         -- Check if game is already in the collection list
                         if check_if_game_is_in_collection_table(collection_number) == false then
 
                             -- Create new table of basic info
                             game_info_for_collection = {}
-                            game_info_for_collection = 
-                            { 
-                                [1] = 
+                            game_info_for_collection =
+                            {
+                                [1] =
                                 {
                                     ["apptitle"] = xCatLookup(showCat)[p].title,
                                     ["name"] = xCatLookup(showCat)[p].name,
@@ -14084,18 +14097,18 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
                 if menuY == 1 then -- #1 Add to collection
-                    
+
                     if collection_number > 0 then
                         collection_number = collection_number - 1
                     else
@@ -14126,9 +14139,9 @@ while true do
         end
 
 
--- MENU 23 - REMOVE FROM COLLECTION
+        -- MENU 23 - REMOVE FROM COLLECTION
     elseif showMenu == 23 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -14137,39 +14150,39 @@ while true do
 
 
         -- GET MENU ITEM COUNT
-            
-            menuItems = 2
-            
+
+        menuItems = 2
+
         -- Calculate vertical centre
-            vertically_centre_mini_menu(menuItems)
+        vertically_centre_mini_menu(menuItems)
 
         -- GRAPHIC SETUP
-        
-            -- Apply mini menu margins
-            local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw black overlay
-            Graphics.fillRect(0, 960, 0, 540, blackalpha)
+        -- Apply mini menu margins
+        local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw footer
-            Graphics.fillRect(0, 960, 496, 544, themeCol)
+        -- Draw black overlay
+        Graphics.fillRect(0, 960, 0, 540, blackalpha)
 
-            Graphics.drawImage(900-label1, 510, btnO)
-            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
+        -- Draw footer
+        Graphics.fillRect(0, 960, 496, 544, themeCol)
 
-            Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
-            
-            -- Draw dark overlay
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+        Graphics.drawImage(900-label1, 510, btnO)
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
-            -- Draw white line
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
-            
-            -- Draw selection
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
+        Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
 
-            
+        -- Draw dark overlay
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+
+        -- Draw white line
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
+
+        -- Draw selection
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
+
+
         -- MENU 23 / Heading
         RetroText.printMedium(setting_x, setting_yh + y_centre_text_offset, "Remove_from_collection", white)--Remove from collection
 
@@ -14180,7 +14193,7 @@ while true do
         RetroText.printMedium(setting_x, setting_y1 + y_centre_text_offset, "Collections_colon", white)--Collections:
 
         -- Menu
-        
+
         if remove_from_collection_flag == false then
             RetroText.printMedium(setting_x_offset, setting_y1 + y_centre_text_offset, "No_collections", white) -- No collections
         else
@@ -14192,11 +14205,11 @@ while true do
         -- MENU 23 / #3 Remove from collection
         RetroText.printMedium(setting_x, setting_y2 + y_centre_text_offset, "Remove_from_collection", white)--Remove from collection
 
-        
+
         -- MENU 23 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 23
@@ -14208,27 +14221,27 @@ while true do
 
                     -- Existing collection
                     if #collection_removal_table == 0 then
-                        
+
                     else
 
-                           -- Create new table of basic info
-                            game_info_for_collection = {}                            
+                        -- Create new table of basic info
+                        game_info_for_collection = {}
 
-                            for i, file in pairs(xCollectionTableLookup(collection_removal_table[xcollection_number].matched_collection_num)) do
+                        for i, file in pairs(xCollectionTableLookup(collection_removal_table[xcollection_number].matched_collection_num)) do
 
-                                -- if not string.match (tostring(file.apptitle), tostring(xCatLookup(showCat)[p].apptitle)) then
-                                if tostring(file.apptitle) ~= tostring(xCatLookup(showCat)[p].apptitle) then
-                                    existing_collection_info = {}
-                                    existing_collection_info.apptitle = file.title
-                                    existing_collection_info.name = file.name
-                                    existing_collection_info.app_type = file.app_type
-                                    table.insert(game_info_for_collection, existing_collection_info)
-                                end
+                            -- if not string.match (tostring(file.apptitle), tostring(xCatLookup(showCat)[p].apptitle)) then
+                            if tostring(file.apptitle) ~= tostring(xCatLookup(showCat)[p].apptitle) then
+                                existing_collection_info = {}
+                                existing_collection_info.apptitle = file.title
+                                existing_collection_info.name = file.name
+                                existing_collection_info.app_type = file.app_type
+                                table.insert(game_info_for_collection, existing_collection_info)
                             end
+                        end
 
-                            -- Sort the table and cache
-                            table.sort(game_info_for_collection, function(a, b) return (a.apptitle:lower() < b.apptitle:lower()) end)
-                            update_cached_collection(collection_files[collection_removal_table[xcollection_number].matched_collection_num].filename, game_info_for_collection)
+                        -- Sort the table and cache
+                        table.sort(game_info_for_collection, function(a, b) return (a.apptitle:lower() < b.apptitle:lower()) end)
+                        update_cached_collection(collection_files[collection_removal_table[xcollection_number].matched_collection_num].filename, game_info_for_collection)
 
                         import_collections()
 
@@ -14251,18 +14264,18 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
                 if menuY == 1 then -- #1 Remove from collection
-                    
+
                     if #collection_removal_table > 0 then
                         if xcollection_number > 1 then
                             xcollection_number = xcollection_number - 1
@@ -14298,9 +14311,9 @@ while true do
         end
 
 
--- MENU 24 - EDIT COLLECTIONS
+        -- MENU 24 - EDIT COLLECTIONS
     elseif showMenu == 24 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -14383,12 +14396,12 @@ while true do
         else
             RetroText.printMedium(setting_x, setting_y3, "Delete", white_opaque)--Delete
         end
-    
+
 
         -- MENU 24 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 -- MENU 2
@@ -14407,7 +14420,7 @@ while true do
                         keyboard_collection_rename=true
                         keyboard_collection_rename_filename = collection_files[xcollection_number].filename
                         keyboard_collection_rename_table_name = collection_files[xcollection_number].table_name
-        
+
 
                         showMenu = 19  -- Other settings
                         menuY = 3
@@ -14440,18 +14453,18 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
                 if menuY == 1 then -- #1 Add to collection
-                    
+
                     if xcollection_number > 1 then
                         xcollection_number = xcollection_number - 1
                     else
@@ -14477,9 +14490,9 @@ while true do
         end
 
 
--- MENU 25 - FILTER GAMES
+        -- MENU 25 - FILTER GAMES
     elseif showMenu == 25 then
-        
+
         -- SETTINGS
         -- Footer buttons and icons
         -- Get text widths for positioning
@@ -14488,37 +14501,37 @@ while true do
 
 
         -- GET MENU ITEM COUNT (Some menus app type specific)
-            
-            menuItems = 2
-        
-            -- Calculate vertical centre
-            vertically_centre_mini_menu(menuItems)
+
+        menuItems = 2
+
+        -- Calculate vertical centre
+        vertically_centre_mini_menu(menuItems)
 
         -- GRAPHIC SETUP
-        
-            -- Apply mini menu margins
-            local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw black overlay
-            Graphics.fillRect(0, 960, 0, 540, blackalpha)
+        -- Apply mini menu margins
+        local setting_x = setting_x + mini_menu_x_margin
 
-            -- Draw footer
-            Graphics.fillRect(0, 960, 496, 544, themeCol)
+        -- Draw black overlay
+        Graphics.fillRect(0, 960, 0, 540, blackalpha)
 
-            Graphics.drawImage(900-label1, 510, btnO)
-            RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
+        -- Draw footer
+        Graphics.fillRect(0, 960, 496, 544, themeCol)
 
-            Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
-            RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
-            
-            -- Draw dark overlay
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+        Graphics.drawImage(900-label1, 510, btnO)
+        RetroText.printSmall(900+28-label1, 508, "Close", white)--Close
 
-            -- Draw white line
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
-            
-            -- Draw selection
-            Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
+        Graphics.drawImage(900-(btnMargin * 2)-label1-label2, 510, btnX)
+        RetroText.printSmall(900+28-(btnMargin * 2)-label1-label2, 508, "Select", white)--Select
+
+        -- Draw dark overlay
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_top_margin, y_centre_top_margin + y_centre_box_height, dark)
+
+        -- Draw white line
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_white_line_start, y_centre_white_line_start + 3, white)
+
+        -- Draw selection
+        Graphics.fillRect(60 + mini_menu_x_margin, 900 - mini_menu_x_margin, y_centre_selection_start + (menuY * 47), y_centre_selection_end + (menuY * 47), themeCol)-- selection
 
 
         -- MENU 25 / Heading
@@ -14541,11 +14554,11 @@ while true do
             RetroText.printNonLocaMedium(setting_x_icon_offset + 70, setting_y2 + y_centre_text_offset, "<  " .. lang_lines.Collections .. "  >", white)
         end
 
-        
+
         -- MENU 25 - FUNCTIONS
         status = System.getMessageState()
         if status ~= RUNNING then
-            
+
             if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
 
                 oldpad = pad
@@ -14565,10 +14578,10 @@ while true do
                         showMenu = 0
                         GetNameAndAppTypeSelected()
                     else
-                    -- No favourites, do nothing
+                        -- No favourites, do nothing
                     end
 
-                    
+
                 elseif menuY == 1 then -- #1 Recently Played
 
                     if #recently_played_table > 0 then
@@ -14579,13 +14592,13 @@ while true do
                         showMenu = 0
                         GetNameAndAppTypeSelected()
                     else
-                    -- No recently played, do nothing
+                        -- No recently played, do nothing
                     end
-                    
+
                 elseif menuY == 2 then -- #2 Filter
 
                     if filterGames == 1 then
-                        if collection_count ~= 0 then   
+                        if collection_count ~= 0 then
                             showCat = 45
                             p = 1
                             master_index = p
@@ -14604,9 +14617,9 @@ while true do
                         GetNameAndAppTypeSelected()
                     end
 
-                SaveSettings()
+                    SaveSettings()
 
-                                     
+
                 end
 
 
@@ -14614,13 +14627,13 @@ while true do
             elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             elseif (Controls.check(pad, SCE_CTRL_LEFT)) and not (Controls.check(oldpad, SCE_CTRL_LEFT)) then
@@ -14642,15 +14655,15 @@ while true do
                 else
                 end
             elseif Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP) then
-                
+
             end
         end
 
 
--- END OF MENUS
+        -- END OF MENUS
     end
 
-    
+
     -- Terminating rendering phase
     Graphics.termBlend()
     if showMenu == 1 then
@@ -14681,22 +14694,22 @@ while true do
         end
     end
 
-    if showMenu > 1 
-        and showMenu ~= 11 -- ROM Browser
-        and showMenu ~= 13 -- Guide 1
-        and showMenu ~= 14 -- Guide 2
-        and showMenu ~= 15 -- Guide 3
-        and showMenu ~= 16 -- Guide 4
-        and showMenu ~= 17 -- Guide 5
-        and showMenu ~= 18 -- Guide 6
-        then
+    if showMenu > 1
+            and showMenu ~= 11 -- ROM Browser
+            and showMenu ~= 13 -- Guide 1
+            and showMenu ~= 14 -- Guide 2
+            and showMenu ~= 15 -- Guide 3
+            and showMenu ~= 16 -- Guide 4
+            and showMenu ~= 17 -- Guide 5
+            and showMenu ~= 18 -- Guide 6
+    then
         --Scroll through menus
         if my < 64 then
             if delayButton < 0.5 then
                 delayButton = 1
                 if menuY > 0 then
                     menuY = menuY - 1
-                    else
+                else
                     menuY=menuItems
                 end
             end
@@ -14705,7 +14718,7 @@ while true do
                 delayButton = 1
                 if menuY < menuItems then
                     menuY = menuY + 1
-                    else
+                else
                     menuY=0
                 end
             end
@@ -14715,7 +14728,7 @@ while true do
 
     --Controls Start
     if showMenu == 0 then
-        
+
         -- Game list view
         if showView == 6 then
             if my < 64 then
@@ -14745,11 +14758,11 @@ while true do
                         Sound.play(click, NO_LOOP)
                     end
                     p = p - 1
-                    
+
                     if p > 0 then
                         GetNameAndAppTypeSelected()
                     end
-                    
+
                     if (p <= master_index) then
                         master_index = p
                     end
@@ -14761,19 +14774,19 @@ while true do
                         Sound.play(click, NO_LOOP)
                     end
                     p = p + 1
-                    
+
                     if p <= curTotal then
                         GetNameAndAppTypeSelected()
                     end
-                    
+
                     if (p >= master_index) then
                         master_index = p
                     end
                 end
             end
-            
+
         end
-        
+
         -- Navigation Buttons
         if (Controls.check(pad, SCE_CTRL_CROSS_MAP) and not Controls.check(oldpad, SCE_CTRL_CROSS_MAP)) then
             state = Keyboard.getState()
@@ -14844,7 +14857,7 @@ while true do
                             end
                         end
 
-                    -- PS1 - Launch adrenaline or retroarch
+                        -- PS1 - Launch adrenaline or retroarch
                     elseif showCat == 4 then
                         if string.match (psx_table[p].game_path, "pspemu") then
                             -- Launch adrenaline
@@ -14862,7 +14875,7 @@ while true do
                             end
                         end
 
-                    -- Start Retro    
+                        -- Start Retro    
                     elseif showCat == 5 then rom_title_id = tostring(psm_table[p].name) launch_psmobile(rom_title_id)
                     elseif showCat == 6 then rom_location = (n64_table[p].game_path) launch_DaedalusX64()
                     elseif showCat == 7 then rom_location = (snes_table[p].game_path) launch_retroarch(core.SNES)
@@ -14871,8 +14884,8 @@ while true do
                     elseif showCat == 10 then rom_location = (gbc_table[p].game_path) launch_retroarch(core.GBC)
                     elseif showCat == 11 then rom_location = (gb_table[p].game_path) launch_retroarch(core.GB)
                     elseif showCat == 12 then rom_location = (dreamcast_table[p].game_path) launch_Flycast()
-                    elseif showCat == 13 then rom_location = (sega_cd_table[p].game_path) launch_retroarch(core.SEGA_CD) 
-                    elseif showCat == 14 then rom_location = (s32x_table[p].game_path) launch_retroarch(core.s32X) 
+                    elseif showCat == 13 then rom_location = (sega_cd_table[p].game_path) launch_retroarch(core.SEGA_CD)
+                    elseif showCat == 14 then rom_location = (s32x_table[p].game_path) launch_retroarch(core.s32X)
                     elseif showCat == 15 then rom_location = (md_table[p].game_path) launch_retroarch(core.MD)
                     elseif showCat == 16 then rom_location = (sms_table[p].game_path) launch_retroarch(core.SMS)
                     elseif showCat == 17 then rom_location = (gg_table[p].game_path) launch_retroarch(core.GG)
@@ -14904,7 +14917,7 @@ while true do
                     elseif showCat >= 42 or showCat == 0 then
                         if apptype == 1 or apptype == 2 or apptype == 3 or apptype == 4 then
                             if string.match (xCatLookup(showCat)[p].game_path, "pspemu") then
-                                 -- Launch adrenaline
+                                -- Launch adrenaline
                                 rom_location = tostring(xCatLookup(showCat)[p].game_path)
                                 rom_title_id = tostring(xCatLookup(showCat)[p].name)
                                 rom_filename = tostring(xCatLookup(showCat)[p].filename)
@@ -14919,7 +14932,7 @@ while true do
                                 end
                             end
 
-                        -- Start Retro    
+                            -- Start Retro    
                         elseif apptype == 5 then rom_location = (xCatLookup(showCat)[p].game_path) launch_DaedalusX64()
                         elseif apptype == 6 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.SNES)
                         elseif apptype == 7 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.NES)
@@ -14927,8 +14940,8 @@ while true do
                         elseif apptype == 9 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.GBC)
                         elseif apptype == 10 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.GB)
                         elseif apptype == 11 then rom_location = (xCatLookup(showCat)[p].game_path) launch_Flycast()
-                        elseif apptype == 12 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.SEGA_CD) 
-                        elseif apptype == 13 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.s32X) 
+                        elseif apptype == 12 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.SEGA_CD)
+                        elseif apptype == 13 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.s32X)
                         elseif apptype == 14 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.MD)
                         elseif apptype == 15 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.SMS)
                         elseif apptype == 16 then rom_location = (xCatLookup(showCat)[p].game_path) launch_retroarch(core.GG)
@@ -14970,7 +14983,7 @@ while true do
 
                             appdir=working_dir .. "/" .. xCatLookup(showCat)[p].name
                         end
-                        
+
                     end
                     System.exit()
                 end
@@ -14996,7 +15009,7 @@ while true do
                 end
             else
             end
-        -- Select button - Games screen
+            -- Select button - Games screen
         elseif (Controls.check(pad, SCE_CTRL_SELECT) and not Controls.check(oldpad, SCE_CTRL_SELECT)) then
             state = Keyboard.getState()
             if state ~= RUNNING then
@@ -15011,22 +15024,22 @@ while true do
         elseif (Controls.check(pad, SCE_CTRL_SQUARE) and not Controls.check(oldpad, SCE_CTRL_SQUARE)) then
             state = Keyboard.getState()
             if state ~= RUNNING then
-                
-                
+
+
                 if (Controls.check(pad, SCE_CTRL_DOWN)) then
 
-                   -- CATEGORY - Move Backwards
+                    -- CATEGORY - Move Backwards
 
                     -- empty the search results
-                    curTotal = #search_results_table   
-                    if #search_results_table ~= nil then 
+                    curTotal = #search_results_table
+                    if #search_results_table ~= nil then
                         search_results_table = {}
                     end
 
                     if filterGames == 1 then
 
                         -- Only Collections
-                        if collection_count ~= 0 then   
+                        if collection_count ~= 0 then
                             -- if showCat < collection_syscount and showCat >= 42 then
                             if showCat >= 46 then
                                 showCat = showCat - 1
@@ -15063,15 +15076,15 @@ while true do
 
 
                     if showCat == 44 then
-                        curTotal = #search_results_table   
-                        if #search_results_table == 0 then 
+                        curTotal = #search_results_table
+                        if #search_results_table == 0 then
                             showCat = 43
                         end
                     end
 
-                    if showCat == 43 then 
+                    if showCat == 43 then
                         curTotal = #recently_played_table
-                        if #recently_played_table == 0 then 
+                        if #recently_played_table == 0 then
                             showCat = 42
                         end
                     end
@@ -15085,12 +15098,12 @@ while true do
                         end
                     end
 
-                    
+
                     if showCat >= 3 and showCat <= 40 then
                         showCatTemp = showCat - 1
                         curTotal = #xCatLookup(showCat)
 
-                        if #xCatLookup(showCat) == 0 then         
+                        if #xCatLookup(showCat) == 0 then
                             showCat = showCatTemp
                         end
                     end
@@ -15134,12 +15147,12 @@ while true do
                     if showCat == 5 then curTotal =     #psm_table              if      #psm_table == 0 then            showCat = 4 end end
                     if showCat == 4 then curTotal =     #psx_table              if      #psx_table == 0 then            showCat = 3 end end
                     if showCat == 3 then curTotal =     #psp_table              if      #psp_table == 0 then            showCat = 2 end end
-                    
+
                     -- Skip Homebrew category if disabled
                     if showCat == 2 and showHomebrews==0 then -- HB is off
                         showCat = 1
                     end
-                    
+
 
                     hideBoxes = 0.8 -- used to be 8
                     p = 1
@@ -15154,8 +15167,8 @@ while true do
                     -- CATEGORY - Move Forwards
 
                     -- empty the search results
-                    curTotal = #search_results_table   
-                    if #search_results_table ~= nil then 
+                    curTotal = #search_results_table
+                    if #search_results_table ~= nil then
                         search_results_table = {}
                     end
 
@@ -15167,7 +15180,7 @@ while true do
                     if filterGames == 1 then
 
                         -- Only Collections
-                        if collection_count ~= 0 then   
+                        if collection_count ~= 0 then
                             if showCat < collection_syscount and showCat >= 42 then
 
                                 if showCat == 42 or showCat == 43 then -- Recent and Fav
@@ -15175,7 +15188,7 @@ while true do
                                 else
                                     showCat = showCat + 1
                                 end
-                            
+
                             else
                                 showCat = 45
                             end
@@ -15186,9 +15199,9 @@ while true do
                         -- All categories including collections
                         if showCat < collection_syscount then
                             -- Skip All category if disabled
-                            if showCat==0 and showAll==0 then 
+                            if showCat==0 and showAll==0 then
                                 showCat = 1
-                            -- Skip Homebrews category if disabled
+                                -- Skip Homebrews category if disabled
                             elseif showCat==1 and showHomebrews==0 then
                                 showCat = 3
                             elseif showCat==44 then
@@ -15213,7 +15226,7 @@ while true do
 
                     end
 
-                    
+
                     -- Start skip empty categories
                     if showCat == 3 then curTotal =     #psp_table              if      #psp_table == 0 then            showCat = 4 end end
                     if showCat == 4 then curTotal =     #psx_table              if      #psx_table == 0 then            showCat = 5 end end
@@ -15262,12 +15275,12 @@ while true do
                         if #fav_count == 0 then showCat = 43
                         end
                     end
-                    if showCat == 43 then 
+                    if showCat == 43 then
                         curTotal = #recently_played_table
                         if #recently_played_table == 0 then showCat = 44
                         end
                     end
-                    
+
                     if showCat == 44 then
                         curTotal = #search_results_table
                         if #search_results_table == 0 then
@@ -15298,9 +15311,9 @@ while true do
                             showCat = showCat + 1
                         end
 
-                    -- elseif showCat > 45 and showCat == collection_syscount then
+                        -- elseif showCat > 45 and showCat == collection_syscount then
                     elseif showCat > 45 and showCat == collection_syscount then
-                        
+
                         -- -- empty
                         -- if showAll==0 then
                         --     showCat = 1
@@ -15326,7 +15339,7 @@ while true do
             end
         elseif (Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP)) and setChangeViews == 1 then
             -- VIEW
-            
+
             state = Keyboard.getState()
             if state ~= RUNNING then
                 -- don't change view if cancel search
@@ -15353,7 +15366,7 @@ while true do
 
                 end
 
-                
+
 
                 menuY = 0
                 startCovers = false
@@ -15371,11 +15384,11 @@ while true do
                         Sound.play(click, NO_LOOP)
                     end
                     p = p - 1
-                    
+
                     if p > 0 then
                         GetNameAndAppTypeSelected()
                     end
-                    
+
                     if (p <= master_index) then
                         master_index = p
                     end
@@ -15391,11 +15404,11 @@ while true do
                         Sound.play(click, NO_LOOP)
                     end
                     p = p + 1
-                    
+
                     if p <= curTotal then
                         GetNameAndAppTypeSelected()
                     end
-                    
+
                     if (p >= master_index) then
                         master_index = p
                     end
@@ -15420,60 +15433,60 @@ while true do
                 end
 
 
-                    -- Alphabet skip - Backwards: While holding right
-                    if (Controls.check(pad, SCE_CTRL_DOWN)) then   
-                        
-                        -- Original game - Get first character
-                        start_letter_backwards = string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1))
-                        
-                        -- If less than 5 and not on the first game, move to first position
-                        -- if p <= 5 then
-                        --     p = 1
-                        -- end
+                -- Alphabet skip - Backwards: While holding right
+                if (Controls.check(pad, SCE_CTRL_DOWN)) then
 
-                        -- Keep moving until the first letter no longer matches the first letter of the Original game
-                        while string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) == start_letter_backwards do
-                            
-                            -- If we're on the first game, move to the last
-                            if p == 1 then
-                                p = #xCatLookup(showCat)
-                                master_index = p
-                            else
-                                p = p - 1
-                            end
+                    -- Original game - Get first character
+                    start_letter_backwards = string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1))
 
-                        end
+                    -- If less than 5 and not on the first game, move to first position
+                    -- if p <= 5 then
+                    --     p = 1
+                    -- end
 
-                        -- We are now at the last game in the character set eg, "Azz", we need to move futher back again to the first
-                        last_game_in_char_set = string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1))
+                    -- Keep moving until the first letter no longer matches the first letter of the Original game
+                    while string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) == start_letter_backwards do
 
-                        -- Keep moving backwards until the first letter no longer matches the last game in the character set, then move forward 1 to reach the first in the character set
-                        while string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) == last_game_in_char_set and p >= 2 do
+                        -- If we're on the first game, move to the last
+                        if p == 1 then
+                            p = #xCatLookup(showCat)
+                            master_index = p
+                        else
                             p = p - 1
                         end
 
-                        -- If it's a number, go to the first game, otherwise move forwards one to get to the first game in the character set 
-                        if string.match (last_game_in_char_set, "%d") then
-                            p = 1
-                            master_index = p
-                        else
-                            if p ~= 1 then
-                                p = p + 1
-                            end
-                        end
+                    end
 
+                    -- We are now at the last game in the character set eg, "Azz", we need to move futher back again to the first
+                    last_game_in_char_set = string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1))
+
+                    -- Keep moving backwards until the first letter no longer matches the last game in the character set, then move forward 1 to reach the first in the character set
+                    while string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) == last_game_in_char_set and p >= 2 do
+                        p = p - 1
+                    end
+
+                    -- If it's a number, go to the first game, otherwise move forwards one to get to the first game in the character set 
+                    if string.match (last_game_in_char_set, "%d") then
+                        p = 1
+                        master_index = p
                     else
-                        if showView == 6 then
-                            p = p - 8 -- page up in list view
-                        else
-                            p = p - 5
+                        if p ~= 1 then
+                            p = p + 1
                         end
                     end
+
+                else
+                    if showView == 6 then
+                        p = p - 8 -- page up in list view
+                    else
+                        p = p - 5
+                    end
+                end
 
                 if p > 0 then
                     GetNameAndAppTypeSelected()
                 end
-                
+
                 if (p <= master_index) then
                     master_index = p
                 end
@@ -15486,55 +15499,55 @@ while true do
                     Sound.play(click, NO_LOOP)
                 end
 
-                    -- Alphabet skip - Forwards: While holding right
-                    if (Controls.check(pad, SCE_CTRL_DOWN)) then
+                -- Alphabet skip - Forwards: While holding right
+                if (Controls.check(pad, SCE_CTRL_DOWN)) then
 
-                        -- Original game - Get first character
-                        start_letter_forward = string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1))
+                    -- Original game - Get first character
+                    start_letter_forward = string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1))
 
-                        if string.match(start_letter_forward, "%d") then
-                            
-                            -- If first character is a number - Move to first letter
-                            while string.match(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1), "%d") do
-                                p = p + 1
-                            end
+                    if string.match(start_letter_forward, "%d") then
 
-                        else
-                            
-                            -- If first character is a letter - Keep moving until the first letter no longer matches the first letter of the Original game
-                            if string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) ~= nil then
-                                while string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) == start_letter_forward and p < #xCatLookup(showCat) do
-                                    p = p + 1
-                                end
-                            end
-
-                        end
-
-                        -- If reached then end - Loop back to first game
-                        if p == #xCatLookup(showCat) then
-                            p = 1
-                            master_index = p
+                        -- If first character is a number - Move to first letter
+                        while string.match(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1), "%d") do
+                            p = p + 1
                         end
 
                     else
-                        if showView == 6 then
-                            p = p + 8 -- page down in list view
-                        else
-                            p = p + 5
+
+                        -- If first character is a letter - Keep moving until the first letter no longer matches the first letter of the Original game
+                        if string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) ~= nil then
+                            while string.upper(string.sub(xCatLookup(showCat)[p].apptitle, 1, 1)) == start_letter_forward and p < #xCatLookup(showCat) do
+                                p = p + 1
+                            end
                         end
+
                     end
-                
+
+                    -- If reached then end - Loop back to first game
+                    if p == #xCatLookup(showCat) then
+                        p = 1
+                        master_index = p
+                    end
+
+                else
+                    if showView == 6 then
+                        p = p + 8 -- page down in list view
+                    else
+                        p = p + 5
+                    end
+                end
+
                 if p <= curTotal then
                     GetNameAndAppTypeSelected()
                 end
-                
+
                 if (p >= master_index) then
                     master_index = p
                 end
             else
             end
 
-        -- game list
+            -- game list
         elseif (Controls.check(pad, SCE_CTRL_UP)) and not (Controls.check(oldpad, SCE_CTRL_UP)) then
             if showView ~= 6 then
                 state = Keyboard.getState()
@@ -15553,7 +15566,7 @@ while true do
                 p = p - 1
             end
 
-        -- game list
+            -- game list
         elseif (Controls.check(pad, SCE_CTRL_DOWN)) and not (Controls.check(oldpad, SCE_CTRL_DOWN)) then
             if showView == 6 then
                 if setSounds == 1 then
@@ -15563,7 +15576,7 @@ while true do
             else
             end
         end
-        
+
         -- Touch Input
         if showView ~= 6 then
             if x1 ~= nil then
@@ -15593,7 +15606,7 @@ while true do
                         if (p >= master_index) then
                             master_index = p
                         end
-                    
+
                     end
                 end
             end
@@ -15625,12 +15638,12 @@ while true do
                         if (p >= master_index) then
                             master_index = p
                         end
-                    
+
                     end
                 end
             end
         end
-        
+
     elseif showMenu > 0 then
         if (Controls.check(pad, SCE_CTRL_CIRCLE_MAP) and not Controls.check(oldpad, SCE_CTRL_CIRCLE_MAP)) then
             status = System.getMessageState()
@@ -15701,7 +15714,7 @@ while true do
                 elseif showMenu == 24 then -- Edit collections
                     showMenu = 19
                     menuY=4
-                    
+
                 elseif showMenu == 2 then
                     -- If search cancelled with circle, return to settings menu
                     state = Keyboard.getState()
@@ -15731,7 +15744,7 @@ while true do
         end
 
     end
-    
+
     if delayTouch > 0 then
         delayTouch = delayTouch - 0.1
     else
@@ -15745,7 +15758,7 @@ while true do
     if showCat == 42 then
         -- count favorites
         create_fav_count_table(files_table)
-        
+
         curTotal = #fav_count
         if #fav_count == 0 then
             p = 0
@@ -15759,7 +15772,7 @@ while true do
         end
     end
 
-    
+
     -- Check for out of bounds in menu 
     if p < 1 then
         p = curTotal
@@ -15799,7 +15812,6 @@ while true do
         end
     end
 
-    
     -- Refreshing screen and oldpad
     Screen.waitVblankStart()
     Screen.flip()
@@ -15809,5 +15821,5 @@ while true do
         oneLoopTime = Timer.getTime(oneLoopTimer) -- save the time
         Timer.destroy(oneLoopTimer)
         oneLoopTimer = nil -- clear timer value
-    end 
+    end
 end
