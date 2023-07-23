@@ -2,6 +2,44 @@
 --- @module RetroConst_ConsoleKeys
 --- @description List of all key values for each Console
 ---
+--- @field Atari2600 number ConsoleKey / ID
+--- @field Atari5200 number ConsoleKey / ID
+--- @field Atari7800 number ConsoleKey / ID
+--- @field AtariLynx number ConsoleKey / ID
+--- @field WonderSwan number ConsoleKey / ID
+--- @field WonderSwanColor number ConsoleKey / ID
+--- @field ColecoVision number ConsoleKey / ID
+--- @field Commodore64 number ConsoleKey / ID
+--- @field Amiga number ConsoleKey / ID
+--- @field FBA2012 number ConsoleKey / ID
+--- @field Vectrex number ConsoleKey / ID
+--- @field MAME2000 number ConsoleKey / ID
+--- @field MAME2003Plus number ConsoleKey / ID
+--- @field MSX number ConsoleKey / ID
+--- @field MSX2 number ConsoleKey / ID
+--- @field PCEngine number ConsoleKey / ID
+--- @field PCEngineCD number ConsoleKey / ID
+--- @field TurboGrafx16 number ConsoleKey / ID
+--- @field TurboGrafxCD number ConsoleKey / ID
+--- @field GameBoy number ConsoleKey / ID
+--- @field GameBoyAdvance number ConsoleKey / ID
+--- @field GameBoyColor number ConsoleKey / ID
+--- @field Nintendo64 number ConsoleKey / ID
+--- @field NintendoEntertainmentSystem number ConsoleKey / ID
+--- @field SuperNintendo number ConsoleKey / ID
+--- @field Sega32X number ConsoleKey / ID
+--- @field SegaDreamcast number ConsoleKey / ID
+--- @field SegaGameGear number ConsoleKey / ID
+--- @field SegaMasterSystem number ConsoleKey / ID
+--- @field SegaMegaDrive number ConsoleKey / ID
+--- @field SegaCD number ConsoleKey / ID
+--- @field ZXSpectrum number ConsoleKey / ID
+--- @field NeoGeo number ConsoleKey / ID
+--- @field NeoGeoPocketColor number ConsoleKey / ID
+--- @field PlayStation number ConsoleKey / ID
+--- @field ScummVM number ConsoleKey / ID
+--- @field Pico8 number ConsoleKey / ID
+---
 local RetroConst_ConsoleKeys =
 {
     Atari2600         = 0,
